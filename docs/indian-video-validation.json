@@ -1,6 +1,6 @@
 {
   "file": "public/media/CORTEX-demo-indian.mp4",
-  "sha256": "871d72bfda5fb73ee4eb74cbf82c1bb0f3ea8240eeb24357f92ec408d0b223bf",
+  "sha256": "a01efd90dc8c0a88272b95a2373d7f9e9ed48418f88c132d423be12ebfbf2111",
   "probe": {
     "programs": [],
     "stream_groups": [],
@@ -20,7 +20,7 @@
     ],
     "format": {
       "duration": "113.440000",
-      "size": "35303298"
+      "size": "35302079"
     }
   },
   "browserPlayback": {
@@ -29,7 +29,7 @@
       "duration": 113.44,
       "width": 1920,
       "height": 1080,
-      "playedTo": 0.317505,
+      "playedTo": 0.305,
       "captionLabel": "Indian English narration",
       "cues": 12,
       "error": null
@@ -37,12 +37,12 @@
     "errors": []
   },
   "audioMeasured": {
-    "integratedLufs": -16.34,
-    "truePeakDbtp": -1.38,
-    "loudnessRangeLu": 4.1
+    "integratedLufs": -16.35,
+    "truePeakDbtp": -1.36,
+    "loudnessRangeLu": 4.2
   },
   "chapters": 12,
-  "maxAudioTempo": 1.0214154535274356,
+  "maxAudioTempo": 1.1496163468773513,
   "chapterOverlaps": 0,
   "fullDecode": "ffmpeg -v error -i public/media/CORTEX-demo-indian.mp4 -f null -; exit 0",
   "pitch": {

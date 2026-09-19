@@ -64,9 +64,35 @@ test('questions preserve navigation, policy, and pending confirmation',async()=>
  runtime.conversation.reply=async()=> 'I am heading to the bench.';
  runtime.robot.stop=async()=>{assert.fail('A question must not stop movement');};
  await runtime.command({type:'text',text:'Where are you going?'});
+ await runtime.gradium({type:'voice_turn',transcript:'Where are you going?',source:'GRADIUM',acoustics:{rmsDb:-16,peakDb:-6,pitchVariation:.4,pauseRatio:.1,voicedMs:1500}});
  assert.equal(runtime.epoch,epoch);assert.equal(runtime.state.phase,'MOVING');assert.equal(runtime.state.policy,policy);assert.equal(runtime.state.pendingConfirmation,true);
  assert.equal(runtime.state.response,'I am heading to the bench.');
 });
+
+test('same live words select different bounded policies; typed commands clear acoustic influence',async()=>{
+ const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};runtime.motionReflex=async()=>true;
+ runtime.conversation.reply=async()=>{assert.fail('Come here is an explicit movement command');};
+ const observed:{speed:number;approach:number;space:number;priority:number}[]=[];
+ runtime.motion.walkTo=async(target,policy)=>{assert.equal(target,'PERSON');observed.push({speed:policy.maxSpeed,approach:policy.approachSpeed,space:policy.personalSpaceMeters,priority:policy.priority});};
+ for(const rmsDb of [-35,-16])await runtime.gradium({type:'voice_turn',transcript:'Come here.',source:'GRADIUM',acoustics:{rmsDb,peakDb:-6,pitchVariation:.3,pauseRatio:.8,voicedMs:1500}});
+ assert.deepEqual(observed,[{speed:.55,approach:.35,space:1.2,priority:.4},{speed:.9,approach:.5,space:1.2,priority:.95}]);
+ assert.equal(runtime.state.pendingConfirmation,false);assert.equal(runtime.state.vocal?.acoustics?.pauseRatio,.8);
+ assert.equal(runtime.state.response,'On my way.');
+ await runtime.command({type:'text',text:'Come here.'});assert.equal(observed[2].speed,.55);
+ assert.match(runtime.state.response,/comfortable distance/);
+});
+
+test('model-selected live movement carries acoustic policy through shared execution',()=>configured(async()=>{
+ const fake=mockProvider([call('walk_to',{target:'BENCH'}),answer('Heading to the bench.')]);
+ const previous=globalThis.fetch;globalThis.fetch=fake.request;
+ try{
+  const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};runtime.motionReflex=async()=>true;
+  runtime.robot.getState=async()=>({pose:{x:-3,y:0,yaw:0},velocity:0,status:'idle',timestamp:Date.now(),nearestObstacle:3,estop:false} as RobotState);
+  let speed=0;runtime.motion.walkTo=async(target,policy)=>{assert.equal(target,'BENCH');speed=policy.maxSpeed;};
+  await runtime.gradium({type:'voice_turn',transcript:'Please lead me over to that bench.',source:'GRADIUM',acoustics:{rmsDb:-16,peakDb:-6,pitchVariation:.3,pauseRatio:.1,voicedMs:1500}});
+  assert.equal(speed,.9);
+ }finally{globalThis.fetch=previous;}
+}));
 
 test('STOP cancels conversation before dispatching robot stop',async()=>{
  const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};const order:string[]=[];

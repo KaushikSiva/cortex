@@ -4,73 +4,73 @@
     {
       "start": 0.001,
       "title": "CORTEX",
-      "sub": "WORKING PROTOTYPE · SYNTHETIC ACOUSTIC INPUT · LIVE MUJOCO SIMULATION",
+      "sub": "WORKING PROTOTYPE \u00b7 SYNTHETIC ACOUSTIC INPUT \u00b7 LIVE MUJOCO SIMULATION",
       "narration": "Meet Cortex. Same words, different robot behavior. This demo uses synthetic vocal profiles, real MuJoCo physics, and a modeled San Francisco scene."
     },
     {
       "start": 11.017,
       "title": "Step into the scene.",
-      "sub": "FULL-DEPTH ARCHITECTURE · MODELED PARK · CAMERA PARALLAX",
+      "sub": "FULL-DEPTH ARCHITECTURE \u00b7 MODELED PARK \u00b7 CAMERA PARALLAX",
       "narration": "Explore the Painted Ladies in three dimensions, with modeled buildings and a bounded walking area."
     },
     {
       "start": 19.705,
       "title": "One set of tools. Keyboard or voice.",
-      "sub": "HOLD W / A / S / D · Q / E TURN · SPACE STOPS",
+      "sub": "HOLD W / A / S / D \u00b7 Q / E TURN \u00b7 SPACE STOPS",
       "narration": "Keyboard and voice share the same tools. Turn, walk, or stop. The robot faces its direction before moving."
     },
     {
       "start": 28.947,
-      "title": "“Come here.”",
-      "sub": "CALM PROFILE · 0.55 M/S SPEED CEILING · NORMAL APPROACH",
+      "title": "\u201cCome here.\u201d",
+      "sub": "CALM PROFILE \u00b7 0.55 M/S SPEED CEILING \u00b7 NORMAL APPROACH",
       "narration": "First, calmly: Come here. The robot approaches at a moderate pace and maintains personal space."
     },
     {
       "start": 38.949,
-      "title": "“Come here.”",
-      "sub": "IDENTICAL TRANSCRIPT · URGENT PROFILE · 0.90 M/S SPEED CEILING",
+      "title": "\u201cCome here.\u201d",
+      "sub": "IDENTICAL TRANSCRIPT \u00b7 URGENT PROFILE \u00b7 0.90 M/S SPEED CEILING",
       "narration": "Now reset. Come here! The urgent demo profile uses the same words. Priority increases, and the robot walks faster within its safety limits."
     },
     {
       "start": 49.388,
       "title": "Same words. Different voice. Different physical policy.",
-      "sub": "LOCAL ACOUSTIC CUES · GRADIUM + PIPECAT VOICE → DOCUMENTED MAPPING → SAFETY GOVERNOR → G1",
-      "narration": "Inside Cortex, synthetic acoustic profiles select visible policies. Live Gradium and Pipecat commands use the same movement tools, with neutral speed defaults."
+      "sub": "LOCAL ACOUSTIC CUES \u00b7 GRADIUM + PIPECAT VOICE \u2192 DOCUMENTED MAPPING \u2192 SAFETY GOVERNOR \u2192 G1",
+      "narration": "Inside Cortex, synthetic profiles demonstrate the policy. Live Gradium and Pipecat commands can also vary bounded walking speed from measured intensity, using the same movement tools."
     },
     {
       "start": 60.32,
       "title": "Hesitation changes the response, too.",
-      "sub": "CAUTIOUS APPROACH · 2.0 M PERSONAL SPACE · CONFIRMATION REQUIRED",
+      "sub": "CAUTIOUS APPROACH \u00b7 2.0 M PERSONAL SPACE \u00b7 CONFIRMATION REQUIRED",
       "narration": "In the demo, a hesitant profile asks for confirmation, approaches slowly, and leaves more personal space."
     },
     {
       "start": 68.087,
-      "title": "“Where did you last see my backpack?”",
-      "sub": "ACTUAL CAPTURED FRAME · OPERATOR-LABELED LOCAL MEMORY · PLANTER",
+      "title": "\u201cWhere did you last see my backpack?\u201d",
+      "sub": "ACTUAL CAPTURED FRAME \u00b7 OPERATOR-LABELED LOCAL MEMORY \u00b7 PLANTER",
       "narration": "Where did you last see my backpack? Cortex retrieves a saved camera frame and its operator-labeled location: beside the planter."
     },
     {
       "start": 77.837,
-      "title": "“Take me there.”",
-      "sub": "RETRIEVED EVIDENCE → REGISTERED WAYPOINT → PHYSICAL NAVIGATION",
+      "title": "\u201cTake me there.\u201d",
+      "sub": "RETRIEVED EVIDENCE \u2192 REGISTERED WAYPOINT \u2192 PHYSICAL NAVIGATION",
       "narration": "Take me there. The remembered location becomes a navigation target."
     },
     {
       "start": 83.84,
-      "title": "“WAIT! STOP!”",
-      "sub": "FAST REFLEX PATH · NO PLANNER ROUND TRIP",
+      "title": "\u201cWAIT! STOP!\u201d",
+      "sub": "FAST REFLEX PATH \u00b7 NO PLANNER ROUND TRIP",
       "narration": "Wait! Stop! The fast reflex bypasses planning and stops the robot. The trace separates command acknowledgement from physical settling."
     },
     {
       "start": 94.06,
-      "title": "“Continue, but slowly.”",
-      "sub": "CONTINUE THE JOURNEY · REDUCED 0.30 M/S SPEED CEILING",
+      "title": "\u201cContinue, but slowly.\u201d",
+      "sub": "CONTINUE THE JOURNEY \u00b7 REDUCED 0.30 M/S SPEED CEILING",
       "narration": "Continue, but slowly. The robot resumes its journey with a lower speed limit. Safety checks remain active."
     },
     {
       "start": 102.9,
-      "title": "CORTEX · Hear the human behind the instruction.",
-      "sub": "GRADIUM · PIPECAT · SAMBANOVA · MUJOCO · SOURCE, TESTS & PITCH INCLUDED",
+      "title": "CORTEX \u00b7 Hear the human behind the instruction.",
+      "sub": "GRADIUM \u00b7 PIPECAT \u00b7 SAMBANOVA \u00b7 MUJOCO \u00b7 SOURCE, TESTS & PITCH INCLUDED",
       "narration": "Cortex connects voice, memory, and safe action, with a SambaNova integration for high-level planning. Shared tools turn human intent into robot movement."
     }
   ],

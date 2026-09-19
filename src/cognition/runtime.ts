@@ -1,7 +1,7 @@
 import {appendFile,mkdir} from 'node:fs/promises';
 import {z} from 'zod';
 import fixtures from '../../fixtures/voice.json';
-import {behaviorPolicy,defaultPolicy,VoiceMessage,vocalState} from '../emotion/voicePolicy';
+import {behaviorPolicy,defaultPolicy,liveMotionPolicy,VoiceMessage,vocalState} from '../emotion/voicePolicy';
 import {MotionTools,Direction} from './tools/motion';
 import {MujocoBackend,Waypoint} from '../robot/backend';
 import {SafetyGovernor} from '../robot/safety/SafetyGovernor';
@@ -40,7 +40,7 @@ export class CortexRuntime{
     if(this.manualSession)await this.endManual(this.manualSession);
     signal.throwIfAborted();
     const call={name,arguments:args};
-    this.state.policy={...defaultPolicy};
+    this.state.policy=this.inputMotionPolicy();
     const epoch=++this.epoch;
     await this.execute(call,epoch);
     signal.throwIfAborted();
@@ -58,6 +58,13 @@ export class CortexRuntime{
   }});
  }
  interruptConversation(){this.conversationTurn++;this.conversation.interrupt();this.state.conversationStatus='idle';this.state.providers.SAMBA.active=false;}
+ private inputMotionPolicy(){
+  const v=this.state.vocal;
+  if(!v||this.state.inputSource==='TYPED'||this.state.inputSource==='KEYBOARD')return {...defaultPolicy};
+  const policy=this.state.inputSource==='FIXTURE'?behaviorPolicy(v):liveMotionPolicy(v);
+  this.trace('POLICY',`${this.state.inputSource} · local acoustic policy · ${policy.maxSpeed.toFixed(2)} m/s limit`);
+  return policy;
+ }
  async converse(transcript:string){
   const turn=++this.conversationTurn;
   this.state.conversationStatus='thinking';this.state.providers.SAMBA.active=true;this.state.error=null;this.emit();
@@ -137,13 +144,14 @@ export class CortexRuntime{
      // A new explicit command replaces an old acoustically inferred confirmation hold.
      if(this.confirmationHold){await this.safety.resume();this.confirmationHold=false;this.state.robot=await this.robot.getState();}
      if(epoch!==this.epoch)return;
-     this.pending=[];this.state.pendingConfirmation=false;this.state.policy={...defaultPolicy};
+     this.pending=[];this.state.pendingConfirmation=false;this.state.policy=this.inputMotionPolicy();
      let calls=command?[command]:[];
      if(houses){const robot=await this.robot.getState();if(epoch!==this.epoch)return;const angle=Math.atan2(Math.sin(Math.PI/2-robot.pose.yaw),Math.cos(Math.PI/2-robot.pose.yaw))*180/Math.PI;calls=[{name:'turn',arguments:{angleDegrees:angle}},{name:'walk',arguments:{direction:'front',meters:1}}];}
      this.state.plan=calls;
      for(const call of calls){if(epoch!==this.epoch)return;await this.execute(call,epoch);}
      if(epoch!==this.epoch)return;
-     this.state.response=houses?'Moving one meter toward the houses, staying inside the walking area.':command?.name==='return_home'?'Heading home.':command?.name==='turn'?'Turn complete.':'On my way.';
+     if(houses)this.state.response='Moving one meter toward the houses, staying inside the walking area.';
+     else if(command?.name==='return_home')this.state.response='Heading home.';
     }catch(error){if(epoch!==this.epoch)return;this.state.response=error instanceof Error?error.message:'I couldn’t start that movement.';this.trace('MOTION',this.state.response);}
     this.conversation.record(v.transcript,this.state.response);this.state.conversation=[...this.conversation.history];this.emit();return;
    }
@@ -158,7 +166,7 @@ export class CortexRuntime{
    this.state.vocal=v;await this.converse(v.transcript);return;
   }
   if(this.manualSession)await this.endManual(this.manualSession);
-  this.state.vocal=v;this.state.policy=this.state.inputSource==='FIXTURE'?behaviorPolicy(v):{...defaultPolicy};this.state.error=null;this.state.providers.GRADIUM.active=true;
+  this.state.vocal=v;this.state.policy=this.inputMotionPolicy();this.state.error=null;this.state.providers.GRADIUM.active=true;
   this.trace('GRADIUM',`${this.state.providers.GRADIUM.mode} · transcript + local acoustic cues received`);
   const input={transcript:v.transcript,distance_to_person:Math.hypot((this.state.robot?.pose.x??-3)-3,this.state.robot?.pose.y??0),path_blocked:(this.state.robot?.nearestObstacle??10)<.32,user_urgency:v.derived.urgency,user_hesitation:this.state.inputSource==='FIXTURE'?v.derived.hesitation:0,current_speed:this.state.robot?.velocity??0};
   // Synchronous stop detection runs before ANY model await, on interim transcripts too.

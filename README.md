@@ -32,9 +32,9 @@ Say “move left one meter,” “turn right,” or “walk to the bench.” `tu
 
 If the status says **VIEW ONLY**, another tab owns control. Click **Use this tab** above the movement controls to transfer keyboard and voice control. CORTEX stops the previous session before granting the new one.
 
-**Current validation:** 52 TypeScript tests, 8 MuJoCo physics tests and 4 Pipecat tests pass. The actual-browser keyboard suite checks all four walking directions, turn-before-walk, key release, blur, Space stop and waypoint navigation. [Keyboard results](docs/keyboard-results.json).
+**Current validation:** 54 TypeScript tests, 8 MuJoCo physics tests and 4 Pipecat tests pass. The actual-browser keyboard suite checks all four walking directions, turn-before-walk, key release, blur, Space stop and waypoint navigation. [Keyboard results](docs/keyboard-results.json).
 
-Generated Indian English speech also passed through the actual browser MediaStream and PCM worklet → live Gradium/Pipecat → shared tools → isolated MuJoCo: forward movement, spoken stop, right turn, backward movement and speech-reply playback. [Live browser voice evidence](docs/live-browser-voice-results.json). This is generated audio, not a human microphone trial. The current conversation path uses neutral motion defaults; acoustic policy comparisons remain available through labeled DEMO fixtures. Earlier [live acoustic-policy measurements](docs/live-motion-results.json) describe a previous revision.
+Generated Indian English speech also passed through the actual browser MediaStream and PCM worklet → live Gradium/Pipecat → shared tools → isolated MuJoCo: forward movement, spoken stop, right turn, backward movement and speech-reply playback. [Live browser voice evidence](docs/live-browser-voice-results.json). This is generated audio, not a human microphone trial. A fresh [live acoustic-policy comparison](docs/live-motion-results.json) returned the same “come here” transcript for two audio intensities: .55/.90 m/s limits and 1.45/2.21 m traveled over approximately three simulated seconds. Live movement uses local intensity/pitch heuristics; pauses alone do not require confirmation. This does not establish human emotion recognition.
 
 The Indian English video, GIF and five-slide deck were refreshed with the current 3D scene and shared controls. Photorealistic scene acceptance remains open.
 

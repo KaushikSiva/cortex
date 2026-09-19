@@ -114,3 +114,9 @@ VIEW ONLY indicates an observer tab, not an offline robot. The visible Use this 
 The real multi-tab/MuJoCo control regression passes (`control-transfer-results.json`). It disables rendering animation to isolate socket ownership and key leases from concurrent GPU scenes; it is not visual-performance evidence. The current TypeScript suite (52 tests), typecheck, production build and correlated voice-transport regression also pass.
 
 Live Gradium browser speech was revalidated after an explicit tab transfer: forward, stop while moving, right turn and backward motion all reached the isolated MuJoCo controller; 27 response audio chunks reached browser playback. Input was generated Rishi audio through MediaStream/worklet, not a human microphone (`live-browser-voice-results.json`).
+
+## Restored live acoustic motion policy
+
+Explicit voice movement and model-selected movement now carry local measured intensity/pitch into the speed and priority policy. Live pause ratio remains visible but does not trigger confirmation; this preserves direct command usability. Typed/keyboard inputs retain neutral defaults, and non-action questions preserve the existing motion policy. Come here uses the bounded PERSON waypoint directly. The 54-test suite covers both direct and model-selected paths. A fresh actual Gradium/Pipecat → MuJoCo comparison returned identical transcripts and measured 1.446/2.210 m in measured 3.06/3.04 simulated seconds at .55/.90 m/s limits. Generated audio, not human emotion validation.
+
+Old local test runtimes on 3001/3002 had inference keys intentionally cleared. Those processes were retired and their URLs redirect to the configured main app on 3000. General Compute answered a real conversation request with the local key; no credential was committed.

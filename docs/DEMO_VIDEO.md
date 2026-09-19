@@ -19,4 +19,4 @@ Narration text and actual chapter start times are in `public/media/chapters-indi
 
 ## Verification
 
-[Validation evidence](indian-video-validation.json) records the final file hash, streams, duration, successful browser playback, 12 caption cues, full error-free FFmpeg decode and measured audio levels. Narration has no chapter overlaps; the largest tempo adjustment is about 2.1%. Final encoded audio measures −16.34 LUFS integrated and −1.38 dBTP true peak.
+[Validation evidence](indian-video-validation.json) records the final file hash, streams, duration, successful browser playback, 12 caption cues, full error-free FFmpeg decode and measured audio levels. Narration has no chapter overlaps; the largest tempo adjustment is about 15%. Final encoded audio measures −16.35 LUFS integrated and −1.36 dBTP true peak.

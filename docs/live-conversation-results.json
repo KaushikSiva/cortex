@@ -1,0 +1,334 @@
+{
+  "at": "2026-09-19T23:29:43.580Z",
+  "passed": true,
+  "provider": "General Compute",
+  "model": "minimax-m2.7",
+  "elapsedMs": 1887.1444580000002,
+  "toolCalls": 1,
+  "answer": "The bench is about 4.1 meters away, roughly 65 degrees to your left — ahead and to the left of your current position. Its center is at coordinates (-1, 3.5), and the nearest end is slightly closer at about 3.7 meters away.",
+  "observations": [
+    {
+      "robot": {
+        "pose": {
+          "x": -2.9399107954404506,
+          "y": -0.11018709510518097,
+          "yaw": -0.05417214167469867
+        },
+        "velocity": 0.08740909225063347,
+        "qpos": [
+          -2.9399107954404506,
+          -0.11018709510518097,
+          0.7799050477586332,
+          0.99929994634284,
+          0.020679854709095797,
+          0.014896520538879797,
+          -0.02738712332908396,
+          -0.31214199282303284,
+          -0.05449855387025027,
+          0.012174891364718735,
+          0.6462075863511589,
+          -0.38267739428790204,
+          -0.04313636187580729,
+          -0.2527696868523282,
+          0.009840748518427334,
+          -0.030234204223194925,
+          0.4282392665758775,
+          -0.20714615198795874,
+          -0.07547763328716277
+        ],
+        "status": "idle",
+        "timestamp": 1789860582475.991,
+        "nearestObstacle": 3.191042125285068,
+        "estop": false,
+        "commandedSpeed": 0,
+        "motion": "hold",
+        "currentWaypoint": "HOME",
+        "simTime": 1943.9199999678563,
+        "backend": "MUJOCO",
+        "reason": "user stop",
+        "commandId": null,
+        "height": 0.7799050477586332,
+        "contacts": 4,
+        "sceneObjects": [
+          {
+            "name": "planter",
+            "x": 2.8,
+            "y": 2.6,
+            "halfX": 1,
+            "halfY": 0.7
+          },
+          {
+            "name": "bench",
+            "x": -1,
+            "y": 3.5,
+            "halfX": 1,
+            "halfY": 0.3
+          },
+          {
+            "name": "park_edge",
+            "x": 0,
+            "y": 4.55,
+            "halfX": 12,
+            "halfY": 0.12
+          },
+          {
+            "name": "street_boundary",
+            "x": 0,
+            "y": 13.6,
+            "halfX": 35,
+            "halfY": 0.125
+          },
+          {
+            "name": "south_boundary",
+            "x": 0,
+            "y": -6,
+            "halfX": 12,
+            "halfY": 0.12
+          }
+        ]
+      },
+      "navigation": {
+        "scene": "Painted Ladies, Alamo Square",
+        "source": "known simulation map and robot telemetry, not visual memory or live camera detection",
+        "robotPose": {
+          "x": -2.9399107954404506,
+          "y": -0.11018709510518097,
+          "yaw": -0.05417214167469867
+        },
+        "telemetryFresh": true,
+        "coordinateConvention": "Meters. Yaw 0 faces +X; positive yaw turns left toward +Y. World axes are not surveyed compass directions.",
+        "landmarks": [
+          {
+            "name": "planter",
+            "source": "simulator collision geometry",
+            "center": {
+              "x": 2.8,
+              "y": 2.6
+            },
+            "bounds": {
+              "minX": 1.8,
+              "maxX": 3.8,
+              "minY": 1.9,
+              "maxY": 3.3
+            },
+            "navigationTarget": "PLANTER",
+            "approachPoint": {
+              "x": 2,
+              "y": 1.2,
+              "yaw": 0
+            },
+            "fromRobot": {
+              "distanceMeters": 6.35,
+              "forwardMeters": 5.58,
+              "leftMeters": 3.02,
+              "bearingDegrees": 28.38,
+              "direction": "ahead-left"
+            },
+            "robotFromObject": null,
+            "distanceToSurfaceMeters": 5.15
+          },
+          {
+            "name": "bench",
+            "source": "simulator collision geometry",
+            "center": {
+              "x": -1,
+              "y": 3.5
+            },
+            "bounds": {
+              "minX": -2,
+              "maxX": 0,
+              "minY": 3.2,
+              "maxY": 3.8
+            },
+            "navigationTarget": "BENCH",
+            "approachPoint": {
+              "x": -1,
+              "y": 2.4,
+              "yaw": 0
+            },
+            "fromRobot": {
+              "distanceMeters": 4.1,
+              "forwardMeters": 1.74,
+              "leftMeters": 3.71,
+              "bearingDegrees": 64.85,
+              "direction": "ahead-left"
+            },
+            "robotFromObject": {
+              "reference": "bench front faces negative world Y",
+              "distanceMeters": 4.1,
+              "forwardMeters": 3.61,
+              "leftMeters": -1.94,
+              "bearingDegrees": -28.25,
+              "direction": "ahead-right"
+            },
+            "distanceToSurfaceMeters": 3.44,
+            "endpoints": [
+              {
+                "name": "negative-X end",
+                "x": -2,
+                "y": 3.5,
+                "fromRobot": {
+                  "distanceMeters": 3.73,
+                  "forwardMeters": 0.74,
+                  "leftMeters": 3.66,
+                  "bearingDegrees": 78.51,
+                  "direction": "left"
+                }
+              },
+              {
+                "name": "positive-X end",
+                "x": 0,
+                "y": 3.5,
+                "fromRobot": {
+                  "distanceMeters": 4.66,
+                  "forwardMeters": 2.74,
+                  "leftMeters": 3.76,
+                  "bearingDegrees": 53.95,
+                  "direction": "ahead-left"
+                }
+              }
+            ]
+          },
+          {
+            "name": "park_edge",
+            "source": "simulator collision geometry",
+            "center": {
+              "x": 0,
+              "y": 4.55
+            },
+            "bounds": {
+              "minX": -12,
+              "maxX": 12,
+              "minY": 4.43,
+              "maxY": 4.67
+            },
+            "navigationTarget": null,
+            "approachPoint": null,
+            "fromRobot": {
+              "distanceMeters": 5.51,
+              "forwardMeters": 2.68,
+              "leftMeters": 4.81,
+              "bearingDegrees": 60.86,
+              "direction": "ahead-left"
+            },
+            "robotFromObject": null,
+            "distanceToSurfaceMeters": 4.54
+          },
+          {
+            "name": "south_boundary",
+            "source": "simulator collision geometry",
+            "center": {
+              "x": 0,
+              "y": -6
+            },
+            "bounds": {
+              "minX": -12,
+              "maxX": 12,
+              "minY": -6.12,
+              "maxY": -5.88
+            },
+            "navigationTarget": null,
+            "approachPoint": null,
+            "fromRobot": {
+              "distanceMeters": 6.58,
+              "forwardMeters": 3.25,
+              "leftMeters": -5.72,
+              "bearingDegrees": -60.37,
+              "direction": "ahead-right"
+            },
+            "robotFromObject": null,
+            "distanceToSurfaceMeters": 5.77
+          }
+        ],
+        "renderedProps": [
+          {
+            "name": "backpack",
+            "source": "authored rendered prop; not a camera detection",
+            "position": {
+              "x": 2.14,
+              "y": 1.69
+            },
+            "navigationTarget": "PLANTER",
+            "fromRobot": {
+              "distanceMeters": 5.39,
+              "forwardMeters": 4.97,
+              "leftMeters": 2.07,
+              "bearingDegrees": 22.62,
+              "direction": "ahead-left"
+            }
+          }
+        ],
+        "houses": {
+          "name": "Painted Ladies houses",
+          "direction": "positive world Y",
+          "approximateNearEdgeY": 24,
+          "reachable": false,
+          "note": "Backdrop across the street; not a walkable destination. A bounded approach within the apron is supported."
+        },
+        "navigationTargets": [
+          {
+            "name": "HOME",
+            "point": {
+              "x": -3,
+              "y": 0,
+              "yaw": 0
+            },
+            "meaning": "robot starting position"
+          },
+          {
+            "name": "PERSON",
+            "point": {
+              "x": 3,
+              "y": 0,
+              "yaw": 0
+            },
+            "meaning": "fixed approach target; not a tracked human"
+          },
+          {
+            "name": "PLANTER",
+            "point": {
+              "x": 2,
+              "y": 1.2,
+              "yaw": 0
+            },
+            "meaning": "named approach target"
+          },
+          {
+            "name": "BACKPACK",
+            "point": {
+              "x": 2,
+              "y": 1.2,
+              "yaw": 0
+            },
+            "meaning": "named approach target"
+          },
+          {
+            "name": "BENCH",
+            "point": {
+              "x": -1,
+              "y": 2.4,
+              "yaw": 0
+            },
+            "meaning": "approach point in front of the bench, not the bench center"
+          },
+          {
+            "name": "DOOR",
+            "point": {
+              "x": 4,
+              "y": -2,
+              "yaw": 0
+            },
+            "meaning": "legacy named waypoint; no mapped physical door"
+          }
+        ],
+        "walkingBounds": {
+          "minX": -5.5,
+          "maxX": 5.5,
+          "minY": -4.5,
+          "maxY": 3.8
+        }
+      }
+    }
+  ],
+  "provenance": "Actual provider conversation and structured tool call with live MuJoCo state. Read-only inspection of authored scene map, not camera perception, motion or human voice validation."
+}

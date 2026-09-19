@@ -6,7 +6,7 @@ Updated against the merged Gradium/Pipecat, Painted Ladies and MuJoCo build on 2
 
 | Requirement | Current result | Authoritative evidence and limits |
 |---|---|---|
-| Same words, different delivery → different physical policy | **DEMO passes; current live acceptance not met** | Synthetic calm/urgent profiles select .55/.90 m/s limits and produce different MuJoCo displacement. The current live conversation/direct-motion path uses neutral policy defaults; it does not reproduce the earlier live acoustic-policy test. Human vocal delivery has not been validated. |
+| Same words, different delivery → different physical policy | **DEMO and live generated-audio comparison pass; human delivery pending** | Actual Gradium returned “come here.” twice. Measured PCM intensity selected .55/.90 m/s limits and actual MuJoCo traveled 1.446/2.210 m over measured 3.06/3.04 simulated seconds. Generated audio at two amplitudes, not human emotion validation; see `live-motion-results.json`. |
 | Photorealistic, full 3D Painted Ladies | **3D depth implemented; photorealism not passed** | Modeled roofs, side walls, bays, glass, park, cars, lighting and shadowing; 355 DataSF background footprints. Actual renders still look computer generated. No blind realism review has passed. [Scene status](SCENE_STATUS.md). |
 | Voice STOP while moving | **Live Gradium with generated audio passes; human microphone trial pending** | [Live browser voice results](live-browser-voice-results.json): generated speech flows through the browser MediaStream/worklet, actual Pipecat/Gradium and actual isolated MuJoCo. STOP cancels current motion and returns to idle; a new explicit command can move without a separate resume. |
 | Stored visual memory retrieval | **Local frame capture/retrieval passes; Memories.ai live round trip incomplete** | [Browser results](browser-results.json) checks a retrieved sighting's ID against the captured event. Object/location labels are operator annotations. Current Datalake collection creation reported insufficient account balance; [provider evidence](local-memory-results.json). |
@@ -20,8 +20,8 @@ Updated against the merged Gradium/Pipecat, Painted Ladies and MuJoCo build on 2
 
 | Component | Verified scope | Outstanding scope |
 |---|---|---|
-| Gradium + Pipecat | Actual cloud STT and TTS; PCM worklet path; interim stop; request-correlated playback; generated Indian English input | Human microphone trial; live expression-conditioned motion in the current neutral-default path |
-| General Compute | Incoming branch includes authenticated conversation and spatial-grounding evidence; selectable configured provider | Fresh end-to-end live model-planned movement is not proved by the latest deterministic motion tests |
+| Gradium + Pipecat | Actual cloud STT and TTS; PCM worklet path; interim stop; request-correlated playback; generated Indian English input | Human microphone trial and calibrated expression understanding; intensity/pitch are local heuristics |
+| General Compute | Actual authenticated conversation plus a structured inspect_scene tool call with live MuJoCo state; see `live-conversation-results.json` | Fresh end-to-end live model-planned movement is not proved by the latest deterministic motion tests |
 | SambaNova | Structured adapter and shared tool schemas; mocked model tests | No SambaNova credential or live RDU inference verification in this checkout |
 | Memories.ai | Current Datalake adapter and auth/collection checks; local evidence binding; indexing failure handling | Account credits and successful live upload → indexing → retrieval |
 | Jev | Prior authenticated constrained decision; actual request exceeded the 180 ms deadline and correctly fell back | Reliable live decisions within the configured reflex deadline |
@@ -31,7 +31,7 @@ Updated against the merged Gradium/Pipecat, Painted Ladies and MuJoCo build on 2
 
 ## Current checks
 
-- **52 TypeScript tests** cover conversation history/tools/cancellation, explicit command parsing, spoken quantities, policy fixtures, safety, memory evidence binding and playback epochs.
+- **54 TypeScript tests** cover conversation history/tools/cancellation, explicit command parsing, spoken quantities, policy fixtures, safety, memory evidence binding and playback epochs.
 - **8 MuJoCo physics tests** cover actual gait motion, turning, stop-to-idle behavior, geometry-based clearance, bounds, stale commands and renewable key leases.
 - **4 Pipecat tests** use local Gradium-protocol doubles for acoustic measurements, speech events and TTS request correlation. They do not claim cloud service access.
 - **Optimized production build and TypeScript check** passed after merging current `main`.
@@ -50,6 +50,6 @@ The video is application footage, not proof of a live provider run. Validation d
 
 ## Historical evidence
 
-`live-motion-results.json` records an earlier successful generated-audio intensity comparison through Gradium (.55/.90 m/s policies, 1.429/2.222 m over three simulated seconds). **The current live command path changed to neutral defaults, so this is not current acceptance evidence.** Older stop-latch language, test counts and screenshots similarly describe earlier revisions. Prefer the current behavior and the dated records above.
+The live acoustic-policy comparison has been rerun against the current implementation. Older stop-latch language, test counts and screenshots describe earlier revisions; prefer current behavior and the dated records above.
 
 Command acknowledgement and physical settling are distinct measurements. Settling is velocity below .08 m/s for three telemetry samples; it is not a physical-robot safety guarantee. No confidence score, human emotion judgment, public deployment, grasping, or indistinguishable-from-reality claim is supported by this record.

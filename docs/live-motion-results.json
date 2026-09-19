@@ -1,7 +1,7 @@
 {
-  "at": "2026-09-19T21:16:33.016Z",
+  "at": "2026-09-19T23:31:47.574Z",
   "passed": true,
-  "provenance": "Real Gradium STT → actual Pipecat → local acoustic policy → deterministic planner/reflex → SafetyGovernor → real MuJoCo dynamics. Generated speech at two amplitudes, not human microphone or emotion validation. SambaNova/Jev cloud deliberately disabled in this isolated test.",
+  "provenance": "Real Gradium STT → actual Pipecat → local acoustic policy → deterministic planner/reflex → SafetyGovernor → real MuJoCo dynamics. Generated speech at two amplitudes, not human microphone or emotion validation. General Compute/SambaNova/Jev cloud deliberately disabled in this isolated test.",
   "runs": [
     {
       "label": "moderate intensity",
@@ -22,9 +22,9 @@
         "responseVerbosity": "normal",
         "interruptThreshold": 0.35
       },
-      "simulatedSeconds": 3,
-      "distanceMeters": 1.4294261941919704,
-      "height": 0.7736849844455977
+      "simulatedSeconds": 3.0599999999996634,
+      "distanceMeters": 1.4458563371072322,
+      "height": 0.77045771675263
     },
     {
       "label": "high intensity",
@@ -45,18 +45,18 @@
         "responseVerbosity": "minimal",
         "interruptThreshold": 0.2
       },
-      "simulatedSeconds": 3,
-      "distanceMeters": 2.2215080857306884,
-      "height": 0.7651225390114904
+      "simulatedSeconds": 3.0399999999996656,
+      "distanceMeters": 2.2095564079881185,
+      "height": 0.7670024633834022
     }
   ],
   "stop": {
-    "transcript": "wait,",
-    "latched": true,
+    "transcript": "wait, stop.",
+    "status": "idle",
     "metrics": [
       {
         "name": "Voice → transcript",
-        "ms": 1518.7108339999995,
+        "ms": 2109.309792,
         "basis": "Server clock · VAD chunk receipt to provider/robot events"
       },
       {
@@ -66,7 +66,7 @@
       },
       {
         "name": "Transcript → reflex",
-        "ms": 0.04512500000055297,
+        "ms": 0.03874999999970896,
         "basis": "Server clock · VAD chunk receipt to provider/robot events"
       },
       {
@@ -76,7 +76,7 @@
       },
       {
         "name": "Command → acknowledgement",
-        "ms": 4.622499999999491,
+        "ms": 2.2938329999997222,
         "basis": "Server clock · VAD chunk receipt to provider/robot events"
       },
       {
@@ -86,7 +86,7 @@
       },
       {
         "name": "End to end",
-        "ms": 1523.3847499999993,
+        "ms": 2111.652,
         "basis": "Server clock · VAD chunk receipt to provider/robot events"
       }
     ]

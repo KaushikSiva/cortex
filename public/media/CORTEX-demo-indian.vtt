@@ -18,7 +18,7 @@ First, calmly: Come here. The robot approaches at a moderate pace and maintains 
 Now reset. Come here! The urgent demo profile uses the same words. Priority increases, and the robot walks faster within its safety limits.
 
 00:00:49.388 --> 00:01:00.320
-Inside Cortex, synthetic acoustic profiles select visible policies. Live Gradium and Pipecat commands use the same movement tools, with neutral speed defaults.
+Inside Cortex, synthetic profiles demonstrate the policy. Live Gradium and Pipecat commands can also vary bounded walking speed from measured intensity, using the same movement tools.
 
 00:01:00.320 --> 00:01:08.087
 In the demo, a hesitant profile asks for confirmation, approaches slowly, and leaves more personal space.

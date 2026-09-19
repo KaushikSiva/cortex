@@ -21,3 +21,11 @@ export function behaviorPolicy(v:VocalState):BehaviorPolicy{
  return base;
 }
 export const defaultPolicy=behaviorPolicy(vocalState({type:'voice_turn',transcript:'',acoustics:null,source:'TYPED'}));
+/** Live PCM intensity can select a bounded urgent speed profile. Internal pauses
+ * alone are not reliable consent/hesitation evidence: retain the measured raw
+ * values in the UI, but never create a live confirmation gate from pauses.
+ * This is an acoustic heuristic, not a Gradium emotion classification. */
+export function liveMotionPolicy(v:VocalState):BehaviorPolicy{
+ if(!v.acoustics||v.acoustics.voicedMs<=250)return {...defaultPolicy};
+ return behaviorPolicy({...v,derived:{...v.derived,hesitation:0}});
+}
