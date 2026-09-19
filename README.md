@@ -10,7 +10,7 @@
 
 ![CORTEX — Unitree G1 facing the Painted Ladies, San Francisco](public/media/reality.png)
 
-**Gradium** voice · **Pipecat** orchestration · **SambaNova** inference · **MuJoCo** physics
+**Gradium** voice · **Pipecat** orchestration · **General Compute** inference (SambaNova fallback) · **MuJoCo** physics
 
 </div>
 
@@ -59,7 +59,7 @@ Microphone PCM → Pipecat → Gradium streaming STT
                               │
                  ┌────────────┴──────────────┐
                  │                          │
-          hard-rule reflex            SambaNova tools
+          hard-rule reflex            General Compute / SambaNova tools
           optional Jev                ↕ visual memory
                  │                          │
                  └────────────┬──────────────┘
@@ -72,7 +72,7 @@ Microphone PCM → Pipecat → Gradium streaming STT
                   safe response → Gradium TTS
 ```
 
-**Inference · SambaNova.** Agent inference runs on SambaNova RDU dataflow infrastructure, designed for interactive responses. CORTEX measures observed request and action timings; it does not substitute advertised provider latency for local measurements.
+**Inference · General Compute / SambaNova.** The adapter selects configured General Compute first and supports SambaNova’s structured function-calling endpoint as a fallback. CORTEX measures observed request and action timings; it does not substitute advertised provider latency for local measurements.
 
 **Voice · Gradium.** Streaming transcription and synthesized replies use the official Pipecat Gradium services. Credentials stay server-side. Interim STOP transcripts reach the reflex path immediately.
 
@@ -123,7 +123,7 @@ SAMBANOVA_API_KEY=
 MEMORIES_API_KEY=
 ```
 
-`GRADIUM_VOICE_ID` enables automatic synthesized replies after safe voice-command handling, plus replay with the speaker button. `GRADIUM_API_KEY` enables transcription. The SambaNova and Memories.ai keys enable their corresponding live adapters. Restart all services after changing configuration. Never commit `.env.local` or paste keys into chat.
+`GRADIUM_VOICE_ID` enables automatic synthesized replies after safe voice-command handling, plus replay with the speaker button. `GRADIUM_API_KEY` enables transcription. `GENERAL_COMPUTE_API_KEY` enables the configured conversation/planner provider; `SAMBANOVA_API_KEY` is the supported fallback. The Memories.ai key enables its corresponding live adapter. Restart all services after changing configuration. Never commit `.env.local` or paste keys into chat.
 
 Additional variables, including Jev and EdgeOne, are in [.env.example](.env.example). AgentX is not part of this build.
 
