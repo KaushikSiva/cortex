@@ -1,0 +1,51 @@
+{
+  "at": "2026-09-19T21:43:09.042024+00:00",
+  "probe": [
+    {
+      "provider": "JEV",
+      "httpStatus": 200,
+      "elapsedMs": 399.917333,
+      "keys": [
+        "model",
+        "answers",
+        "usage"
+      ],
+      "action": "CONTINUE"
+    },
+    {
+      "provider": "MEMORIES",
+      "httpStatus": 200,
+      "elapsedMs": 393.248541,
+      "keys": [
+        "code",
+        "msg",
+        "data",
+        "success",
+        "failed"
+      ],
+      "code": "0001"
+    }
+  ],
+  "jevProductionDeadline": [
+    {
+      "attempt": 1,
+      "action": "CONTINUE",
+      "source": "LOCAL fallback (Jev unavailable)",
+      "elapsedMs": 182.18166699999998
+    },
+    {
+      "attempt": 2,
+      "action": "CONTINUE",
+      "source": "LOCAL fallback (Jev unavailable)",
+      "elapsedMs": 181.30404199999998
+    },
+    {
+      "attempt": 3,
+      "action": "CONTINUE",
+      "source": "LOCAL fallback (Jev unavailable)",
+      "elapsedMs": 181.13266699999997
+    }
+  ],
+  "memoryFailure": "HTTP 200 with code 0001, success false, failed true: No static resource api/v1/search. Current official CLI endpoint used; no invented replacement.",
+  "limits": "Jev authenticated probe works, but all three production-deadline attempts used explicit local fallback. Memories.ai live search remains unavailable; upload not claimed verified."
+}

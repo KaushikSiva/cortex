@@ -47,3 +47,7 @@ The original Streetwise work remains in the separate chennai-gta workspace. CORT
 | Earlier waterfall geometry | Previous Git revision | Superseded by the Painted Ladies scene. |
 
 The generated waterfall plate is retained only as an archived art-direction study.
+
+## Architectural material refinement
+
+`public/assets/architecture` contains 2K CC0 diffuse, OpenGL normal and roughness scans from [Blue Painted Planks](https://polyhaven.com/a/blue_painted_planks) and [Roof Slates 03](https://polyhaven.com/a/roof_slates_03). SOURCE.json records download URLs and hashes. Runtime siding pigment is remapped to the authored pastel palette; metric UVs preserve material scale. These are material proxies, not captures of the actual Painted Ladies.

@@ -1,0 +1,44 @@
+[
+  {
+    "file": "siding-color.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/blue_painted_planks/blue_painted_planks_diff_2k.jpg",
+    "asset": "https://polyhaven.com/a/blue_painted_planks",
+    "license": "CC0",
+    "sha256": "9119f96962f9ebf7fc0b3b8bbdb95aef8422fcb92434331fb17bb56cf1847785"
+  },
+  {
+    "file": "siding-normal.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/blue_painted_planks/blue_painted_planks_nor_gl_2k.jpg",
+    "asset": "https://polyhaven.com/a/blue_painted_planks",
+    "license": "CC0",
+    "sha256": "89d6e8524189e29e9323bb5a8f25a2acf431e809f52e5559bdc4ddf4a88aea73"
+  },
+  {
+    "file": "siding-rough.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/blue_painted_planks/blue_painted_planks_rough_2k.jpg",
+    "asset": "https://polyhaven.com/a/blue_painted_planks",
+    "license": "CC0",
+    "sha256": "fd0a9eb9c7d94723ba8890b23d0b527ef2a5fdc171b5fd980c93ea25e10a2f12"
+  },
+  {
+    "file": "roof-color.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/roof_slates_03/roof_slates_03_diff_2k.jpg",
+    "asset": "https://polyhaven.com/a/roof_slates_03",
+    "license": "CC0",
+    "sha256": "955eb467fc609e4509c2354f0b88755ffa137dac352b651efed95026f4a6aa5c"
+  },
+  {
+    "file": "roof-normal.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/roof_slates_03/roof_slates_03_nor_gl_2k.jpg",
+    "asset": "https://polyhaven.com/a/roof_slates_03",
+    "license": "CC0",
+    "sha256": "f797ad9756e6584736831cf07f79872440a6a4811c80f9bcedd3b20b05c7596d"
+  },
+  {
+    "file": "roof-rough.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/roof_slates_03/roof_slates_03_rough_2k.jpg",
+    "asset": "https://polyhaven.com/a/roof_slates_03",
+    "license": "CC0",
+    "sha256": "bd583b73aa9c496f0d8012c2d6acaa704d6acce912d7de1d5af723bbeffa9942"
+  }
+]

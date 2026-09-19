@@ -6,8 +6,20 @@ import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 export function buildVictorians(){
  const group=new THREE.Group();group.name='Painted Ladies · authored volumetric architecture';
  const batches=new Map<THREE.Material,THREE.BufferGeometry[]>();
+ const textureLoader=new THREE.TextureLoader(),textures:THREE.Texture[]=[];
+ const scan=(name:string,srgb=false)=>{const texture=textureLoader.load('/assets/architecture/'+name+'.jpg');texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.anisotropy=16;if(srgb)texture.colorSpace=THREE.SRGBColorSpace;textures.push(texture);return texture;};
+ const siding={map:scan('siding-color',true),normalMap:scan('siding-normal'),roughnessMap:scan('siding-rough')};
+ const roofing={map:scan('roof-color',true),normalMap:scan('roof-normal'),roughnessMap:scan('roof-rough')};
+ group.userData.disposeTextures=()=>textures.forEach(t=>t.dispose());
  const add=(geo:THREE.BufferGeometry,material:THREE.Material,position:THREE.Vector3,rotation=new THREE.Euler())=>{
   geo.applyMatrix4(new THREE.Matrix4().compose(position,new THREE.Quaternion().setFromEuler(rotation),new THREE.Vector3(1,1,1)));
+  // Metric planar UVs: the same scanned board/slate size on every building face.
+  const pos=geo.getAttribute('position'),normals=geo.getAttribute('normal'),uv=geo.getAttribute('uv');
+  for(let i=0;i<pos.count;i++){
+   const nx=Math.abs(normals.getX(i)),ny=Math.abs(normals.getY(i)),nz=Math.abs(normals.getZ(i));
+   if(nz>.8)uv.setXY(i,pos.getX(i)/2,pos.getY(i)/2);
+   else uv.setXY(i,(nx>ny?pos.getY(i):pos.getX(i))/2,pos.getZ(i)/2);
+  }
   // Consistent attributes allow many small details to share a single draw call.
   if(geo.index){const original=geo;geo=original.toNonIndexed();original.dispose();}
   const list=batches.get(material)??[];list.push(geo);batches.set(material,list);
@@ -17,17 +29,22 @@ export function buildVictorians(){
   const g=new THREE.BoxGeometry(width,depth,a.distanceTo(b));const q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1),b.clone().sub(a).normalize());g.applyQuaternion(q);add(g,m,a.clone().add(b).multiplyScalar(.5));
  };
  const pbr=(color:string,roughness=.76,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
- const stone=pbr('#aca69b',.96),iron=pbr('#3a3a34',.48,.6),roof=pbr('#474743',.96),glass=pbr('#778888',.14,.48),room=pbr('#262622',1),curtain=pbr('#b5afa0',.96),brass=pbr('#8b7950',.28,.7);
- glass.transparent=true;glass.opacity=.42;glass.depthWrite=false;
+ const stone=pbr('#aca69b',.96),iron=pbr('#3a3a34',.48,.6),roof=new THREE.MeshStandardMaterial({...roofing,color:'#bab8b3',roughness:.88,normalScale:new THREE.Vector2(.45,.45)}),glass=new THREE.MeshPhysicalMaterial({color:'#e0e9e8',roughness:.09,metalness:0,ior:1.5,envMapIntensity:1.2}),room=pbr('#262622',1),curtain=pbr('#b5afa0',.96),brass=pbr('#8b7950',.28,.7);
+ glass.transparent=true;glass.opacity=.28;glass.depthWrite=false;
  const palettes=[['#ac9971','#dfd1ad','#4f6655'],['#9b9c85','#e1dccb','#555d54'],['#b8ac87','#ede0bd','#795148'],['#ae9c90','#e4d6c4','#6d4a40'],['#8b9b9d','#d5d9d3','#57656d'],['#b59d8c','#ded1bd','#72564c'],['#c3b293','#e9dfc8','#65645a']];
  // A slight slope and varying roof proportions keep the row from being identical modules.
  palettes.forEach(([color,trimColor,accentColor],index)=>{
-  const body=pbr(color),trim=pbr(trimColor,.68),accent=pbr(accentColor,.74);
+  const body=new THREE.MeshStandardMaterial({...siding,color,roughness:.87,normalScale:new THREE.Vector2(.23,.23)}),trim=pbr(trimColor,.68),accent=pbr(accentColor,.74);
   for(const material of [body,trim,accent]){
    material.onBeforeCompile=shader=>{
     shader.vertexShader='varying vec3 paintPosition;\n'+shader.vertexShader;
     shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n paintPosition=position;');
     shader.fragmentShader='varying vec3 paintPosition;\n'+shader.fragmentShader;
+    shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#ifdef USE_MAP
+     vec4 sampledDiffuseColor=texture2D(map,vMapUv);
+     float pigment=clamp(dot(sampledDiffuseColor.rgb,vec3(.2126,.7152,.0722))*3.3,.48,1.35);
+     diffuseColor.rgb*=mix(1.,pigment,.5);
+     #endif`);
     shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n float weather=.985+.015*sin(paintPosition.x*9.1+sin(paintPosition.z*7.))*sin(paintPosition.z*24.);diffuseColor.rgb*=weather;');
    };
   }
@@ -109,6 +126,13 @@ export function buildVictorians(){
   windowAt(doorX,fy-.39,doorBottom+2.54,.72,.55);
   for(const dz of [.36,.94,1.72]){box(trim,doorX,fy-.39,doorBottom+dz,.75,.07,.46);box(accent,doorX,fy-.435,doorBottom+dz,.60,.025,.32);}
   add(new THREE.SphereGeometry(.04,8,6),brass,new THREE.Vector3(doorX+.32,fy-.48,doorBottom+1.0));
+  // Rounded entry arches and turned porch posts catch softer highlights than boxes.
+  for(const radius of [.58,.67])add(new THREE.TorusGeometry(radius,.045,8,32,Math.PI),trim,new THREE.Vector3(doorX,fy-.56,doorBottom+2.34),new THREE.Euler(Math.PI/2,0,0));
+  for(const sign of [-1,1]){
+   const px=doorX+sign*.64;
+   add(new THREE.CylinderGeometry(.055,.07,2.26,12),trim,new THREE.Vector3(px,fy-.56,doorBottom+1.13),new THREE.Euler(Math.PI/2,0,0));
+   for(const dz of [.08,.25,1.92,2.20])box(trim,px,fy-.56,doorBottom+dz,.16,.16,.10);
+  }
   for(let step=0;step<9;step++){const h=(9-step)*.172;box(stone,doorX,fy-.48-step*.275,base+h/2,1.32,.29,h);}
   for(const sign of [-1,1]){
    const x=doorX+sign*.68;

@@ -88,3 +88,10 @@ test('turn acknowledgement is recorded before physical heading convergence',asyn
  await new MotionTools(new SafetyGovernor(f.b)).turn(90,defaultPolicy,{active:()=>true,trace:()=>{},onAcknowledged:()=>{acknowledged=true}});
  assert.equal(reads,2);
 });
+
+test('Memories application errors in HTTP 200 cannot masquerade as empty evidence',async()=>{
+ const {assertMemoryResponse}=await import('../src/integrations/memories');
+ assert.throws(()=>assertMemoryResponse({code:'0001',success:false,failed:true,data:null}));
+ assert.throws(()=>assertMemoryResponse({data:[]}));
+ assert.doesNotThrow(()=>assertMemoryResponse({code:'0000',success:true,data:[]}));
+});

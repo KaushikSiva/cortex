@@ -115,7 +115,7 @@ export class CortexRuntime{
    case 'search_memory':{
     this.state.phase='REMEMBERING';this.state.providers.MEMORIES.active=true;this.timing.mark('memory_query_start');this.emit();
     const live=!!process.env.MEMORIES_API_KEY;let result;
-    try{result=await this.memory.searchVisualMemory(String(call.arguments.query),live);this.state.providers.MEMORIES.mode=live?'LIVE':'DEMO';}finally{this.state.providers.MEMORIES.active=false;}
+    try{result=await this.memory.searchVisualMemory(String(call.arguments.query),live);this.state.providers.MEMORIES.mode=live?'LIVE':'DEMO';}catch(error){this.state.providers.MEMORIES.mode='OFFLINE';throw error;}finally{this.state.providers.MEMORIES.active=false;}
     if(epoch!==this.epoch)return;
     this.timing.mark('memory_response');this.state.memory=result[0]??null;this.state.response=result[0]?`I saw it ${result[0].location}.`:'No indexed sighting yet. Capture a scene memory first.';this.trace('MEMORIES',result[0]?`Retrieved ${result[0].object} → ${result[0].waypoint} · ${result[0].source}`:'No matching evidence');this.state.phase='READY';
     const transcript=this.state.vocal?.transcript??'';

@@ -89,5 +89,5 @@ export function buildPaintedLadies(scene:THREE.Scene){
   }
  });
  const ready=Promise.all([scanReady,treesReady]);
- return {group,ground,ready,setSky(map:THREE.Texture,rotation:number){sky.material.dispose();sky.material=new THREE.MeshBasicMaterial({map,side:THREE.BackSide,depthWrite:false,fog:false});sky.rotation.set(Math.PI/2,rotation,0);},architectureVertices:architecture.userData.vertices,get scanVertices(){return scanVertices;},update(_t:number){},dispose(){disposed=true;window.removeEventListener('cortex-scene-reference',reference);textures.forEach(t=>t.dispose());}};
+ return {group,ground,ready,setSky(map:THREE.Texture,rotation:number){sky.material.dispose();sky.material=new THREE.MeshBasicMaterial({map,side:THREE.BackSide,depthWrite:false,fog:false});sky.rotation.set(Math.PI/2,rotation,0);},architectureVertices:architecture.userData.vertices,get scanVertices(){return scanVertices;},update(_t:number){},dispose(){disposed=true;architecture.userData.disposeTextures?.();window.removeEventListener('cortex-scene-reference',reference);textures.forEach(t=>t.dispose());}};
 }

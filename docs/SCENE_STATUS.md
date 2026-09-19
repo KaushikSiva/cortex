@@ -9,3 +9,5 @@ The older jtressle CC BY 4.0 photogrammetry asset remains available as reference
 **Acceptance remains open:** the current authored buildings are visibly computer rendered. Full geometric depth and working camera parallax do not establish photorealism. A complete, high-resolution capture or licensed model with broad view coverage is still needed to achieve the requested digital-twin appearance. Do not describe the current render as indistinguishable from reality.
 
 Controls: the hero view is at 1.65 m with a 60° lens. The 60° button switches to an angled inspection view; drag to inspect depth. R returns to the presentation view. Robot motion remains confined to the collision-checked foreground path.
+
+Material pass: 2K CC0 scanned siding/slate normal and roughness maps, metric UVs, dielectric glass, arched entries and turned posts. The postprocessing target now uses multisample antialiasing as well as SMAA. The scene still has approximate massing and visibly rendered materials; the acceptance gap above is unchanged.

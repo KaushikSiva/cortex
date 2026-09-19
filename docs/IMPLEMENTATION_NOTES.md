@@ -72,3 +72,9 @@ Motion acknowledgement timestamps now bracket each safety-governed primitive req
 ## Live speech verification
 
 With the supplied credential stored only in ignored `.env.local`, the actual Gradium socket through Pipecat returned interim and final “come here.” for generated PCM16 audio. `docs/gradium-live-results.json` records events and local acoustic measurements. This proves credential/auth and real STT pipeline operation. It does not prove a real microphone trial, calibrated expression mapping, TTS or end-to-end cloud-planned robot motion.
+
+## Provider contract checks and material refinement
+
+The current TypeSafe quickstart contract returned live Jev CONTINUE in about 400 ms. Three calls through the actual 180 ms adapter deadline each fell back to explicitly labeled local rules. The current official Memories.ai CLI search endpoint returned HTTP 200 containing application error 0001 (missing route). The adapter now rejects application-level failures, and runtime marks memory OFFLINE rather than presenting a false empty result. Live memory remains unverified. Details: provider-live-results.json.
+
+The architectural study now uses 2K CC0 siding/slate scans with metric UVs and physically based glass, plus modeled arched entries and porch posts. A multisampled render target improves architectural edge rendering. Browser rendering and TypeScript checks pass; this material study does not establish photorealism. The existing demo video represents the preceding architecture revision.
