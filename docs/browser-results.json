@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "errors": [],
+  "viewport": [
+    1440,
+    1100
+  ],
+  "mobile": [
+    390,
+    844
+  ],
+  "tests": [
+    "calm / urgent controls",
+    "camera evidence persisted and retrieved",
+    "memory waypoint navigation",
+    "Reality keyboard reveal",
+    "Space stop in Reality",
+    "fearful confirmation cancellation",
+    "anxious memory evidence → confirmation → physical navigation",
+    "3D camera orbit and parallax",
+    "mobile no overflow"
+  ],
+  "at": "2026-09-19T19:39:20.356Z"
+}

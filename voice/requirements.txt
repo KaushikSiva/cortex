@@ -1,0 +1,4 @@
+pipecat-ai[gradium,sambanova]==1.11.0
+gradium==0.6.4
+aiohttp>=3.11,<4
+python-dotenv>=1,<2

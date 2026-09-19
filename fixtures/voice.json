@@ -1,0 +1,75 @@
+{
+  "_provenance": "Synthetic local acoustic features for DEMO. Not Gradium API responses or emotion classifications.",
+  "calm": {
+    "type": "voice_turn",
+    "transcript": "Come here.",
+    "acoustics": {
+      "rmsDb": -32,
+      "peakDb": -26,
+      "pitchVariation": 0.08,
+      "pauseRatio": 0.05,
+      "voicedMs": 1600
+    },
+    "source": "DEMO"
+  },
+  "urgent": {
+    "type": "voice_turn",
+    "transcript": "Come here.",
+    "acoustics": {
+      "rmsDb": -16,
+      "peakDb": -10,
+      "pitchVariation": 0.3,
+      "pauseRatio": 0.03,
+      "voicedMs": 1600
+    },
+    "source": "DEMO"
+  },
+  "fearful": {
+    "type": "voice_turn",
+    "transcript": "Come here.",
+    "acoustics": {
+      "rmsDb": -28,
+      "peakDb": -22,
+      "pitchVariation": 0.25,
+      "pauseRatio": 0.5,
+      "voicedMs": 1600
+    },
+    "source": "DEMO"
+  },
+  "stop": {
+    "type": "voice_turn",
+    "transcript": "WAIT! STOP!",
+    "acoustics": {
+      "rmsDb": -15,
+      "peakDb": -9,
+      "pitchVariation": 0.3,
+      "pauseRatio": 0.01,
+      "voicedMs": 1600
+    },
+    "source": "DEMO"
+  },
+  "memory": {
+    "type": "voice_turn",
+    "transcript": "Where did you last see my backpack?",
+    "acoustics": {
+      "rmsDb": -30,
+      "peakDb": -24,
+      "pitchVariation": 0.12,
+      "pauseRatio": 0.08,
+      "voicedMs": 1600
+    },
+    "source": "DEMO"
+  },
+  "anxious_memory": {
+    "type": "voice_turn",
+    "transcript": "Where is my backpack? I really need it.",
+    "acoustics": {
+      "rmsDb": -24,
+      "peakDb": -18,
+      "pitchVariation": 0.28,
+      "pauseRatio": 0.48,
+      "voicedMs": 1600
+    },
+    "source": "DEMO"
+  }
+}

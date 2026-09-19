@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "calmXAfter4s": -1.372951531195576,
+  "urgentXAfter4s": -0.5462579731919176,
+  "stopMetrics": [
+    {
+      "name": "Voice → transcript",
+      "ms": null,
+      "basis": "Server clock · fixture input; no speech latency"
+    },
+    {
+      "name": "Voice → intent",
+      "ms": null,
+      "basis": "Server clock · fixture input; no speech latency"
+    },
+    {
+      "name": "Transcript → reflex",
+      "ms": 0.1121659999989788,
+      "basis": "Server clock · fixture input; no speech latency"
+    },
+    {
+      "name": "Memory retrieval",
+      "ms": null,
+      "basis": "Server clock · fixture input; no speech latency"
+    },
+    {
+      "name": "Command → acknowledgement",
+      "ms": 5.884040999997524,
+      "basis": "Server clock · fixture input; no speech latency"
+    },
+    {
+      "name": "Stop → settled",
+      "ms": 2088.3787909999955,
+      "basis": "Server clock · fixture input; no speech latency"
+    },
+    {
+      "name": "End to end",
+      "ms": null,
+      "basis": "Server clock · fixture input; no speech latency"
+    }
+  ],
+  "tests": [
+    "same-word physical difference",
+    "fast stop",
+    "fearful confirmation",
+    "resume slowly"
+  ],
+  "timestamp": "2026-09-19T19:37:42.750Z"
+}

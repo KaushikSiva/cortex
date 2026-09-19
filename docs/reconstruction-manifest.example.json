@@ -1,0 +1,12 @@
+{
+  "url": "/assets/yerba-buena.ply",
+  "captureLocation": "Yerba Buena Gardens",
+  "source": "Replace with capture date, operator and dataset reference",
+  "license": "Replace with actual capture rights",
+  "anchorsVerified": false,
+  "worldFromCapture": {
+    "scale": 1,
+    "position": [0, 0, 0],
+    "quaternion": [0, 0, 0, 1]
+  }
+}

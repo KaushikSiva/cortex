@@ -1,0 +1,40 @@
+{
+  "name": "cortex-robot-os",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "next build",
+    "start": "NODE_ENV=production tsx server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "test:robot": "python3 robot/test_robot.py",
+    "capture": "node scripts/capture.mjs",
+    "local": "bash scripts/start-local.sh"
+  },
+  "dependencies": {
+    "@sparkjsdev/spark": "^2.2.0",
+    "dotenv": "^17.0.0",
+    "lucide-react": "^0.468.0",
+    "next": "16.3.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.185.1",
+    "urdf-loader": "^0.13.1",
+    "ws": "^8.18.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.185.0",
+    "@types/ws": "^8.18.0",
+    "tailwindcss": "^4.1.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

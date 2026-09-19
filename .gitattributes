@@ -1,0 +1,12 @@
+*.STL binary
+*.stl binary
+*.png binary
+*.jpg binary
+*.hdr binary
+*.npz binary
+*.pdf binary
+*.mp4 binary
+*.webm binary
+# Preserve upstream robot assets, including their original line endings.
+vendor/** -whitespace
+public/assets/g1/** -whitespace
