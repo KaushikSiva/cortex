@@ -103,7 +103,7 @@ A rejected second control tab now polls the status endpoint read-only rather tha
 
 Integrated origin/main through 8964483 while retaining authored-scene detail, telemetry display fixes and correlated playback. Resolved overlapping changes in server.ts, page.tsx and the Pipecat sidecar. The incoming conversational provider selection and scene map remain intact. Removed duplicate blank General Compute settings from the example environment.
 
-Verification on the merged code: 52 TypeScript tests; eight MuJoCo physics tests; four Pipecat tests; production build; local-double voice transport test; browser playback interruption test; scene/telemetry browser regression; all-direction keyboard test against actual isolated MuJoCo; and actual live Gradium voice-command/browser playback test. The latter used generated Indian English input through the actual browser worklet, not a transcript injection or human microphone. General Compute/SambaNova and Jev cloud were disabled for the deterministic movement tests.
+Verification on the merged code: 54 TypeScript tests; eight MuJoCo physics tests; four Pipecat tests; production build; local-double voice transport test; browser playback interruption test; scene/telemetry browser regression; all-direction keyboard test against actual isolated MuJoCo; and actual live Gradium voice-command/browser playback test. The latter used generated Indian English input through the actual browser worklet, not a transcript injection or human microphone. General Compute/SambaNova and Jev cloud were disabled for the deterministic movement tests.
 
 Primary web, voice and MuJoCo services were restarted together after validation so the browser and robot agree on the incoming stop-to-idle behavior. The simulation resets to HOME on server startup.
 
@@ -111,7 +111,7 @@ Primary web, voice and MuJoCo services were restarted together after validation 
 
 VIEW ONLY indicates an observer tab, not an offline robot. The visible Use this tab action requests an explicit transfer. WebSocket admission serializes the old session stop before granting control; displaced sessions cannot enqueue new commands or clear the new owner during asynchronous cleanup. Client callbacks ignore superseded sockets, and controls become enabled only after the admitted session receives a snapshot. Read-only telemetry remains available.
 
-The real multi-tab/MuJoCo control regression passes (`control-transfer-results.json`). It disables rendering animation to isolate socket ownership and key leases from concurrent GPU scenes; it is not visual-performance evidence. The current TypeScript suite (52 tests), typecheck, production build and correlated voice-transport regression also pass.
+The real multi-tab/MuJoCo control regression passes (`control-transfer-results.json`). It disables rendering animation to isolate socket ownership and key leases from concurrent GPU scenes; it is not visual-performance evidence. The current TypeScript suite (54 tests), typecheck, production build and correlated voice-transport regression also pass.
 
 Live Gradium browser speech was revalidated after an explicit tab transfer: forward, stop while moving, right turn and backward motion all reached the isolated MuJoCo controller; 27 response audio chunks reached browser playback. Input was generated Rishi audio through MediaStream/worklet, not a human microphone (`live-browser-voice-results.json`).
 
