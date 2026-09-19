@@ -1,0 +1,57 @@
+{
+  "testedAt": "2026-09-19T21:29:50.378992+00:00",
+  "method": "Live browser UI typed input, live General Compute, live MuJoCo. Not a microphone/STT test.",
+  "checks": [
+    {
+      "name": "bench-relative question at HOME",
+      "result": "pass",
+      "spokenDistanceMeters": 4,
+      "measuredDistanceMeters": 4.05,
+      "robotStatusDuringAnswer": "idle",
+      "motionCommandId": null
+    },
+    {
+      "name": "walk to bench without confirmation",
+      "result": "pass",
+      "arrivalPose": {
+        "x": -1.1433,
+        "y": 2.1954,
+        "yaw": 0.9603
+      },
+      "distanceToBenchCenterMeters": 1.31
+    },
+    {
+      "name": "relative question after movement",
+      "result": "pass",
+      "answerDistanceMeters": 1.3,
+      "measuredDistanceMeters": 1.33,
+      "answerNearEndMeters": 1.6,
+      "measuredNearEndMeters": 1.61,
+      "farEndMeters": 1.71
+    },
+    {
+      "name": "stop then move home",
+      "result": "pass",
+      "pendingConfirmation": false
+    },
+    {
+      "name": "question while walking home",
+      "result": "pass",
+      "robotStatusDuringAnswer": "moving",
+      "waypoint": "HOME"
+    },
+    {
+      "name": "Memories.ai capture upload",
+      "result": "failed",
+      "httpStatus": 200,
+      "providerCode": "0001",
+      "providerMessage": "No static resource api/v1/upload_img.",
+      "providerSuccess": false
+    }
+  ],
+  "fixes": [
+    "Publish motion-start response before waiting for a turn",
+    "Reject Memories.ai success:false envelopes even on HTTP 200",
+    "Report memory provider OFFLINE after capture failure"
+  ]
+}

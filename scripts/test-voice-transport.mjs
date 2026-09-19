@@ -12,7 +12,7 @@ let sidecar;const voiceEvents=[];
 voice.on('connection',ws=>{sidecar=ws;ws.send(JSON.stringify({type:'voice_ready'}));ws.on('message',raw=>{const event=JSON.parse(raw);voiceEvents.push(event);if(event.type==='speak')ws.send(JSON.stringify({type:'voice_audio',audio:'AAA=',sampleRate:48000}));});});
 const reservation=createServer();reservation.listen(0,'127.0.0.1');await once(reservation,'listening');const port=reservation.address().port;await new Promise(resolve=>reservation.close(resolve));
 let logs='';
-const child=spawn(process.execPath,['--import','tsx','server.ts'],{env:{...process.env,NODE_ENV:'production',PORT:String(port),GRADIUM_API_KEY:'local-test',GRADIUM_VOICE_ID:'local-test',SAMBANOVA_API_KEY:'',MEMORIES_API_KEY:'',CORTEX_MODE:'DEMO',PIPECAT_API_URL:`http://127.0.0.1:${voice.address().port}`,MUJOCO_API_URL:`http://127.0.0.1:${robot.address().port}`},stdio:['ignore','pipe','pipe']});
+const child=spawn(process.execPath,['--import','tsx','server.ts'],{env:{...process.env,NODE_ENV:'production',PORT:String(port),GRADIUM_API_KEY:'local-test',GRADIUM_VOICE_ID:'local-test',GENERAL_COMPUTE_API_KEY:'',SAMBANOVA_API_KEY:'',MEMORIES_API_KEY:'',CORTEX_MODE:'DEMO',PIPECAT_API_URL:`http://127.0.0.1:${voice.address().port}`,MUJOCO_API_URL:`http://127.0.0.1:${robot.address().port}`},stdio:['ignore','pipe','pipe']});
 child.stdout.on('data',b=>logs+=b);child.stderr.on('data',b=>logs+=b);
 let client;
 try{

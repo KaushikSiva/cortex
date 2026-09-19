@@ -26,7 +26,7 @@ This repository contains the app, simulator, voice service, tests, five-page pit
 
 ## Keyboard and voice share the same tools
 
-Hold **W/A/S/D** or **arrow keys** to walk front/left/back/right relative to the robot. It turns toward the requested direction before moving. Release the key to pause. **Q/E** turn 90° in place; **Space** latches a stop; **Resume** explicitly releases it. Pointer controls work the same way.
+Hold **W/A/S/D** or **arrow keys** to walk front/left/back/right relative to the robot. It turns toward the requested direction before moving. Release the key to pause. **Q/E** turn 90° in place; **Space** cancels the current movement; the next command starts normally. Pointer controls work the same way.
 
 Say “move left one meter,” “turn right,” or “walk to the bench.” `turn`, `walk`, and `walk_to` are schema-validated shared tools. Named targets go through SambaNova planning and the Jev/local reflex gate. With no credentials, the UI labels the deterministic planner DEMO and the reflex LOCAL. Keyboard commands use a renewable 650 ms lease, independent of the normal telemetry heartbeat.
 
@@ -39,7 +39,7 @@ Say “move left one meter,” “turn right,” or “walk to the bench.” `tu
 | “Come here.” · moderate intensity | 0.55 m/s ceiling · 1.2 m space | Measured walk and approach |
 | “Come here.” · high intensity | 0.90 m/s ceiling · 1.2 m space | Faster walking and shorter acknowledgement |
 | Paused / hesitant delivery | 0.45 m/s ceiling · 2.0 m space · confirmation | Robot holds, then approaches cautiously |
-| “WAIT! STOP!” | Latched stop | Motion command cancels before any planner call |
+| “WAIT! STOP!” | Cancel current movement | Motion command cancels before any planner call |
 
 These are bounded design heuristics, not claims about a person's internal emotional state. Device gain and background noise affect acoustic measurements; live acceptance requires calibration and real microphone trials.
 
@@ -136,7 +136,7 @@ Without live keys, use the corresponding DEMO controls. The included video uses 
 - STOP preempts planning and confirmation, including “Yes—wait, stop.”
 - Velocity, approach speed, and personal space have hard bounds.
 - Stale commands, stale telemetry, obstacles, falls, and heartbeat loss prevent movement.
-- Motion has a deadline and STOP stays latched until explicit reset or resume.
+- Motion has a deadline; STOP cancels current and pending movement without locking future commands.
 - Tool arguments are schema-validated; evidence constrains memory navigation.
 - Acknowledgement and physical settling are measured separately.
 

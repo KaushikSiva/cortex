@@ -14,11 +14,11 @@ class Robot:
         self.obstacle_ids=[mujoco.mj_name2id(self.sim.model,mujoco.mjtObj.mjOBJ_GEOM,name) for name in ['planter','bench','park_edge','street_boundary','south_boundary']]
         self.last_tick=time.time()*1000; self.running=True; self.hold=self.sim.data.qpos[:2].copy(); self.hold_yaw=self.yaw()
     def stop(self,reason='user stop'):
-        self.estop=True; self.target=None; self.turn_target=None; self.drive_heading=None; self.manual_id=None; self.status='stopped'; self.reason=reason; self.hold=self.sim.data.qpos[:2].copy();self.hold_yaw=self.yaw()
+        self.estop=False; self.target=None; self.turn_target=None; self.drive_heading=None; self.manual_id=None; self.status='idle'; self.reason=reason; self.hold=self.sim.data.qpos[:2].copy();self.hold_yaw=self.yaw()
     def state(self):
         with self.lock:
             d=self.sim.data
-            return {'pose':{'x':float(d.qpos[0]),'y':float(d.qpos[1]),'yaw':self.yaw()},'velocity':float(np.linalg.norm(d.qvel[:2])), 'commandedSpeed':self.speed if self.target is not None or self.drive_heading is not None else 0,'motion':'turn' if self.turn_target is not None else 'drive' if self.drive_heading is not None else 'walk' if self.target is not None else 'hold','qpos':d.qpos[:19].tolist(),'currentWaypoint':self.waypoint,'status':self.status,'timestamp':self.last_tick,'simTime':float(d.time),'backend':'MUJOCO','estop':self.estop,'reason':self.reason,'commandId':self.command_id,'height':float(d.qpos[2]),'contacts':int(d.ncon),'nearestObstacle':self.clearance()}
+            return {'pose':{'x':float(d.qpos[0]),'y':float(d.qpos[1]),'yaw':self.yaw()},'velocity':float(np.linalg.norm(d.qvel[:2])), 'commandedSpeed':self.speed if self.target is not None or self.drive_heading is not None else 0,'motion':'turn' if self.turn_target is not None else 'drive' if self.drive_heading is not None else 'walk' if self.target is not None else 'hold','qpos':d.qpos[:19].tolist(),'currentWaypoint':self.waypoint,'status':self.status,'timestamp':self.last_tick,'simTime':float(d.time),'backend':'MUJOCO','estop':self.estop,'reason':self.reason,'commandId':self.command_id,'height':float(d.qpos[2]),'contacts':int(d.ncon),'nearestObstacle':self.clearance(),'sceneObjects':[{'name':mujoco.mj_id2name(self.sim.model,mujoco.mjtObj.mjOBJ_GEOM,i),'x':float(self.sim.data.geom_xpos[i,0]),'y':float(self.sim.data.geom_xpos[i,1]),'halfX':float(self.sim.model.geom_size[i,0]),'halfY':float(self.sim.model.geom_size[i,1])} for i in self.obstacle_ids]}
     def yaw(self):
         w,x,y,z=self.sim.data.qpos[3:7]
         return math.atan2(2*(w*z+x*y),1-2*(y*y+z*z))
@@ -49,7 +49,7 @@ class Robot:
                 speed=b.get('speed'); self.number(speed,0,10); self.speed=min(speed,.9);return self.state()
             if path=='/look-at':return {'supported':False,'reason':'12-DoF locomotion model has no actuated head'}
             if path not in ['/navigate','/turn','/walk','/drive']:raise ValueError('Unknown command')
-            if self.estop:raise ValueError('Emergency stop is latched; explicit resume or reset required')
+            if self.status=='error':raise ValueError('Reset after a fall')
             ttl=b.get('timeoutMs',20000);self.number(ttl,100,30000)
             issued=b.get('issuedAt');self.number(issued,0,1e15)
             if abs(time.time()*1000-issued)>2000:raise ValueError('Stale command')

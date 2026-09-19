@@ -1,6 +1,6 @@
 # Conversational voice for the street robot
 
-The voice owner can work independently of navigation. Audio uses the existing browser PCM worklet → Pipecat/Gradium STT → TypeScript conversation → SambaNova → Gradium TTS → browser path.
+The voice owner can work independently of navigation. Audio uses the existing browser PCM worklet → Pipecat/Gradium STT → TypeScript conversation → General Compute (or SambaNova) → Gradium TTS → browser path.
 
 ## Start
 
@@ -9,7 +9,8 @@ Set these in `.env.local` (never commit keys):
 ```dotenv
 GRADIUM_API_KEY=...
 GRADIUM_VOICE_ID=...
-SAMBANOVA_API_KEY=...
+GENERAL_COMPUTE_API_KEY=...
+GENERAL_COMPUTE_MODEL=gpt-oss-120b
 ```
 
 Install with the README instructions, then `npm run local`. Connect the microphone in the app. Questions also work through the text box; typed replies are spoken when a configured microphone session is connected. `/api/capabilities` reports only configuration booleans. No camera understanding or street data is inferred from the rendered background.
@@ -22,7 +23,7 @@ Try:
 4. Ask a longer question, then speak over the answer.
 5. “Stop!” then “Continue slowly.”
 
-General questions need SambaNova. A missing model key produces an explicit configuration answer; the existing labeled DEMO fixtures, direct stop, and bounded offline commands (“come here,” “take me there,” “return home,” “continue slowly”) still work. Live cloud credentials and an actual microphone trial are required to validate end-to-end latency and acoustics.
+General questions use General Compute when `GENERAL_COMPUTE_API_KEY` is set; `SAMBANOVA_API_KEY` remains an optional fallback. Both the conversation and mission planner share this provider selection. The UI reports the selected provider. A missing model key produces an explicit configuration answer; the existing labeled DEMO fixtures, direct stop, and bounded offline commands (“come here,” “take me there,” “return home,” “continue slowly”) still work. Live cloud credentials and an actual microphone trial are required to validate end-to-end latency and acoustics.
 
 ## Integrated street movement
 
@@ -60,7 +61,7 @@ runtime.conversation.register('navigate_to', {
 
 Use small JSON results: `accepted`, `status`, `destination`, or a concrete error. Refresh `getNavigationContext()` from observed state. Do not report arrival when a command has only been accepted. Actions execute serially, but navigation tools that return acceptance do not wait for arrival: multi-stop sequencing belongs in the teammate's mission executor, not a batch of model calls.
 
-**Stop integration matters:** direct STOP intentionally bypasses the model and calls `CortexRuntime.stop()` → `SafetyGovernor.stop()` → the robot backend. If the street movement uses another backend, connect that same stop path to it. Replacing a model tool named `stop` alone will not wire emergency stop. Replace `resume_navigation` and `return_home` if the new backend changes their semantics. Custom tools must enforce safety themselves; the registry validates arguments, not physical movement.
+**Stop integration matters:** direct STOP intentionally bypasses the model and calls `CortexRuntime.stop()` → `SafetyGovernor.stop()` → the robot backend. If the street movement uses another backend, connect that same stop path to it. Replacing a model tool named `stop` alone will not wire immediate stop. Replace `resume_navigation` and `return_home` if the new backend changes their semantics. Custom tools must enforce safety themselves; the registry validates arguments, not physical movement.
 
 The current built-in `navigate_to` uses the existing waypoint enum until replaced. `inspect_scene` means robot telemetry, not vision. Register read-only street lookup tools for directions or landmarks if available. `getNavigationContext` can supply the street name and observed surroundings, but must not expose hidden object locations as camera observations.
 
@@ -68,6 +69,8 @@ The current built-in `navigate_to` uses the existing waypoint enum until replace
 
 - Last 10 completed user/assistant exchanges are retained in memory; reset clears them.
 - Questions preserve the navigation epoch, motion policy, and pending confirmation.
+- STOP returns the robot to idle; no resume step or latched stop mode exists.
+- Live speech pauses never trigger a confirmation hold.
 - Speech start cancels a pending model answer and interrupts synthesized audio. It does not stop an already running journey. Explicit STOP stops motion.
 - Superseded model output cannot dispatch new tools or replace the answer.
 - Tool calls are schema-validated, limited to four rounds of up to eight calls, and results are fed back to the model. The model request loop has a 25-second deadline; custom executors must honor the abort signal.
@@ -76,6 +79,20 @@ The current built-in `navigate_to` uses the existing waypoint enum until replace
 
 ## Validation
 
-`npm test` includes mocked model tests for multi-turn context, tool results, malformed/unknown tools, interruption races, question/motion isolation, and emergency stop. `npm run typecheck` and `npm run build` check the app. `node scripts/test-voice-transport.mjs` exercises the real web runtime against local voice/robot test doubles, without provider credentials. The existing `voice/test_voice.py` exercises Pipecat against a local Gradium protocol double. Neither test substitutes for a live microphone/provider run.
+`npm test` includes mocked model tests for multi-turn context, tool results, malformed/unknown tools, interruption races, question/motion isolation, and immediate stop. `npm run typecheck` and `npm run build` check the app. `node scripts/test-voice-transport.mjs` exercises the real web runtime against local voice/robot test doubles, without provider credentials. The existing `voice/test_voice.py` exercises Pipecat against a local Gradium protocol double. Neither test substitutes for a live microphone/provider run.
 
 Implementation references: [Pipecat Gradium TTS](https://reference-server.pipecat.ai/en/stable/api/pipecat.services.gradium.tts.html).
+
+General Compute compatibility: [official API reference](https://www.generalcompute.com/api-reference). A live authenticated Q&A and read-only tool-result round trip were verified with `gpt-oss-120b`.
+
+## Spatial grounding
+
+Every conversation receives a known simulation map: bench and planter bounds, bench endpoints, walking edges, authored backpack position, and the separate navigation approach points. MuJoCo publishes collision-object coordinates in `sceneObjects`; the authored map is the fallback. `inspect_scene` refreshes robot pose and returns distances, heading-relative directions, and the robot's position relative to the bench front. Stale telemetry omits relative claims. World axes are not advertised as surveyed compass directions.
+
+This is map knowledge, not a claim of camera recognition. Memories.ai is separately configured for uploaded camera evidence and historical retrieval. The existing capture flow labels a backpack sighting; it is not continuous scene perception or general object detection. Questions about mapped furniture do not require captured memories.
+
+Live browser verification is recorded in `local-spatial-results.json`. The obsolete image-upload API has been replaced with the current [Video Datalake API](https://docs.memories.ai/datalake/quickstart). Capture converts the PNG into a two-second still-frame MP4 using `ffmpeg`, uploads it into a persistent collection, and polls indexing before saving searchable evidence. Search uses frame embeddings and maps returned video IDs back to local captures. The backpack location remains an authored annotation, not a detected object claim.
+
+`npm install` installs a project-local FFmpeg binary. Optionally set `FFMPEG_PATH` or `MEMORIES_COLLECTION_ID`; otherwise the bundled executable is used and the collection ID is persisted in `.data/memories-collection.json`. Indexing may take up to three minutes. Provider errors are shown directly; failed or timed-out uploads are not advertised as searchable.
+
+Live migration test: authentication and collection listing succeeded, but collection creation was rejected with “insufficient balance — top up your account to continue”. A live capture/retrieval round trip remains blocked on account credits. Spatial queries are independent and passed live testing.

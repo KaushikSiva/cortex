@@ -5,13 +5,14 @@ import {readFile} from 'node:fs/promises';
 import {WebSocketServer,WebSocket} from 'ws';
 import {CortexRuntime} from './src/cognition/runtime';
 import {GradiumBridge} from './src/integrations/gradium/bridge';
+import {inferenceConfig} from './src/integrations/inference';
 import {stopWords} from './src/integrations/jev';
 const dev=process.env.NODE_ENV!=='production';const port=Number(process.env.PORT??3000);const app=next({dev,hostname:'127.0.0.1',port});await app.prepare();const handle=app.getRequestHandler();
 let client:WebSocket|null=null;
 const runtime=new CortexRuntime(state=>{if(client?.readyState===WebSocket.OPEN)client.send(JSON.stringify({type:'snapshot',state}));});
 const server=createServer(async(req,res)=>{
  if(req.url?.startsWith('/evidence/')){try{const name=req.url.slice(10);if(!/^[a-f0-9-]+\.png$/.test(name))throw new Error();res.setHeader('Content-Type','image/png');res.end(await readFile('.data/'+name));}catch{res.statusCode=404;res.end();}return;}
- if(req.url==='/api/capabilities'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({gradiumConfigured:!!process.env.GRADIUM_API_KEY,ttsConfigured:!!process.env.GRADIUM_API_KEY&&!!process.env.GRADIUM_VOICE_ID,conversationConfigured:!!process.env.SAMBANOVA_API_KEY}));return;}
+ if(req.url==='/api/capabilities'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({gradiumConfigured:!!process.env.GRADIUM_API_KEY,ttsConfigured:!!process.env.GRADIUM_API_KEY&&!!process.env.GRADIUM_VOICE_ID,conversationConfigured:!!inferenceConfig(),inferenceProvider:inferenceConfig()?.name??null}));return;}
  if(req.url==='/api/status'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify(runtime.state));return;}
  if(req.url==='/api/traces'){res.setHeader('Content-Type','application/json');res.setHeader('Content-Disposition','attachment; filename="cortex-trace.json"');res.end(JSON.stringify(runtime.state.traces,null,2));return;}
  handle(req,res);

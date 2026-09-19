@@ -71,7 +71,7 @@ test('questions preserve navigation, policy, and pending confirmation',async()=>
 test('STOP cancels conversation before dispatching robot stop',async()=>{
  const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};const order:string[]=[];
  runtime.conversation.interrupt=()=>{order.push('interrupt');};runtime.robot.stop=async()=>{order.push('stop');};
- await runtime.command({type:'text',text:'Stop!'});assert.deepEqual(order,['interrupt','stop']);assert.equal(runtime.safety.latched,true);
+ await runtime.command({type:'text',text:'Stop!'});assert.deepEqual(order,['interrupt','stop']);
 });
 
 test('street questions do not trigger emergency stop, direct requests do',()=>{
@@ -89,9 +89,9 @@ test('offline demo resume remains available without a model key',async()=>{
  try{
   const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};
   const snapshot={pose:{x:0,y:0,yaw:0},velocity:0,qpos:Array(19).fill(0),status:'idle',timestamp:Date.now(),nearestObstacle:3,estop:false,currentWaypoint:'BENCH'} as RobotState;
-  runtime.state.robot=snapshot;runtime.safety.latched=true;
+  runtime.state.robot=snapshot;
   const actions:string[]=[];runtime.robot.resume=async()=>{actions.push('resume');};runtime.robot.getState=async()=>snapshot;runtime.robot.turn=async yaw=>{snapshot.pose.yaw=yaw;};runtime.robot.navigate=async(_target,policy,waypoint)=>{actions.push(waypoint);assert.equal(policy.maxSpeed,.3);};
-  await runtime.command({type:'text',text:'Continue, but slowly.'});assert.deepEqual(actions,['resume','BENCH']);
+  await runtime.command({type:'text',text:'Continue, but slowly.'});assert.deepEqual(actions,['BENCH']);
  }finally{if(previous!==undefined)process.env.SAMBANOVA_API_KEY=previous;}
 });
 
@@ -131,5 +131,40 @@ test('stop during an awaited turn cannot be overwritten by its completion',async
  let release!:()=>void;runtime.motion.turn=async()=>{await new Promise<void>(resolve=>{release=resolve;});return null;};
  const moving=runtime.execute({name:'turn',arguments:{angleDegrees:90}},runtime.epoch);
  await new Promise(resolve=>setImmediate(resolve));await runtime.stop();release();await moving;
- assert.equal(runtime.state.phase,'STOPPED');assert.equal(runtime.state.response,'Stopped.');
+ assert.equal(runtime.state.phase,'READY');assert.equal(runtime.state.response,'Stopped.');
+});
+
+test('polite move home executes without model or pause-based confirmation',async()=>{
+ const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};
+ runtime.conversation.reply=async()=>{assert.fail('Explicit home command should not ask the model for permission');};
+ const state={pose:{x:-1,y:0,yaw:0},velocity:0,status:'idle',timestamp:Date.now(),nearestObstacle:3,estop:false} as RobotState;
+ runtime.robot.getState=async()=>state;let target='';runtime.motion.walkTo=async name=>{target=name;};
+ await runtime.gradium({type:'voice_turn',transcript:'Okay, can you move home, please?',source:'GRADIUM',acoustics:{rmsDb:-30,peakDb:-20,pitchVariation:.1,pauseRatio:.8,voicedMs:2000}});
+ assert.equal(target,'HOME');assert.equal(runtime.state.pendingConfirmation,false);assert.equal(runtime.state.response,'Heading home.');
+});
+
+test('stop followed by move home executes immediately without resume',async()=>{
+ const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};runtime.robot.stop=async()=>{};
+ runtime.motionReflex=async()=>true;let target='';runtime.motion.walkTo=async name=>{target=name;};
+ runtime.robot.resume=async()=>{assert.fail('No resume handshake should be needed');};
+ await runtime.command({type:'stop'});await runtime.command({type:'text',text:'Move home.'});
+ assert.equal(target,'HOME');assert.equal(runtime.state.pendingConfirmation,false);assert.equal(runtime.state.response,'Heading home.');
+});
+
+test('toward houses faces positive world Y and walks a bounded meter',async()=>{
+ const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};
+ runtime.robot.getState=async()=>({pose:{x:-3,y:0,yaw:0},nearestObstacle:3,velocity:0,status:'idle',estop:false,timestamp:Date.now()} as RobotState);
+ const calls:string[]=[];runtime.motion.turn=async angle=>{assert.equal(angle,90);calls.push('turn');return Math.PI/2;};runtime.motion.walk=async(direction,meters)=>{assert.equal(direction,'front');assert.equal(meters,1);calls.push('walk');};
+ await runtime.command({type:'text',text:'Okay, can you move towards the houses, please?'});
+ assert.deepEqual(calls,['turn','walk']);assert.equal(runtime.state.pendingConfirmation,false);
+});
+
+
+test('new motion replaces the stopped reply before an awaited turn completes',async()=>{
+ const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};runtime.motionReflex=async()=>true;
+ runtime.state.response='Stopped.';let release!:()=>void;
+ runtime.motion.turn=async()=>{await new Promise<void>(resolve=>{release=resolve;});return 1;};
+ const moving=runtime.execute({name:'turn',arguments:{angleDegrees:90}},runtime.epoch);
+ await new Promise(resolve=>setImmediate(resolve));assert.equal(runtime.state.response,'Turning.');assert.equal(runtime.state.phase,'TURNING');
+ release();await moving;
 });
