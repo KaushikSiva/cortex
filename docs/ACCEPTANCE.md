@@ -5,7 +5,7 @@ This record separates exercised implementation from credential-dependent and cap
 | User test | Result | Evidence |
 |---|---|---|
 | A: real same words, different vocal expression | **Pending Gradium credentials and microphone trial** | Synthetic fixture version passes: identical transcript, different fixture acoustic cues, policy and actual MuJoCo movement. Live acceptance is not claimed. |
-| B: robot looks like real footage | **Not passed** | Full 3D waterfall, scanned materials and moving-camera parallax are implemented. A blind photorealism review has not passed; geometry is inferred rather than reconstructed. |
+| B: robot looks like real footage | **Not passed** | Real Painted Ladies photogrammetric mesh plus authored Alamo Square foreground. Frontal parallax is implemented; scan coverage and texture resolution are limited. A blind photorealism review has not passed. |
 | C: voice STOP | **Fixture stop path passed; live voice pending** | Runtime integration test observes stop latch and records reflex, acknowledgement and physical settling durations. No speech latency is fabricated. |
 | D: real stored memory retrieval | **Local capture/retrieval passed; Memories.ai live pending** | Browser test captures a real frame, retrieves that exact event ID, and checks the response. Labels are operator supplied. |
 | E: navigate from memory | **Local evidence path passed** | Retrieved PLANTER waypoint causes real MuJoCo movement. |
@@ -40,4 +40,8 @@ The combined emotion + memory path is tested with the exact fixture transcript â
 
 ## Gradium / Pipecat migration
 
-Three Python voice tests validate measured PCM energy, no invented state for silence, and the actual Pipecat pipeline against a local Gradium-protocol test double (interim/final text, flush, raw event retention). Four physics tests include pool-edge clearance from the actual collision model. Browser inspection checks camera position changes when orbiting the full 3D waterfall. These are local tests, not live cloud-provider or photorealism acceptance claims.
+Three Python voice tests validate measured PCM energy, no invented state for silence, and the actual Pipecat pipeline against a local Gradium-protocol test double (interim/final text, flush, raw event retention). Four physics tests include park-curb clearance from the actual collision model. Browser inspection checks camera position changes when orbiting the Painted Ladies photogrammetric scene. These are local tests, not live cloud-provider or photorealism acceptance claims.
+
+## Current shared-motion snapshot
+
+19 TypeScript tests and 7 MuJoCo physics tests passed. Real simulated turns converge within 0.16 radians with under 0.3 m displacement. Lease expiry is checked independently of telemetry health. Typecheck passed. Latest browser run timed out; keyboard browser verification and production build for these changes remain pending. Historical results above describe earlier revisions. The current scene was rejected by the user as insufficiently realistic.

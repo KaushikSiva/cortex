@@ -1,0 +1,6 @@
+San Francisco Painted Ladies by jtressle
+https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6
+Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+
+GLB distributed via AllenAI Objaverse. Original GLB unchanged. Runtime scene applies rotation, scaling, placement, and filters captured sky fragments. Foreground park geometry and lighting are authored by CORTEX.

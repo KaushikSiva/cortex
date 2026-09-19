@@ -1,6 +1,6 @@
 # Demo script and recording provenance
 
-`public/media/CORTEX-demo.mp4` records the working browser application and live local MuJoCo. CORTEX acoustic inputs in this film are **synthetic fixtures**, not live microphone inference. The voice-over is computer-generated narration, not audio that was sent through Gradium. The scene uses full 3D granite, animated water, reflections and scanned materials around an inferred Yerba Buena waterfall layout; it is a simulation, not footage of a physical robot or a completed neural reconstruction.
+`public/media/CORTEX-demo.mp4` records the working browser application and live local MuJoCo. CORTEX acoustic inputs in this film are **synthetic fixtures**, not live microphone inference. The voice-over is computer-generated narration, not audio that was sent through Gradium. The scene uses a real Painted Ladies photogrammetric mesh with an authored Alamo Square park foreground; it is a simulation, not footage of a physical robot or a complete digital twin.
 
 The film opens in Reality Mode and then reveals CORTEX. It exercises calm / urgent policy differences, evidence capture and retrieval, navigation, stop, and slow resume. It preserves actual telemetry and measured latency. Any speech-to-Gradium latency remains unknown for fixture input. The unedited browser recording, chapter timestamps, narration script and VTT captions make the presentation reproducible.
 
@@ -32,8 +32,4 @@ python3 scripts/narrate.py         # macOS say + ffmpeg: final MP4, captions and
 
 `capture.mjs` records one operator session; it cannot run alongside another browser test. The macOS narration script uses installed system speech. On another OS, supply narration audio or distribute the silent raw WebM with captions. Audio is illustrative narration, not an emotion-recognition test.
 
-Photographic image and derivative scene-video attribution: Beyond My Ken, [2017 Yerba Buena Gardens](https://commons.wikimedia.org/wiki/File:2017_Yerba_Buena_Gardens_Martin_Luther_King,_Jr._Memorial.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). See `ASSETS.md` for robot and material sources.
-
-## Combined emotion and memory
-
-After capturing a memory, open Visual memory and select **I really need my backpack · DEMO**. Its synthetic anxious profile uses “Where is my backpack? I really need it.” CORTEX retrieves the actual saved event, plans against that evidence, and holds for confirmation with 2.0 m personal space. Choose **Yes, approach** to navigate. The main film retains the original short script; this additional flow is exercised by the browser acceptance test.
+Painted Ladies scan: [jtressle](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), distributed via AllenAI Objaverse. Runtime transform and selected captured-sky fragment filtering are modifications. See `ASSETS.md` for robot and material sources.

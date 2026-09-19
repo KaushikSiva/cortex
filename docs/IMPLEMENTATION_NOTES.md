@@ -43,7 +43,7 @@ Local camera captures are actual renderer PNGs with operator-supplied object/way
 
 The existing official Unitree G1 12-DoF LSTM gait runs with a NumPy export. MuJoCo steps at 500 Hz and policy targets update at 50 Hz. Browser interpolation follows real simulated joint and base state; it does not slide the robot root to animate walking.
 
-The MLK waterfall is a full 3D reference-informed scene: granite blocks, side galleries, water curtains, basin/reflections, scanned paving and scene props. The inspection camera exposes its geometry and parallax. Separate MuJoCo collisions include the pool edge, planter, bench and boundaries. Coordinates are inferred local meters, not surveyed capture poses. The generated waterfall image is an art-direction reference only, not the scene background or proof of reconstruction.
+The environment is now Painted Ladies / Alamo Square. The bundled CC BY 4.0 jtressle scan is real photogrammetry (source and hash in `public/assets/painted-ladies/SOURCE.json`), loaded with Three.js GLTFLoader. Photographic texture lighting is kept baked, and selected sky fragments are discarded. Park foreground, props and collision alignment are authored approximations. The scan is incomplete at its sides and rear and carries a 1024² atlas in the Objaverse distribution. Orbit inspection is limited to its frontal region; it is not a complete digital twin. MuJoCo colliders cover the park curb, bench, planter and street boundary.
 
 No claim is made that the current render passes a blind real-vs-simulated test. Photorealism remains a visual acceptance target. No real robot, grasping, urban autonomy or cloud deployment was performed.
 
@@ -52,3 +52,11 @@ No claim is made that the current render passes a blind real-vs-simulated test. 
 Velocity ceiling .9 m/s; approach .5 m/s; personal space ≥1.2 m. Unknown waypoints, malformed numbers, stale commands (>2 s), stale telemetry (>750 ms), obstacles, falls, motion timeouts and heartbeat loss are handled independently of the planner. STOP latches; explicit reset/resume is required. Only one operator controls the loopback runtime; browser Origin checks reject unrelated sites.
 
 Server `performance.now()` measures durations. Voice timing starts at receipt of the browser VAD marker, excluding microphone buffering and browser transit. A command acknowledgement is separate from base-speed settling (<.08 m/s for three telemetry samples). Synthetic fixtures leave speech latency unknown. No provider latency is invented from marketing claims.
+
+## Shared motion update
+
+`src/cognition/tools/motion.ts` owns relative `turn`, directional `walk`, and named `walkTo`. Turning waits for measured heading convergence before translation. Keyboard and Gradium transcripts use these same primitives. Named-target controls request a structured planner call; Jev (or explicit local rules) checks fresh telemetry before the SafetyGovernor accepts it. Manual driving requires a renewable 650 ms session lease. Release, blur and visibility loss issue hold without clearing emergency stop. Robot-side expiry stops manual motion even when the web runtime still sends heartbeats.
+
+Rendering now uses the chennai-gta solar-separated HDR light, alpha-aware GTAO, SMAA, 4096 shadow maps and bent-leaf trees, plus scanned ground materials and geometric park details. The camera has a 60° field of view and a separate 60° orbit preset. These additions do not fix the partial façade scan's missing depth and sides: the user rejected the current view as insufficiently realistic. Replacing or reconstructing the building volume remains open.
+
+This snapshot passes TypeScript typechecking, 19 TypeScript tests, and 7 MuJoCo tests including actual left/right/180° turns, expired key leases and person clearance. The updated end-to-end browser suite did not complete (timeout with an existing operator session); the new keyboard browser script has not yet passed. Historical media and browser evidence are not proof of this snapshot's acceptance.

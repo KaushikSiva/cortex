@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {z} from 'zod';
-export const reconstructionManifest=z.object({url:z.string().startsWith('/assets/'),captureLocation:z.literal('Yerba Buena Gardens'),source:z.string().min(1),license:z.string().min(1),anchorsVerified:z.literal(true),worldFromCapture:z.object({scale:z.number().positive().max(100),position:z.tuple([z.number(),z.number(),z.number()]),quaternion:z.tuple([z.number(),z.number(),z.number(),z.number()])})});
+export const reconstructionManifest=z.object({url:z.string().startsWith('/assets/'),captureLocation:z.literal('Painted Ladies, Alamo Square'),source:z.string().min(1),license:z.string().min(1),anchorsVerified:z.literal(true),worldFromCapture:z.object({scale:z.number().positive().max(100),position:z.tuple([z.number(),z.number(),z.number()]),quaternion:z.tuple([z.number(),z.number(),z.number(),z.number()])})});
 /** Appearance only. Physics remains explicit MuJoCo collision geometry. */
 export async function loadReconstruction(scene:THREE.Scene,renderer:THREE.WebGLRenderer,manifestUrl:string){
  if(!manifestUrl.startsWith('/assets/'))throw new Error('Reconstruction manifest must be a local asset');
