@@ -6,7 +6,7 @@
 
 **Same words. Different voice. Different physical response.**
 
-[The demo](public/media/CORTEX-demo.mp4) · [Five-slide pitch](public/media/CORTEX-pitch.pdf) · [How it works](#the-system) · [Run locally](#run-cortex) · [Evidence](docs/ACCEPTANCE.md)
+[The demo · Indian English](public/media/CORTEX-demo-indian.mp4) · [Five-slide pitch](public/media/CORTEX-pitch.pdf) · [How it works](#the-system) · [Run locally](#run-cortex) · [Evidence](docs/ACCEPTANCE.md)
 
 ![CORTEX — Unitree G1 facing the Painted Ladies, San Francisco](public/media/reality.png)
 

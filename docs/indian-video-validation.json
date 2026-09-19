@@ -1,0 +1,49 @@
+{
+  "file": "public/media/CORTEX-demo-indian.mp4",
+  "sha256": "8c91365529d3cd2554a72d3b789c176bd6efa0642f28b99de3cd7fcd6ff895c7",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "109.720000",
+      "size": "28267850"
+    }
+  },
+  "browserPlayback": {
+    "result": {
+      "source": "http://localhost:3000/media/CORTEX-demo-indian.mp4",
+      "duration": 109.72,
+      "width": 1920,
+      "height": 1080,
+      "playedTo": 0.522891,
+      "captionLabel": "Indian English narration",
+      "cues": 12,
+      "error": null
+    },
+    "errors": []
+  },
+  "audioMeasured": {
+    "integratedLufs": -16.32,
+    "truePeakDbtp": -1.39,
+    "loudnessRangeLu": 2.9
+  },
+  "chapters": 12,
+  "maxAudioTempo": 1.0415942822384427,
+  "chapterOverlaps": 0,
+  "fullDecode": "ffmpeg -v error -i public/media/CORTEX-demo-indian.mp4 -f null -; exit 0",
+  "limits": "Generated Rishi en-IN narration over existing application recording; synthetic acoustic profiles and local planning, not a live microphone validation. Scene predates ongoing neighborhood refinement."
+}
