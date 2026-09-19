@@ -1,6 +1,6 @@
 # Demo script and recording provenance
 
-`public/media/CORTEX-demo.mp4` records the working browser application and live local MuJoCo. CORTEX acoustic inputs in this film are **synthetic fixtures**, not live microphone inference. The voice-over is computer-generated narration, not audio that was sent through Gradium. The scene uses a real Painted Ladies photogrammetric mesh with an authored Alamo Square park foreground; it is a simulation, not footage of a physical robot or a complete digital twin.
+`public/media/CORTEX-demo.mp4` records the working browser application and live local MuJoCo. CORTEX acoustic inputs in this film are **synthetic fixtures**, not live microphone inference. The voice-over is computer-generated narration, not audio that was sent through Gradium. The scene uses authored full-depth Painted Ladies architecture with an Alamo Square park foreground; it is a simulation, not footage of a physical robot or a complete digital twin.
 
 The film opens in Reality Mode and then reveals CORTEX. It exercises calm / urgent policy differences, evidence capture and retrieval, navigation, stop, and slow resume. It preserves actual telemetry and measured latency. Any speech-to-Gradium latency remains unknown for fixture input. The unedited browser recording, chapter timestamps, narration script and VTT captions make the presentation reproducible.
 
@@ -33,3 +33,5 @@ python3 scripts/narrate.py         # macOS say + ffmpeg: final MP4, captions and
 `capture.mjs` records one operator session; it cannot run alongside another browser test. The macOS narration script uses installed system speech. On another OS, supply narration audio or distribute the silent raw WebM with captions. Audio is illustrative narration, not an emotion-recognition test.
 
 Painted Ladies scan: [jtressle](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), distributed via AllenAI Objaverse. Runtime transform and selected captured-sky fragment filtering are modifications. See `ASSETS.md` for robot and material sources.
+
+The refreshed recording includes a keyboard chapter demonstrating turn-before-walk and key-release hold. It runs approximately 110 seconds, with exact chapter times in public/media/chapters.json. Cloud speech evidence is recorded separately in live-motion-results.json; the film itself uses explicitly labeled synthetic fixtures.

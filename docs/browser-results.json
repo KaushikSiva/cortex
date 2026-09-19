@@ -10,21 +10,16 @@
     844
   ],
   "tests": [
+    "Volumetric Painted Ladies loaded (>100k vertices), phone camera height 1.65m",
     "calm / urgent controls",
     "camera evidence persisted and retrieved",
     "memory waypoint navigation",
     "Reality keyboard reveal",
     "Space stop in Reality",
     "fearful confirmation cancellation",
-    "anxious memory evidence \u2192 confirmation \u2192 physical navigation",
+    "anxious memory evidence → confirmation → physical navigation",
     "3D camera orbit and parallax",
     "mobile no overflow"
   ],
-  "at": "2026-09-19T19:53:19.305Z",
-  "scope": "Historical passing run before shared keyboard tools and latest renderer; not acceptance of current snapshot",
-  "latestAttempt": {
-    "passed": false,
-    "reason": "UI assertion timeout; another operator session was active",
-    "date": "2026-09-19"
-  }
+  "at": "2026-09-19T21:14:27.553Z"
 }

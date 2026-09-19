@@ -4,14 +4,14 @@
 
 | Asset | Source | License / use |
 |---|---|---|
-| `painted-ladies/scene.glb` | [San Francisco Painted Ladies by jtressle](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6) via [AllenAI Objaverse](https://objaverse.allenai.org/docs/objaverse-1.0/) | CC BY 4.0. Original GLB unchanged; runtime rotation, scaling, positioning and selected sky fragment filtering. Partial frontal scan, baked lighting, 1024² distributed atlas. SOURCE.json records SHA-256 and download URL. |
+| `painted-ladies/scene.glb` | [San Francisco Painted Ladies by jtressle](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6) via [AllenAI Objaverse](https://objaverse.allenai.org/docs/objaverse-1.0/) | CC BY 4.0. Original GLB unchanged; runtime rotation, scaling, positioning and selected sky fragment filtering. Retained hidden reference only. Partial frontal scan, baked lighting, 1024² distributed atlas. SOURCE.json records SHA-256 and download URL. |
 | `asphalt-*.jpg` | [Asphalt 02, Poly Haven](https://polyhaven.com/a/asphalt_02) | CC0 diffuse, normal and roughness; Steiner Street surface. |
 | `grass-*.jpg` | [Aerial Grass Rock, Poly Haven](https://polyhaven.com/a/aerial_grass_rock) | CC0 diffuse, normal and roughness scans. |
 | `concrete-*.jpg` | [Concrete Floor Worn 001, Poly Haven](https://polyhaven.com/a/concrete_floor_worn_001) | CC0, current park-path diffuse/normal/roughness. |
 | `park-tree.glb` | Derived from [Island Tree 02, Poly Haven](https://polyhaven.com/a/island_tree_02) in the existing chennai-gta workspace | CC0 source textures; custom bent-leaf geometry and baked clusters. Details in `park-tree.attribution.json`. |
 | `pavement-*.jpg` | [Concrete Pavement, Poly Haven](https://polyhaven.com/a/concrete_pavement) | CC0, park-path material. |
 | `daylight.hdr` | [Kloofendal 48d Partly Cloudy, Poly Haven](https://polyhaven.com/a/kloofendal_48d_partly_cloudy) | CC0 environment illumination, not a San Francisco capture. |
-| Park path / slope / bench / planter / backpack | CORTEX authored geometry | Inferred demo placements and scale, not surveyed Alamo Square furniture. |
+| Victorian houses / park path / slope / bench / planter / backpack | CORTEX authored geometry | Inferred demo placements and scale, not surveyed Alamo Square furniture. |
 
 Screenshots are intermediate application captures. The bundled video/GIF still show the previous scene and must be regenerated after visual acceptance. Scan attribution also appears in the app provenance panel, README, deck and video metadata.
 
@@ -47,3 +47,15 @@ The original Streetwise work remains in the separate chennai-gta workspace. CORT
 | Earlier waterfall geometry | Previous Git revision | Superseded by the Painted Ladies scene. |
 
 The generated waterfall plate is retained only as an archived art-direction study.
+
+## Architectural material refinement
+
+`public/assets/architecture` contains 2K CC0 diffuse, OpenGL normal and roughness scans from [Blue Painted Planks](https://polyhaven.com/a/blue_painted_planks) and [Roof Slates 03](https://polyhaven.com/a/roof_slates_03). SOURCE.json records download URLs and hashes. Runtime siding pigment is remapped to the authored pastel palette; metric UVs preserve material scale. These are material proxies, not captures of the actual Painted Ladies.
+
+## DataSF neighborhood context
+
+`public/assets/neighborhood/buildings.json` derives from the [City and County of San Francisco building footprints](https://catalog.data.gov/dataset/building-footprints-file-geodatabase-format), licensed [PDDL 1.0](https://opendatacommons.org/licenses/pddl/1-0/). The [published ArcGIS layer](https://services5.arcgis.com/wXYNaciObHUosEnt/ArcGIS/rest/services/Rooftop_Solar_Power_Potential_San_Francisco_WFL1/FeatureServer/9) supplies the queried geometry and documented elevation fields. Credit: San Francisco Open Data Program, Enterprise GIS Program, Department of Environment and Department of Technology.
+
+SOURCE.json preserves the query, source feature count, output checksum, units and limitations. 362 queried footprints become 355 background buildings plus seven elevation references for the authored row. Local coordinate rotation/translation, extrusion, window treatment and terrain interpolation are CORTEX transformations; they do not recover actual façade appearance or roof geometry.
+
+`daylight.SOURCE.json` records the original 2K Poly Haven HDR download and hash. No source bitmap edits were made.

@@ -81,3 +81,17 @@ test('cancelled turn never launches the following walk',async()=>{
  await new MotionTools(new SafetyGovernor(f.b)).walk('back',1,defaultPolicy,{active:()=>active,trace:()=>{}});
  assert.deepEqual(f.calls,['turn']);
 });
+test('turn acknowledgement is recorded before physical heading convergence',async()=>{
+ const {MotionTools}=await import('../src/cognition/tools/motion');const f=backend();let turning=false,reads=0,acknowledged=false;
+ f.b.turn=async()=>{turning=true};
+ f.b.getState=async()=>{if(!turning)return state();reads++;assert.equal(acknowledged,true);return {...state(),status:reads<2?'moving':'idle',pose:{x:0,y:0,yaw:reads<2?.4:Math.PI/2}}};
+ await new MotionTools(new SafetyGovernor(f.b)).turn(90,defaultPolicy,{active:()=>true,trace:()=>{},onAcknowledged:()=>{acknowledged=true}});
+ assert.equal(reads,2);
+});
+
+test('Memories application errors in HTTP 200 cannot masquerade as empty evidence',async()=>{
+ const {assertMemoriesSuccess}=await import('../src/integrations/memories');
+ assert.throws(()=>assertMemoriesSuccess({code:'0001',success:false,failed:true,data:null}));
+ assert.throws(()=>assertMemoriesSuccess(null));
+ assert.doesNotThrow(()=>assertMemoriesSuccess({code:'0000',success:true,data:[]}));
+});

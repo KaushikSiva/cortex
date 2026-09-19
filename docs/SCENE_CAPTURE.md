@@ -1,6 +1,6 @@
 # Painted Ladies / Alamo Square: scene coverage and capture
 
-The current environment combines jtressle's CC BY 4.0 **Painted Ladies photogrammetric mesh** with a modeled park foreground. The bundled GLB is unchanged and its checksum is in `public/assets/painted-ladies/SOURCE.json`. The runtime rotates, scales and places it, and discards captured-sky fragments in selected atlas regions. The asset has real geometric depth but incomplete side/back coverage and baked lighting; the distributed texture atlas is 1024 × 1024. It is not a complete Alamo Square digital twin.
+The default environment is an authored, full-depth Painted Ladies architectural study. It has actual side/rear walls, roofs, projecting bays and recessed windows. The former jtressle CC BY 4.0 partial photogrammetric shell is retained only as hidden reference; its original binary and attribution remain bundled. See [current scene status](SCENE_STATUS.md). No complete location reconstruction is available yet.
 
 Six targets remain on the flat demonstration path. The park foreground, furniture and scale are authored approximations, not surveyed SF positions. The robot cannot navigate across Steiner Street.
 
@@ -32,6 +32,6 @@ The optional Spark loader (`src/scene/reconstruction.ts`) accepts a locally host
 
 The browser camera is at 1.65 m, 60° vertical field of view, with a fixed phone-like viewpoint. Confirm robot scale against measured ground anchors. Match sun direction and white balance, check planted feet and contact shadows, and record approach/turn/stop from the same camera. Do not use an orbital camera for the hero shot.
 
-Run the user's two-second blind screenshot test only after the real reconstruction is installed. Record participant responses and the exact screenshot. The current scene combines a partial third-party scan and authored foreground; acceptance Test B has not passed.
+Run the user's two-second blind screenshot test only after the real reconstruction is installed. Record participant responses and the exact screenshot. The current scene is an authored architectural approximation; acceptance Test B has not passed.
 
 A manifest template is in `reconstruction-manifest.example.json`. Leave `anchorsVerified` false until the measured scale, ground plane, three anchors, robot foot contact and collision placements have been checked. The loader rejects an unverified manifest. Copy the checked manifest into `public/assets/`, set `NEXT_PUBLIC_SPLAT_MANIFEST=/assets/your-manifest.json`, and rebuild. Spark API reference: [SplatMesh](https://sparkjs.dev/docs/splat-mesh/) and [SparkRenderer](https://sparkjs.dev/docs/spark-renderer/), pinned package 2.2.0.

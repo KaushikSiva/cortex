@@ -7,7 +7,8 @@ import {AlphaAwareGTAOPass} from './alphaAwareGtao';
 
 /** Chennai-GTA's contact shading pipeline, scaled for a walking humanoid. */
 export function createSceneRenderer(scene:THREE.Scene,renderer:THREE.WebGLRenderer,camera:THREE.PerspectiveCamera){
- const composer=new EffectComposer(renderer);
+ const target=new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,samples:Math.min(4,renderer.capabilities.maxSamples)});
+ const composer=new EffectComposer(renderer,target);
  const ao=new AlphaAwareGTAOPass(scene,camera,1,1);
  ao.updateGtaoMaterial({radius:.38,thickness:.24,distanceExponent:2,distanceFallOff:1,samples:8});
  ao.updatePdMaterial({radius:2,samples:6});ao.blendIntensity=.38;

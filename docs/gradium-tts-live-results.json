@@ -1,0 +1,14 @@
+{
+  "provider": "Gradium LIVE via actual Pipecat sidecar",
+  "voiceId": "lt88kyLfD8Mqemla",
+  "voiceName": "Michelle",
+  "voiceDescription": "A warm and smooth Indian English young adult voice for clear and friendly service.",
+  "text": "I saw your backpack beside the planter. I will guide you there.",
+  "firstAudioMs": 368.27,
+  "audioDurationSeconds": 3.68,
+  "sampleRate": 48000,
+  "chunks": 46,
+  "peakAmplitude": 0.849029541015625,
+  "pcmSha256": "bd80a71865db61c00c81afb476cca91595a09d84ce319608b769fa71747da7a4",
+  "limits": "Direct speak request to isolated Pipecat sidecar, not a microphone, planner, memory retrieval or physical-motion acceptance test. Accent classification is Gradium catalog metadata, not independently judged."
+}

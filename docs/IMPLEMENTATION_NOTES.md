@@ -60,3 +60,35 @@ Server `performance.now()` measures durations. Voice timing starts at receipt of
 Rendering now uses the chennai-gta solar-separated HDR light, alpha-aware GTAO, SMAA, 4096 shadow maps and bent-leaf trees, plus scanned ground materials and geometric park details. The camera has a 60° field of view and a separate 60° orbit preset. These additions do not fix the partial façade scan's missing depth and sides: the user rejected the current view as insufficiently realistic. Replacing or reconstructing the building volume remains open.
 
 This snapshot passes TypeScript typechecking, 19 TypeScript tests, and 7 MuJoCo tests including actual left/right/180° turns, expired key leases and person clearance. The updated end-to-end browser suite did not complete (timeout with an existing operator session); the new keyboard browser script has not yet passed. Historical media and browser evidence are not proof of this snapshot's acceptance.
+
+## Full-depth scene revision
+
+`src/scene/victorians.ts` replaces the rejected shallow façade presentation with authored solid building volumes, polygonal bays, recessed windows, roofs, side/rear walls, entry stairs, rails and architectural details. Geometry is batched by material. No façade photo planes are used in the default view. The previous scan is hidden reference, not an accepted reconstruction. See SCENE_STATUS.md for the remaining visual gap.
+
+Fixed missing tree rendering caused by assigning a material array to geometry without draw groups. Fixed HDR sky fogging and updated the directional shadow camera's projection matrix. Browser render checks report no WebGL/page errors. Both the keyboard and complete UI browser suites now pass on an isolated production server and MuJoCo instance.
+
+Motion acknowledgement timestamps now bracket each safety-governed primitive request. They exclude the wait for heading convergence, which is physical motion duration rather than network acknowledgement.
+
+## Live speech verification
+
+With the supplied credential stored only in ignored `.env.local`, the actual Gradium socket through Pipecat returned interim and final “come here.” for generated PCM16 audio. `docs/gradium-live-results.json` records events and local acoustic measurements. This proves credential/auth and real STT pipeline operation. It does not prove a real microphone trial, calibrated expression mapping, TTS or end-to-end cloud-planned robot motion.
+
+## Provider contract checks and material refinement
+
+The current TypeSafe quickstart contract returned live Jev CONTINUE in about 400 ms. Three calls through the actual 180 ms adapter deadline each fell back to explicitly labeled local rules. The current official Memories.ai CLI search endpoint returned HTTP 200 containing application error 0001 (missing route). The adapter now rejects application-level failures, and runtime marks memory OFFLINE rather than presenting a false empty result. Live memory remains unverified. Details: provider-live-results.json.
+
+The architectural study now uses 2K CC0 siding/slate scans with metric UVs and physically based glass, plus modeled arched entries and porch posts. A multisampled render target improves architectural edge rendering. Browser rendering and TypeScript checks pass; this material study does not establish photorealism. The existing demo video represents the preceding architecture revision.
+
+## DataSF background geometry refinement
+
+Inspected the official Data.gov catalog and ArcGIS layer metadata. The city footprint dataset is PDDL 1.0; `gnd_Min_m` and `hgt_Median_m` are meters, and the source geometry predates the current demo. Queried a small Alamo Square bounding box, rejected truncated/error responses, and retained the exact query and derived-asset checksum. The default scene now uses local-coordinate footprint extrusions around the authored row and elevation-informed street grading. This is a geometry correction, not a new photorealism claim. Live navigation and collisions remain separate.
+
+Asset research: Waymo’s Block-NeRF page shows Alamo Square but publishes a Mission Bay dataset; it is not a usable substitute for the requested location. The available jtressle scan remains incomplete. A higher-quality, licensed Painted Ladies capture has not been obtained.
+
+## Live Indian English speech output
+
+Inspected the current official [Get Voices endpoint](https://docs.gradium.ai/api-reference/endpoint/get-voices) and installed Gradium SDK 0.6.4. The authenticated catalog returned 387 voices, including Michelle (`lt88kyLfD8Mqemla`), described by the provider as Indian English. No voice was cloned or created.
+
+An isolated instance of the actual Pipecat sidecar synthesized a fixed test sentence using that voice. It returned 46 PCM16 chunks at 48 kHz, totaling 3.68 seconds; first audio arrived 368.27 ms after the test speak request. These are measured single-run values, not service guarantees. Evidence: `gradium-tts-live-results.json`. This checks live synthesis and the sidecar transport; it does not establish human microphone input, emotion recognition, memory retrieval or planner correctness.
+
+The selected public voice ID was added to ignored local configuration. The video narration remains the independently generated Rishi/macOS track.

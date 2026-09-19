@@ -1,0 +1,94 @@
+{
+  "at": "2026-09-19T21:16:33.016Z",
+  "passed": true,
+  "provenance": "Real Gradium STT → actual Pipecat → local acoustic policy → deterministic planner/reflex → SafetyGovernor → real MuJoCo dynamics. Generated speech at two amplitudes, not human microphone or emotion validation. SambaNova/Jev cloud deliberately disabled in this isolated test.",
+  "runs": [
+    {
+      "label": "moderate intensity",
+      "transcript": "come here.",
+      "acoustics": {
+        "rmsDb": -29.068858194338794,
+        "peakDb": -17.635590578165484,
+        "pitchVariation": 0.21732201970827705,
+        "pauseRatio": 0.0434782608695653,
+        "voicedMs": 440
+      },
+      "policy": {
+        "priority": 0.4,
+        "maxSpeed": 0.55,
+        "approachSpeed": 0.35,
+        "personalSpaceMeters": 1.2,
+        "requireConfirmation": false,
+        "responseVerbosity": "normal",
+        "interruptThreshold": 0.35
+      },
+      "simulatedSeconds": 3,
+      "distanceMeters": 1.4294261941919704,
+      "height": 0.7736849844455977
+    },
+    {
+      "label": "high intensity",
+      "transcript": "come here.",
+      "acoustics": {
+        "rmsDb": -15.008275420632135,
+        "peakDb": -2.7406772614897656,
+        "pitchVariation": 0.24087201658697127,
+        "pauseRatio": 0,
+        "voicedMs": 540
+      },
+      "policy": {
+        "priority": 0.95,
+        "maxSpeed": 0.9,
+        "approachSpeed": 0.5,
+        "personalSpaceMeters": 1.2,
+        "requireConfirmation": false,
+        "responseVerbosity": "minimal",
+        "interruptThreshold": 0.2
+      },
+      "simulatedSeconds": 3,
+      "distanceMeters": 2.2215080857306884,
+      "height": 0.7651225390114904
+    }
+  ],
+  "stop": {
+    "transcript": "wait,",
+    "latched": true,
+    "metrics": [
+      {
+        "name": "Voice → transcript",
+        "ms": 1518.7108339999995,
+        "basis": "Server clock · VAD chunk receipt to provider/robot events"
+      },
+      {
+        "name": "Voice → intent",
+        "ms": null,
+        "basis": "Server clock · VAD chunk receipt to provider/robot events"
+      },
+      {
+        "name": "Transcript → reflex",
+        "ms": 0.04512500000055297,
+        "basis": "Server clock · VAD chunk receipt to provider/robot events"
+      },
+      {
+        "name": "Memory retrieval",
+        "ms": null,
+        "basis": "Server clock · VAD chunk receipt to provider/robot events"
+      },
+      {
+        "name": "Command → acknowledgement",
+        "ms": 4.622499999999491,
+        "basis": "Server clock · VAD chunk receipt to provider/robot events"
+      },
+      {
+        "name": "Stop → settled",
+        "ms": null,
+        "basis": "Server clock · VAD chunk receipt to provider/robot events"
+      },
+      {
+        "name": "End to end",
+        "ms": 1523.3847499999993,
+        "basis": "Server clock · VAD chunk receipt to provider/robot events"
+      }
+    ]
+  }
+}

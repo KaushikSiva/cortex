@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-09-19T22:05:29.081284+00:00",
+  "contextBuildings": 355,
+  "heroElevationReferences": 7,
+  "sourceHashVerified": true,
+  "ringsClosed": true,
+  "contextFootprintBoundsIntersectingWalkingArea": [],
+  "productionBuild": "CORTEX_NEXT_DIST_DIR=.next-test npm run build; exit 0, including TypeScript",
+  "browser": "Read-only snapshot rendering via .data/view-scene.mjs; hero and 60-degree views captured; console/page errors []",
+  "visualReview": "Slope and neighborhood geometry visible. Hero facades repetitive and surrounding buildings simplified; photoreal acceptance NOT met. Source elevations and approximate local alignment do not constitute a surveyed digital twin.",
+  "robotBehavior": "No controller, collision, navigation or policy changes in this pass."
+}

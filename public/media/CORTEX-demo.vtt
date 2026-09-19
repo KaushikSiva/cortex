@@ -1,36 +1,39 @@
 WEBVTT
 
-NOTE Stone reference: Beyond My Ken, 2017 Yerba Buena Gardens, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:2017_Yerba_Buena_Gardens_Martin_Luther_King,_Jr._Memorial.jpg
+NOTE Hidden reference scan: jtressle, CC BY 4.0. https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6
 
 00:00:00.000 --> 00:00:11.002
-This is Cortex. This recording uses synthetic vocal profiles to drive a real MuJoCo simulation. The robot is simulated, and the garden is a full 3D waterfall.
+This is Cortex. This recording uses synthetic vocal profiles to drive a real MuJoCo simulation. The robot is simulated, and the Painted Ladies are modeled architecture in a three dimensional park scene. This is an architectural study, not a photoreal digital twin.
 
-00:00:11.002 --> 00:00:18.256
-The camera can move through this scene. Granite, flowing water, the reflecting basin and stone paving all have depth.
+00:00:11.002 --> 00:00:18.283
+The camera moves around modeled Painted Ladies. The buildings have side walls, roofs, projecting windows, stairs and geometric depth. A modeled Alamo Square path gives the robot a bounded walking area.
 
-00:00:18.256 --> 00:00:28.012
+00:00:18.283 --> 00:00:27.236
+Keyboard and voice share the same tools. Hold a direction: the robot turns first, then walks. Release to pause. Named targets pass through planning and the reflex gate.
+
+00:00:27.236 --> 00:00:37.054
 First, the calm profile. Come here. The robot approaches at a moderate pace, with a comfortable stopping distance.
 
-00:00:28.012 --> 00:00:38.174
-Reset. Exactly the same words, with an higher-intensity acoustic profile. Priority rises and the walking policy changes. The feet are driven by Unitree’s frozen locomotion controller.
+00:00:37.054 --> 00:00:47.218
+Reset. Exactly the same words, with a higher-intensity acoustic profile. Priority rises and the walking policy changes. The feet are driven by Unitree’s frozen locomotion controller.
 
-00:00:38.174 --> 00:00:48.952
+00:00:47.218 --> 00:00:57.979
 Reveal Cortex. Measured acoustic cues become a documented behavioral policy. Speed, approach distance and confirmation are explicit. The live microphone path is implemented through Gradium and Pipecat.
 
-00:00:48.952 --> 00:00:56.191
+00:00:57.979 --> 00:01:05.260
 A hesitant acoustic profile does not simply make the robot faster. It holds for confirmation, reduces approach speed, and gives the person more space.
 
-00:00:56.191 --> 00:01:05.828
+00:01:05.260 --> 00:01:14.891
 Now memory. Save the scene, then ask where the backpack was seen. Cortex retrieves the actual captured frame and its registered location, beside the planter.
 
-00:01:05.828 --> 00:01:11.836
+00:01:14.891 --> 00:01:20.894
 Take me there. The retrieved sighting becomes a waypoint, and the robot turns toward the planter.
 
-00:01:11.836 --> 00:01:22.602
+00:01:20.894 --> 00:01:30.666
 Wait. Stop. The reflex bypasses the planner, latches the stop, and measures acknowledgement and physical settling separately.
 
-00:01:22.602 --> 00:01:31.102
+00:01:30.666 --> 00:01:39.180
 Continue, but slowly. A deliberate resume releases the stop and applies a lower speed ceiling. Vocal delivery can change behavior. It can never turn safety off.
 
-00:01:31.102 --> 00:01:41.646
+00:01:39.180 --> 00:01:49.717
 Cortex gives physical AI perception, memory, reasoning, reflexes, and safe action. Gradium handles voice, Pipecat carries the conversation, and SambaNova plans the next safe action.
