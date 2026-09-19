@@ -84,3 +84,11 @@ The architectural study now uses 2K CC0 siding/slate scans with metric UVs and p
 Inspected the official Data.gov catalog and ArcGIS layer metadata. The city footprint dataset is PDDL 1.0; `gnd_Min_m` and `hgt_Median_m` are meters, and the source geometry predates the current demo. Queried a small Alamo Square bounding box, rejected truncated/error responses, and retained the exact query and derived-asset checksum. The default scene now uses local-coordinate footprint extrusions around the authored row and elevation-informed street grading. This is a geometry correction, not a new photorealism claim. Live navigation and collisions remain separate.
 
 Asset research: Waymo’s Block-NeRF page shows Alamo Square but publishes a Mission Bay dataset; it is not a usable substitute for the requested location. The available jtressle scan remains incomplete. A higher-quality, licensed Painted Ladies capture has not been obtained.
+
+## Live Indian English speech output
+
+Inspected the current official [Get Voices endpoint](https://docs.gradium.ai/api-reference/endpoint/get-voices) and installed Gradium SDK 0.6.4. The authenticated catalog returned 387 voices, including Michelle (`lt88kyLfD8Mqemla`), described by the provider as Indian English. No voice was cloned or created.
+
+An isolated instance of the actual Pipecat sidecar synthesized a fixed test sentence using that voice. It returned 46 PCM16 chunks at 48 kHz, totaling 3.68 seconds; first audio arrived 368.27 ms after the test speak request. These are measured single-run values, not service guarantees. Evidence: `gradium-tts-live-results.json`. This checks live synthesis and the sidecar transport; it does not establish human microphone input, emotion recognition, memory retrieval or planner correctness.
+
+The selected public voice ID was added to ignored local configuration. The video narration remains the independently generated Rishi/macOS track.

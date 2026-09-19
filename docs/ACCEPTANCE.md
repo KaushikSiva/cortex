@@ -4,13 +4,13 @@ This record separates exercised implementation from credential-dependent and cap
 
 | User test | Result | Evidence |
 |---|---|---|
-| A: real same words, different vocal expression | **Pending Gradium credentials and microphone trial** | Synthetic fixture version passes: identical transcript, different fixture acoustic cues, policy and actual MuJoCo movement. Live acceptance is not claimed. |
-| B: robot looks like real footage | **Not passed** | Real Painted Ladies photogrammetric mesh plus authored Alamo Square foreground. Frontal parallax is implemented; scan coverage and texture resolution are limited. A blind photorealism review has not passed. |
-| C: voice STOP | **Fixture stop path passed; live voice pending** | Runtime integration test observes stop latch and records reflex, acknowledgement and physical settling durations. No speech latency is fabricated. |
+| A: real same words, different vocal expression | **Human microphone trial pending; real Gradium with generated audio passed** | Identical real Gradium transcripts at two generated-audio amplitudes selected different policies and MuJoCo displacement; see live-motion-results.json. Human delivery and emotion interpretation remain unverified. |
+| B: robot looks like real footage | **Not passed** | Authored full-depth Painted Ladies plus DataSF neighborhood geometry. The previous partial scan is hidden. Current buildings still look rendered; a blind photorealism review has not passed. |
+| C: voice STOP | **Fixture and real Gradium/generated-audio stop passed; human microphone pending** | Runtime integration test observes stop latch and records reflex, acknowledgement and physical settling durations. No speech latency is fabricated. |
 | D: real stored memory retrieval | **Local capture/retrieval passed; Memories.ai live pending** | Browser test captures a real frame, retrieves that exact event ID, and checks the response. Labels are operator supplied. |
 | E: navigate from memory | **Local evidence path passed** | Retrieved PLANTER waypoint causes real MuJoCo movement. |
 | F: safety clamps and rejects malformed actions | **Passed in simulation tests** | Speed clamp, invalid numbers, unknown waypoint, confirmation gate, stale command, stale telemetry, obstacle hold, stop race, and independent watchdog. |
-| G: optional providers unavailable | **Core fixture path passed** | All optional keys absent; hard-rule reflex and visibly labeled local/DEMO planning and memory work. Live Gradium with a failed remote planner remains credential-unverified. |
+| G: optional providers unavailable | **Core fixture path passed** | All optional keys absent; hard-rule reflex and visibly labeled local/DEMO planning and memory work. Live Gradium with explicitly local planning is verified; remote-provider failure coverage remains limited. |
 
 ## Executed checks
 
@@ -34,7 +34,7 @@ The wall-clock integration test has different distances because startup, acceler
 
 The robot reports a stop acknowledgement when it accepts a zero-motion goal. Physical settling is defined separately as base velocity below .08 m/s for three consecutive ~10 Hz telemetry samples. It can take substantially longer than acknowledgement. Neither duration is a hardware safety guarantee.
 
-No Gradium/Memories.ai/SambaNova/Jev API latency was measured without credentials. No simulation screenshot has passed an independent photorealism review. No real robot, model training, grasping or public cloud deployment was performed.
+Earlier fixture runs did not measure provider latency. Later authenticated Gradium and Jev measurements are recorded in the linked live evidence files. No simulation screenshot has passed an independent photorealism review. No real robot, model training, grasping or public cloud deployment was performed.
 
 The combined emotion + memory path is tested with the exact fixture transcript “Where is my backpack? I really need it.” Retrieval supplies a fresh evidence event to a bounded planning round. Its navigation target must match that event; distress still requires confirmation. Provider inference for this path remains unverified without credentials.
 
@@ -55,3 +55,9 @@ The isolated production build passed. Both browser suites passed: full UI/memory
 `docs/live-motion-results.json` records a successful cloud-to-simulation test: generated “Come here” audio at two amplitudes produced identical real Gradium transcripts. Moderate intensity selected 0.55 m/s and traveled 1.429 m in 3 simulated seconds; high intensity selected 0.90 m/s and traveled 2.222 m. Both runs remained upright. An interim real “wait,” transcript latched the independent stop path, with actual measured timing. The planner/reflex in this isolated test were explicitly deterministic, not live SambaNova/Jev. This is not a human microphone, emotion-recognition, or photorealism pass.
 
 Final check for this revision: 20 TypeScript tests and 7 MuJoCo physics tests passed; typecheck and optimized production build passed; refreshed browser/keyboard suites passed. The 109.72-second demo MP4 has 1920×1080 video and an audio track; capture reported zero browser errors.
+
+## Current speech output and presentation
+
+Live Gradium TTS through Pipecat returned valid 48 kHz PCM using the Michelle Indian English catalog voice. `gradium-tts-live-results.json` records audio duration, chunk count, first-audio latency and scope limitations.
+
+The Indian English narrated demo is 109.72 seconds at 1920 × 1080, with 12 captions and verified browser playback/full decode (`indian-video-validation.json`). It uses existing synthetic-profile footage, not a human-microphone recording. Latest neighborhood refinement passed production build and read-only browser rendering checks (`scene-neighborhood-validation.json`); photorealism remains unpassed.

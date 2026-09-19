@@ -108,7 +108,7 @@ Without credentials, choose the labeled DEMO controls. To enable live voice, con
 
 ```dotenv
 GRADIUM_API_KEY=
-GRADIUM_VOICE_ID=
+GRADIUM_VOICE_ID=lt88kyLfD8Mqemla
 SAMBANOVA_API_KEY=
 MEMORIES_API_KEY=
 ```
@@ -156,6 +156,8 @@ node scripts/capture.mjs
 python3 scripts/narrate.py
 node scripts/render-pitch.mjs
 ```
+
+The example voice ID selects Michelle, listed by Gradium as Indian English. Live TTS through Pipecat was verified separately in [the speech-output evidence](docs/gradium-tts-live-results.json). Restart the voice sidecar and web runtime after changing the voice ID.
 
 The Pipecat protocol test uses a local Gradium test double. It validates the actual pipeline mechanics without claiming to exercise the cloud service. The recording scripts use Chrome and ffmpeg; narration uses macOS system speech.
 
