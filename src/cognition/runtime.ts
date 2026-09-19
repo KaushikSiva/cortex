@@ -2,7 +2,8 @@ import {appendFile,mkdir} from 'node:fs/promises';
 import {z} from 'zod';
 import fixtures from '../../fixtures/voice.json';
 import {behaviorPolicy,defaultPolicy,VoiceMessage,vocalState} from '../emotion/voicePolicy';
-import {MujocoBackend} from '../robot/backend';
+import {MotionTools,Direction} from './tools/motion';
+import {MujocoBackend,Waypoint} from '../robot/backend';
 import {SafetyGovernor} from '../robot/safety/SafetyGovernor';
 import {deterministicReflex,jevDecision,stopWords} from '../integrations/jev';
 import {plan,validateTool,requestsMemoryNavigation,validateMemoryFollowup} from '../integrations/sambanova';
@@ -13,9 +14,9 @@ import {toolSchemas} from '../integrations/sambanova';
 import {Timing} from '../telemetry';
 import type {Snapshot,ToolCall,Trace} from '../types';
 export class CortexRuntime{
- readonly robot=new MujocoBackend();readonly safety=new SafetyGovernor(this.robot);readonly memory=new VisualMemory();timing=new Timing();
+ readonly robot=new MujocoBackend();readonly safety=new SafetyGovernor(this.robot);readonly motion=new MotionTools(this.safety);manualSession:string|null=null;manualRenewed=0;readonly memory=new VisualMemory();timing=new Timing();
  epoch=0;clientBeat=0;private activeAt=new Map<string,number>();private pending:ToolCall[]=[];private confirmationHold=false;private settledTicks=0;private pollBusy=false;
- state:Snapshot={inputSource:'FIXTURE',mode:process.env.CORTEX_MODE==='REAL'?'REAL':'DEMO',phase:'READY',robot:null,vocal:null,policy:defaultPolicy,traces:[],metrics:[],providers:{PIPECAT:{mode:'OFFLINE',active:false},GRADIUM:{mode:process.env.GRADIUM_API_KEY?'READY':'DEMO',active:false},SAMBA:{mode:process.env.SAMBANOVA_API_KEY?'READY':'DEMO',active:false},MEMORIES:{mode:process.env.MEMORIES_API_KEY?'READY':'DEMO',active:false},JEV:{mode:process.env.JEV_API_KEY?'READY':'LOCAL',active:false},EDGEONE:{mode:process.env.EDGEONE_EXECUTION_URL?'READY':'LOCAL',active:false},ROBOT:{mode:'OFFLINE',active:false}},plan:[],memory:null,response:'Ready when you are.',reflex:'HOLD',error:null,pendingConfirmation:false,history:[]};
+ state:Snapshot={inputSource:'FIXTURE',mode:process.env.CORTEX_MODE==='REAL'?'REAL':'DEMO',phase:'READY',robot:null,vocal:null,policy:{...defaultPolicy},traces:[],metrics:[],providers:{PIPECAT:{mode:'OFFLINE',active:false},GRADIUM:{mode:process.env.GRADIUM_API_KEY?'READY':'DEMO',active:false},SAMBA:{mode:process.env.SAMBANOVA_API_KEY?'READY':'DEMO',active:false},MEMORIES:{mode:process.env.MEMORIES_API_KEY?'READY':'DEMO',active:false},JEV:{mode:process.env.JEV_API_KEY?'READY':'LOCAL',active:false},EDGEONE:{mode:process.env.EDGEONE_EXECUTION_URL?'READY':'LOCAL',active:false},ROBOT:{mode:'OFFLINE',active:false}},plan:[],memory:null,response:'Ready when you are.',reflex:'HOLD',error:null,pendingConfirmation:false,history:[]};
  private conversationTurn=0;
  /** Set by the street/navigation integration; return JSON-serializable, observed state. */
  getNavigationContext:()=>unknown=()=>null;
@@ -23,27 +24,29 @@ export class CortexRuntime{
  constructor(private publish:(s:Snapshot)=>void){
   for(const [name,schema] of Object.entries(toolSchemas)){
    if(name==='speak')continue;
-   this.conversation.register(name,{schema,description:({inspect_scene:'Read current robot telemetry. This is not camera vision.',search_memory:'Search recorded visual evidence; does not move the robot.',navigate_to:'Start navigation to a known waypoint, only on explicit user request. Accepted does not mean arrived.',return_home:'Start returning home on user request.',set_speed:'Change walking speed on explicit user request.',stop:'Stop the robot.',look_at:'Request head orientation if supported.'} as Record<string,string>)[name],execute:async(args,signal)=>{
+   this.conversation.register(name,{schema,description:({turn:'Turn in place by signed relative degrees: left positive, right negative, back 180.',walk:'Face a robot-relative direction, then walk 0.2 to 3 meters. Turns internally; do not add a separate turn.',walk_to:'Start walking to a known named target. Acceptance does not mean arrival.',inspect_scene:'Read current robot telemetry. This is not camera vision.',search_memory:'Search recorded visual evidence; does not move the robot.',navigate_to:'Start navigation to a known waypoint, only on explicit user request. Accepted does not mean arrived.',return_home:'Start returning home on user request.',set_speed:'Change walking speed on explicit user request.',stop:'Stop the robot.',look_at:'Request head orientation if supported.'} as Record<string,string>)[name],execute:async(args,signal)=>{
     signal.throwIfAborted();
     if(name==='inspect_scene')return {robot:this.state.robot,mission:this.state.plan,pendingConfirmation:this.state.pendingConfirmation};
     if(name==='search_memory'){
      const evidence=await this.memory.searchVisualMemory(String(args.query),!!process.env.MEMORIES_API_KEY);
      signal.throwIfAborted();this.state.memory=evidence[0]??null;return {evidence};
     }
+    if(this.manualSession)await this.endManual(this.manualSession);
+    signal.throwIfAborted();
     const call={name,arguments:args};
     this.state.policy=this.state.vocal?behaviorPolicy(this.state.vocal):defaultPolicy;
     const epoch=++this.epoch;
     await this.execute(call,epoch);
     signal.throwIfAborted();
-    if(name==='navigate_to'||name==='return_home')this.state.plan=[call];
+    if(['navigate_to','return_home','walk_to','walk','turn'].includes(name))this.state.plan=[call];
     return {accepted:true,response:this.state.response,robot:this.state.robot,pendingConfirmation:this.state.pendingConfirmation};
    }});
   }
   this.conversation.register('resume_navigation',{description:'Resume a stopped journey only when the user explicitly says continue or resume. Optionally resume slowly.',schema:z.object({slowly:z.boolean().optional()}).strict(),execute:async(args,signal)=>{
-   signal.throwIfAborted();if(this.state.pendingConfirmation)throw new Error('A mission is awaiting confirmation. Ask the user to say yes or cancel it with stop.');const epoch=++this.epoch;
+   signal.throwIfAborted();if(this.state.pendingConfirmation)throw new Error('A mission is awaiting confirmation. Ask the user to say yes or cancel it with stop.');const destination=Waypoint.parse(this.state.robot?.currentWaypoint??'HOME');const epoch=++this.epoch;
    await this.safety.resume();signal.throwIfAborted();
    this.state.policy=args.slowly?{...defaultPolicy,maxSpeed:.3,approachSpeed:.2}:defaultPolicy;
-   await this.execute({name:'navigate_to',arguments:{location:this.state.robot?.currentWaypoint??'HOME'}},epoch);
+   await this.execute({name:'navigate_to',arguments:{location:destination}},epoch);
    return {accepted:true,response:this.state.response};
   }});
  }
@@ -69,10 +72,10 @@ export class CortexRuntime{
   try{
    const s=await this.robot.getState();this.state.robot=s;this.state.providers.ROBOT={mode:'LIVE',active:s.status==='moving'};
    if(Date.now()-this.clientBeat<1000)await this.robot.heartbeat();
-   if(this.state.pendingConfirmation)this.state.phase='AWAITING CONFIRMATION';else if(s.status==='moving')this.state.phase='MOVING';
+   if(this.state.pendingConfirmation)this.state.phase='AWAITING CONFIRMATION';else if(s.status==='moving')this.state.phase=s.motion==='turn'?'TURNING':'MOVING';
    else if(s.status==='stopped')this.state.phase='STOPPED';
    else if(s.status==='error')this.state.phase='ERROR';
-   else if(this.state.phase==='MOVING')this.state.phase='READY';
+   else if(['MOVING','TURNING'].includes(this.state.phase))this.state.phase='READY';
    if(this.timing.marks.has('stop_start')&&!this.timing.marks.has('robot_settled')){
     this.settledTicks=s.velocity<.08?this.settledTicks+1:0;
     if(this.settledTicks>=3){this.timing.mark('robot_settled');this.trace('ROBOT','Measured base speed below 0.08 m/s for 3 telemetry samples');}
@@ -83,10 +86,10 @@ export class CortexRuntime{
  async stop(reason='User stop',preserveTiming=false){
   this.interruptConversation();
   if(!preserveTiming)this.timing.clear();
-  this.epoch++;this.pending=[];this.confirmationHold=false;this.state.pendingConfirmation=false;this.state.reflex='STOP';this.timing.mark('stop_start');this.timing.marks.delete('robot_settled');this.settledTicks=0;
+  this.epoch++;this.manualSession=null;this.pending=[];this.confirmationHold=false;this.state.pendingConfirmation=false;this.state.reflex='STOP';this.timing.mark('stop_start');this.timing.marks.delete('robot_settled');this.settledTicks=0;
   this.timing.mark('robot_command_sent');await this.safety.stop();this.timing.mark('robot_acknowledged');this.state.phase='STOPPED';this.state.response='Stopped.';this.trace('REFLEX',reason);this.trace('ROBOT','stop() acknowledged');this.emit();
  }
- async reset(){this.interruptConversation();this.conversation.clear();this.state.conversation=[];this.epoch++;this.pending=[];this.confirmationHold=false;this.state.pendingConfirmation=false;await this.safety.reset();this.state.phase='READY';this.state.error=null;this.state.response='Reset. Same words, a different voice.';this.state.policy=defaultPolicy;this.state.vocal=null;this.timing.clear();this.state.plan=[];this.trace('ROBOT','reset() · HOME');this.emit();}
+ async reset(){this.interruptConversation();this.conversation.clear();this.state.conversation=[];this.epoch++;this.manualSession=null;this.pending=[];this.confirmationHold=false;this.state.pendingConfirmation=false;await this.safety.reset();this.state.phase='READY';this.state.error=null;this.state.response='Reset. Same words, a different voice.';this.state.policy={...defaultPolicy};this.state.vocal=null;this.timing.clear();this.state.plan=[];this.trace('ROBOT','reset() · HOME');this.emit();}
  async gradium(raw:unknown){
   void this.persist('gradium_raw',raw).catch(()=>{});
   const event=raw as {type?:string};
@@ -118,10 +121,12 @@ export class CortexRuntime{
    for(const call of pending)await this.execute(call,epoch,true);this.emit();return;
   }
   // Preserve the original offline demo commands; arbitrary questions use conversation.
-  const localCommand=!process.env.SAMBANOVA_API_KEY&&/^(?:come here|take me there|(?:go|return) home|continue(?:,? but)?(?: slowly)?)[.!]?$/i.test(v.transcript.trim());
+  const localMotion=/^(?:turn\s+(?:left|right|back|around)(?:\s+(?:by\s+)?\d+(?:\.\d+)?)?|(?:walk|move|go|step)\s+(?:front|forward|forwards|left|right|back|backward|backwards)(?:\s+\d+(?:\.\d+)?\s*(?:meters?|metres?|m))?|(?:walk|go|navigate|head|move)\s+(?:to|towards?)\s+(?:the\s+)?(?:home|person|planter|bench|door))[.!]?$/i.test(v.transcript.trim());
+  const localCommand=!process.env.SAMBANOVA_API_KEY&&(localMotion||/^(?:come here|take me there|(?:go|return) home|continue(?:,? but)?(?: slowly)?)[.!]?$/i.test(v.transcript.trim()));
   if(this.state.inputSource!=='FIXTURE'&&!localCommand){
    this.state.vocal=v;await this.converse(v.transcript);return;
   }
+  if(this.manualSession)await this.endManual(this.manualSession);
   this.state.vocal=v;this.state.policy=behaviorPolicy(v);this.state.error=null;this.state.providers.GRADIUM.active=true;
   this.trace('GRADIUM',`${this.state.providers.GRADIUM.mode} · transcript + local acoustic cues received`);
   const input={transcript:v.transcript,distance_to_person:Math.hypot((this.state.robot?.pose.x??-3)-3,this.state.robot?.pose.y??0),path_blocked:(this.state.robot?.nearestObstacle??10)<.32,user_urgency:v.derived.urgency,user_hesitation:v.derived.hesitation,current_speed:this.state.robot?.velocity??0};
@@ -151,10 +156,17 @@ export class CortexRuntime{
   const call=validateTool(raw);if(epoch!==this.epoch)return;
   switch(call.name){
    case 'stop':await this.stop();break;
-   case 'navigate_to':case 'return_home':{
-    const location=call.name==='return_home'?'HOME':String(call.arguments.location);
-    if(this.state.policy.requireConfirmation&&!confirmed){await this.safety.stop();if(epoch!==this.epoch)return;this.confirmationHold=true;this.pending.push(call);this.state.pendingConfirmation=true;this.state.phase='AWAITING CONFIRMATION';this.state.response='I’ll give you more space. Shall I approach?';this.trace('SAFETY','Holding for confirmation · 2.0 m personal space');break;}
-    this.timing.mark('robot_command_sent');await this.safety.navigate(location,this.state.policy,Date.now(),confirmed);this.timing.mark('robot_acknowledged');this.state.phase='MOVING';this.state.response=this.state.policy.responseVerbosity==='minimal'?'On my way.':'I’m coming over. I’ll stop at a comfortable distance.';this.trace('ROBOT',`navigate(${location}) · ${this.state.policy.maxSpeed.toFixed(2)} m/s ceiling`);break;
+   case 'navigate_to':case 'walk_to':case 'return_home':case 'turn':case 'walk':{
+    if(!await this.motionReflex(epoch))break;
+    if(this.state.policy.requireConfirmation&&!confirmed){await this.safety.stop();if(epoch!==this.epoch)return;this.confirmationHold=true;this.pending.push(call);this.state.pendingConfirmation=true;this.state.phase='AWAITING CONFIRMATION';this.state.response='I’ll give you more space. Shall I move?';this.trace('SAFETY','Holding for confirmation · cautious motion');break;}
+    const context={active:()=>epoch===this.epoch,confirmed,trace:(m:string)=>this.trace('ROBOT',m)};
+    this.timing.mark('robot_command_sent');
+    if(call.name==='turn')await this.motion.turn(Number(call.arguments.angleDegrees),this.state.policy,context);
+    else if(call.name==='walk')await this.motion.walk(Direction.parse(call.arguments.direction),Number(call.arguments.meters),this.state.policy,context);
+    else {const location=call.name==='return_home'?'HOME':String(call.name==='walk_to'?call.arguments.target:call.arguments.location);await this.motion.walkTo(location,this.state.policy,context);}
+    if(epoch!==this.epoch)return;
+    if(epoch!==this.epoch)return;
+    this.timing.mark('robot_acknowledged');this.state.phase=call.name==='turn'?'READY':'MOVING';this.state.response=call.name==='turn'?'Turn complete.':this.state.policy.responseVerbosity==='minimal'?'On my way.':'I’m moving. I’ll keep a comfortable distance.';break;
    }
    case 'search_memory':{
     this.state.phase='REMEMBERING';this.state.providers.MEMORIES.active=true;this.timing.mark('memory_query_start');this.emit();
@@ -181,10 +193,49 @@ export class CortexRuntime{
    case 'inspect_scene':this.state.response=JSON.stringify(await this.robot.getState());break;
   }
  }
+ async motionReflex(epoch:number){
+  const robot=await this.robot.getState();if(epoch!==this.epoch)return false;
+  const result=await jevDecision({transcript:'motion safety check',distance_to_person:Math.hypot(robot.pose.x-3,robot.pose.y),path_blocked:robot.nearestObstacle<.32,user_urgency:this.state.vocal?.derived.urgency??0,user_hesitation:this.state.vocal?.derived.hesitation??0,current_speed:robot.velocity});
+  if(epoch!==this.epoch)return false;
+  this.state.reflex=result.action;this.state.providers.JEV={mode:result.source.startsWith('LIVE')?'LIVE':'LOCAL',active:true};this.trace('REFLEX',result.action+' · shared motion gate · '+result.source);
+  if(['STOP','HOLD'].includes(result.action)){await this.stop('Motion reflex '+result.action);return false;}
+  if(result.action==='SLOW_DOWN')this.state.policy={...this.state.policy,maxSpeed:.3,approachSpeed:.2};
+  if(result.action==='REQUEST_CONFIRMATION')this.state.policy.requireConfirmation=true;
+  return true;
+ }
+ async startManual(direction:unknown,session:unknown){
+  this.interruptConversation();
+  const d=Direction.parse(direction),id=z.string().min(8).max(80).parse(session);
+  if(this.safety.latched)throw new Error('Resume or reset before keyboard movement.');
+  const epoch=++this.epoch;this.manualSession=id;this.manualRenewed=Date.now();this.pending=[];this.state.pendingConfirmation=false;
+  this.state.inputSource='KEYBOARD';this.state.vocal=null;this.state.policy={...defaultPolicy};this.state.error=null;
+  await this.safety.hold();if(epoch!==this.epoch)return;
+  if(!await this.motionReflex(epoch))return;
+  if(this.state.policy.requireConfirmation){await this.endManual(id);throw new Error('Reflex requires confirmation; use a bounded walk command.');}
+  this.state.plan=[];this.trace('INPUT',`Keyboard ${d} · renewable 650 ms lease`);this.state.phase='MOVING';this.emit();
+  await this.motion.drive(d,this.state.policy,{session:id,active:()=>epoch===this.epoch&&this.manualSession===id&&Date.now()-this.manualRenewed<700,trace:m=>this.trace('ROBOT',m)});this.emit();
+ }
+ async renewManual(session:unknown){if(typeof session!=='string'||session!==this.manualSession)return;this.manualRenewed=Date.now();await this.robot.renew(session);}
+ async endManual(session:unknown){
+  if(typeof session!=='string'||session!==this.manualSession)return;
+  const epoch=++this.epoch;this.manualSession=null;await this.safety.hold();if(epoch!==this.epoch)return;
+  this.state.phase='READY';this.state.response='Movement released.';this.trace('ROBOT','hold() · key released');this.emit();
+ }
  async command(raw:unknown){
-  const m=z.object({type:z.string(),name:z.string().optional(),text:z.string().max(500).optional(),image:z.string().max(8_000_000).optional()}).parse(raw);
+  const m=z.object({type:z.string(),name:z.string().optional(),text:z.string().max(500).optional(),image:z.string().max(8_000_000).optional(),direction:Direction.optional(),session:z.string().max(80).optional(),arguments:z.record(z.string(),z.unknown()).optional()}).parse(raw);
   this.state.error=null;
   switch(m.type){
+   case 'manual_start':await this.startManual(m.direction,m.session);return;
+   case 'manual_renew':await this.renewManual(m.session);return;
+   case 'manual_end':await this.endManual(m.session);return;
+   case 'tool':{
+    if(!['turn','walk','walk_to'].includes(m.name??''))throw new Error('Only shared motion tools are accepted here');
+    const call=validateTool({name:m.name!,arguments:m.arguments??{}});
+    this.interruptConversation();
+    if(this.manualSession)await this.endManual(this.manualSession);
+    const epoch=++this.epoch;this.state.inputSource='KEYBOARD';this.state.vocal=null;this.state.policy={...defaultPolicy};this.state.plan=[call];
+    await this.execute(call,epoch);break;
+   }
    case 'heartbeat':this.clientBeat=Date.now();return;
    case 'fixture':await this.fixture(m.name??'');return;
    case 'stop':await this.stop();return;

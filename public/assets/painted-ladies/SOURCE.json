@@ -1,0 +1,11 @@
+{
+  "name": "San Francisco Painted Ladies",
+  "author": "jtressle",
+  "source": "https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "download": "https://huggingface.co/datasets/allenai/objaverse/resolve/main/glbs/000-014/cf5aeb7fb0ac4152b43f72ce1dac60d6.glb",
+  "sha256": "e89660849ce33893845f7cb39c3508d20b27573c229d98e8ad5083e76721c123",
+  "description": "Quick scan of the SF Painted Ladies.  (8K textures)\n\nhttps://en.wikipedia.org/wiki/Painted_ladies",
+  "limitations": "Partial frontal photogrammetric scan. Baked lighting, incomplete backs and sky artifacts. Runtime transform and foreground are authored, not surveyed."
+}

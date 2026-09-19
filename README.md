@@ -8,7 +8,7 @@
 
 [The demo](public/media/CORTEX-demo.mp4) · [Five-slide pitch](public/media/CORTEX-pitch.pdf) · [How it works](#the-system) · [Run locally](#run-cortex) · [Evidence](docs/ACCEPTANCE.md)
 
-![CORTEX — Unitree G1 at the Yerba Buena waterfall](public/media/reality.png)
+![CORTEX — Unitree G1 facing the Painted Ladies, San Francisco](public/media/reality.png)
 
 **Gradium** voice · **Pipecat** orchestration · **SambaNova** inference · **MuJoCo** physics
 
@@ -20,9 +20,17 @@ Say **“Come here.”** quietly. The G1 approaches at a measured pace. Reset, s
 
 This repository contains the app, simulator, voice service, tests, five-page pitch, and recorded demonstration. No locomotion training is required.
 
-> **Honest build status:** MuJoCo runs real dynamics and an existing Unitree gait. DEMO inputs are explicitly synthetic acoustic fixtures. Gradium supplies STT/TTS; it does **not** supply the local acoustic heuristics or emotion labels. Provider calls require credentials. The waterfall is a full 3D, reference-informed scene with scanned materials—not a surveyed reconstruction or a claimed photorealism-test pass.
+> **Honest build status:** MuJoCo runs real dynamics and an existing Unitree gait. DEMO inputs are explicitly synthetic acoustic fixtures. Gradium supplies STT/TTS; it does **not** supply the local acoustic heuristics or emotion labels. Provider calls require credentials. The Painted Ladies are a licensed photogrammetric mesh, combined with a modeled Alamo Square foreground. This is a partial scan with approximate scale—not a claimed photorealism-test pass.
 
 ![Actual application recording](public/media/demo.gif)
+
+## Keyboard and voice share the same tools
+
+Hold **W/A/S/D** or **arrow keys** to walk front/left/back/right relative to the robot. It turns toward the requested direction before moving. Release the key to pause. **Q/E** turn 90° in place; **Space** latches a stop; **Resume** explicitly releases it. Pointer controls work the same way.
+
+Say “move left one meter,” “turn right,” or “walk to the bench.” `turn`, `walk`, and `walk_to` are schema-validated shared tools. Named targets go through SambaNova planning and the Jev/local reflex gate. With no credentials, the UI labels the deterministic planner DEMO and the reflex LOCAL. Keyboard commands use a renewable 650 ms lease, independent of the normal telemetry heartbeat.
+
+**Current validation:** 19 TypeScript tests and 7 MuJoCo physics tests pass. Full browser validation of this update is pending; the latest attempted run timed out while another operator session was active. The bundled video/GIF show the earlier scene; the screenshot/deck previews are intermediate work. Photorealistic scene acceptance remains open.
 
 ## The moment
 
@@ -70,13 +78,15 @@ Microphone PCM → Pipecat → Gradium streaming STT
 
 ## A real 3D place
 
-The demo is situated beside **Revelation, the Martin Luther King Jr. Memorial waterfall at Yerba Buena Gardens, San Francisco**.
+The robot walks on a bounded park path in **Alamo Square, facing the Painted Ladies in San Francisco**.
 
-The scene contains modeled granite piers and galleries, animated falling water, a reflecting basin, scanned stone paving, a planter, a bench, and a backpack. Water reflections, lighting, shadows, occlusion, and camera parallax are rendered in 3D. The robot's position and joints come from MuJoCo physics.
+The houses use a real [photogrammetric scan by jtressle](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6), licensed **CC BY 4.0** and distributed through AllenAI Objaverse. Roofs, bay windows, steps and façades have captured geometry and photographic textures. The park path, grass slope, bench, planter and backpack are authored 3D geometry. The robot's position and joints come from MuJoCo physics.
 
-Use **Inspect 3D scene** in the viewport to orbit and check the geometry. Reality Mode restores a fixed phone-height hero camera. An image-based reference study is included for art direction; it is not used as the scene's screen-filling background.
+Use **Inspect 3D scene** to check depth and parallax within the scan's useful frontal viewing region. Reality Mode restores a fixed phone-height camera. This is a genuine textured 3D mesh, not a screen-filling background image.
 
-Physics uses separately defined collision geometry. The water edge is a physical barrier. A real capture-to-reconstruction workflow remains documented in [SCENE_CAPTURE.md](docs/SCENE_CAPTURE.md); no overlapping capture dataset is bundled.
+The source is a **partial frontage scan**: side/back coverage is incomplete, lighting is baked, its distributed atlas is 1024², and local scale/alignment are approximate. Foreground props are demo placements, not surveyed furniture. We do not claim that the current composite is indistinguishable from footage.
+
+Physics uses separate collision geometry. A park curb bounds the walking area; no mission enters Steiner Street. [SCENE_CAPTURE.md](docs/SCENE_CAPTURE.md) documents how to replace the foreground with measured park capture. [Asset provenance](public/assets/painted-ladies/SOURCE.json) includes the source URL, license and GLB checksum.
 
 ## Run CORTEX
 
@@ -157,7 +167,7 @@ src/emotion/voicePolicy.ts  Documented acoustic-to-behavior mapping
 src/cognition/             Planning, memory, reflex and mission lifecycle
 src/integrations/          Gradium bridge, SambaNova, Memories.ai, Jev, EdgeOne
 src/robot/                 Backend adapter and safety governor
-src/scene/                 Full 3D waterfall and optional reconstruction loader
+src/scene/                 Painted Ladies scan, 3D park and optional splat loader
 voice/                     Pipecat service and measured PCM acoustics
 robot/                     MuJoCo server and existing G1 gait inference
 public/media/              Pitch deck, demonstration, GIF and screenshots

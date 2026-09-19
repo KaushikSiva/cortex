@@ -9,7 +9,7 @@ import {Timing} from '../src/telemetry';
 import type {RobotBackend} from '../src/robot/backend';
 import type {RobotState,BehaviorPolicy} from '../src/types';
 const state=()=>({pose:{x:0,y:0,yaw:0},velocity:0,qpos:Array(19).fill(0),status:'idle',timestamp:Date.now(),nearestObstacle:3,estop:false} as RobotState);
-function backend(){let calls:string[]=[];let policy:BehaviorPolicy|undefined;let snapshot=state();const b:RobotBackend={async getState(){return snapshot},async navigate(_,p){calls.push('navigate');policy=p},async stop(){calls.push('stop')},async reset(){calls.push('reset')},async resume(){calls.push('resume')},async setSpeed(s){calls.push('speed:'+s)},async heartbeat(){}};return {b,calls,get policy(){return policy},set snapshot(s:RobotState){snapshot=s}};}
+function backend(){let calls:string[]=[];let policy:BehaviorPolicy|undefined;let snapshot=state();const b:RobotBackend={async hold(){calls.push('hold')},async turn(yaw){calls.push('turn');snapshot.pose.yaw=yaw},async walk(){calls.push('walk')},async drive(){calls.push('drive')},async renew(){},async getState(){return snapshot},async navigate(_,p){calls.push('navigate');policy=p},async stop(){calls.push('stop')},async reset(){calls.push('reset')},async resume(){calls.push('resume')},async setSpeed(s){calls.push('speed:'+s)},async heartbeat(){}};return {b,calls,get policy(){return policy},set snapshot(s:RobotState){snapshot=s}};}
 test('same transcript, measured acoustics preserved, different physical policies',()=>{const calm=vocalState(fixtures.calm),urgent=vocalState(fixtures.urgent),fear=vocalState(fixtures.fearful);assert.equal(calm.transcript,urgent.transcript);assert.equal(urgent.acoustics?.rmsDb,-16);assert.equal(behaviorPolicy(calm).maxSpeed,.55);assert.equal(behaviorPolicy(urgent).maxSpeed,.9);assert.equal(behaviorPolicy(fear).personalSpaceMeters,2);assert.equal(behaviorPolicy(fear).requireConfirmation,true);});
 test('reject malformed acoustic measurements',()=>{assert.throws(()=>vocalState({...fixtures.calm,acoustics:{...fixtures.calm.acoustics,rmsDb:NaN}}));});
 test('stop words always win without a provider',()=>{assert.equal(deterministicReflex({transcript:'WAIT! STOP!',distance_to_person:3,path_blocked:false,user_urgency:0,user_hesitation:0,current_speed:.8}),'STOP');});
@@ -32,13 +32,13 @@ test('latency stays unknown until both events were observed',()=>{const t=new Ti
 test('slow resume preserves the interrupted memory destination',async()=>{const calls=await plan('Continue, but slowly.',{robot:{currentWaypoint:'PLANTER'}},false);assert.equal(calls[0].arguments.location,'PLANTER');});
 test('fearful command stops existing motion before asking for consent',async()=>{
  const {CortexRuntime}=await import('../src/cognition/runtime');const rt=new CortexRuntime(()=>{});rt.persist=async()=>{};const calls:string[]=[];
- rt.state.robot={...state(),status:'moving',currentWaypoint:'PERSON',velocity:.4};rt.robot.stop=async()=>{calls.push('stop')};rt.robot.resume=async()=>{calls.push('resume')};rt.robot.getState=async()=>state();rt.robot.navigate=async()=>{calls.push('navigate')};
+ rt.state.robot={...state(),status:'moving',currentWaypoint:'PERSON',velocity:.4};rt.robot.stop=async()=>{calls.push('stop')};rt.robot.resume=async()=>{calls.push('resume')};let testYaw=0;rt.robot.getState=async()=>({...state(),pose:{...state().pose,yaw:testYaw}});rt.robot.turn=async yaw=>{testYaw=yaw;};rt.robot.navigate=async()=>{calls.push('navigate')};
  const old=process.env.SAMBANOVA_API_KEY;delete process.env.SAMBANOVA_API_KEY;
  try{await rt.fixture('fearful');assert.equal(rt.state.pendingConfirmation,true);assert.deepEqual(calls,['stop']);await rt.command({type:'confirm'});assert.deepEqual(calls,['stop','resume','navigate']);}finally{if(old)process.env.SAMBANOVA_API_KEY=old;}
 });
 test('stop in a spoken confirmation cancels the held mission without resuming',async()=>{
  const {CortexRuntime}=await import('../src/cognition/runtime');const rt=new CortexRuntime(()=>{});rt.persist=async()=>{};
- const calls:string[]=[];rt.robot.stop=async()=>{calls.push('stop')};rt.robot.resume=async()=>{calls.push('resume')};rt.robot.getState=async()=>state();rt.robot.navigate=async()=>{calls.push('navigate')};
+ const calls:string[]=[];rt.robot.stop=async()=>{calls.push('stop')};rt.robot.resume=async()=>{calls.push('resume')};let testYaw=0;rt.robot.getState=async()=>({...state(),pose:{...state().pose,yaw:testYaw}});rt.robot.turn=async yaw=>{testYaw=yaw;};rt.robot.navigate=async()=>{calls.push('navigate')};
  rt.state.policy={...defaultPolicy,requireConfirmation:true,personalSpaceMeters:2};
  await rt.execute({name:'navigate_to',arguments:{location:'PERSON'}},rt.epoch);
  assert.equal(rt.state.pendingConfirmation,true);
@@ -49,7 +49,7 @@ test('stop in a spoken confirmation cancels the held mission without resuming',a
 });
 test('anxious object mission plans from retrieved evidence and waits for confirmation',async()=>{
  const {CortexRuntime}=await import('../src/cognition/runtime');const rt=new CortexRuntime(()=>{});rt.persist=async()=>{};
- const calls:string[]=[];rt.robot.stop=async()=>{calls.push('stop')};rt.robot.resume=async()=>{calls.push('resume')};rt.robot.getState=async()=>state();rt.robot.navigate=async(_,policy,waypoint)=>{calls.push('navigate:'+waypoint);assert.equal(policy.personalSpaceMeters,2)};
+ const calls:string[]=[];rt.robot.stop=async()=>{calls.push('stop')};rt.robot.resume=async()=>{calls.push('resume')};let testYaw=0;rt.robot.getState=async()=>({...state(),pose:{...state().pose,yaw:testYaw}});rt.robot.turn=async yaw=>{testYaw=yaw;};rt.robot.navigate=async(_,policy,waypoint)=>{calls.push('navigate:'+waypoint);assert.equal(policy.personalSpaceMeters,2)};
  const event={id:'test-evidence',object:'backpack',location:'beside the bench',waypoint:'BENCH' as const,timestamp:Date.now(),evidence:'/evidence/test.png',source:'DEMO' as const};
  rt.memory.searchVisualMemory=async()=>[event];
  const previous=Object.fromEntries(['SAMBANOVA_API_KEY','MEMORIES_API_KEY','JEV_API_KEY'].map(k=>[k,process.env[k]]));
@@ -60,4 +60,24 @@ test('anxious object mission plans from retrieved evidence and waits for confirm
   assert.deepEqual(calls,['stop']);assert.ok(rt.state.plan.some(c=>c.name==='navigate_to'&&c.arguments.location==='BENCH'));
   await rt.command({type:'confirm'});assert.deepEqual(calls,['stop','resume','navigate:BENCH']);
  }finally{for(const [key,value] of Object.entries(previous)){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+});
+test('voice directions and targets use the shared bounded motion tools',async()=>{
+ assert.deepEqual(await plan('move left 2 meters',{},false),[{name:'walk',arguments:{direction:'left',meters:2}}]);
+ assert.deepEqual(await plan('turn right',{},false),[{name:'turn',arguments:{angleDegrees:-90}}]);
+ assert.deepEqual(await plan('walk to the planter',{},false),[{name:'walk_to',arguments:{target:'PLANTER'}}]);
+ assert.equal((await plan('go back home',{},false))[0].name,'return_home');
+ assert.throws(()=>validateTool({name:'walk',arguments:{direction:'front',meters:50}}));
+ assert.throws(()=>validateTool({name:'turn',arguments:{angleDegrees:360}}));
+});
+test('directional and target walking reuse turn before issuing translation',async()=>{
+ const {MotionTools}=await import('../src/cognition/tools/motion');const f=backend(),m=new MotionTools(new SafetyGovernor(f.b));const ctx={active:()=>true,trace:()=>{}};
+ await m.walk('left',1,defaultPolicy,ctx);assert.deepEqual(f.calls,['turn','walk']);
+ f.calls.length=0;await m.walkTo('PERSON',defaultPolicy,ctx);assert.deepEqual(f.calls,['turn','navigate']);
+ f.calls.length=0;await m.drive('right',defaultPolicy,{...ctx,session:'test-lease'});assert.deepEqual(f.calls,['turn','drive']);
+});
+test('cancelled turn never launches the following walk',async()=>{
+ const {MotionTools}=await import('../src/cognition/tools/motion');const f=backend();let active=true;
+ f.b.turn=async()=>{f.calls.push('turn');active=false};
+ await new MotionTools(new SafetyGovernor(f.b)).walk('back',1,defaultPolicy,{active:()=>active,trace:()=>{}});
+ assert.deepEqual(f.calls,['turn']);
 });

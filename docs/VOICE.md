@@ -24,7 +24,13 @@ Try:
 
 General questions need SambaNova. A missing model key produces an explicit configuration answer; the existing labeled DEMO fixtures, direct stop, and bounded offline commands (“come here,” “take me there,” “return home,” “continue slowly”) still work. Live cloud credentials and an actual microphone trial are required to validate end-to-end latency and acoustics.
 
-## Connect the teammate's street tools
+## Integrated street movement
+
+The Painted Ladies scene update and its shared `turn`, `walk`, and `walk_to` tools are integrated. Conversation registers their actual schemas and descriptions and executes them through `MotionTools`, the shared reflex gate, and `SafetyGovernor`. Keyboard destination buttons use that executor directly, without requiring a model key. Offline typed direction commands remain available.
+
+Questions preserve an active keyboard lease. Starting keyboard movement cancels any pending model response; a requested voice motion releases the held-key lease before taking control. A STOP during an awaited turn cannot be overwritten by the turn's eventual completion.
+
+## Connect additional street tools
 
 `CortexRuntime.conversation.register(name, tool)` adds a tool, or replaces a built-in of the same name. Register after constructing the runtime in `server.ts`. Tool arguments are validated with Zod before execution. Read-only questions can return text without any tool call. Tool results go back to the model before its final spoken answer.
 

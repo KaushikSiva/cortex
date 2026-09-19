@@ -1,13 +1,13 @@
-<mujoco model="CORTEX Yerba Buena waterfall">
+<mujoco model="CORTEX Painted Ladies Alamo Square">
  <include file="../vendor/g1/g1_12dof.xml"/>
  <option timestep="0.002" gravity="0 0 -9.81"/>
  <worldbody>
   <geom name="plaza" type="plane" size="15 15 .1" rgba=".53 .51 .46 1" friction="1 .005 .0001"/>
   <geom name="planter" type="box" pos="2.8 2.6 .35" size="1 .7 .35" rgba=".5 .5 .45 1"/>
   <geom name="bench" type="box" pos="-1 3.5 .25" size="1 .3 .25" rgba=".4 .3 .2 1"/>
-  <geom name="pool_edge" type="box" pos="0 4.55 .19" size="10 .12 .19"/>
-  <geom name="north_wall" type="box" pos="0 6.9 2.35" size="11 .4 2.35"/>
-  <geom name="south_boundary" type="box" pos="0 -6 .15" size="12 .15 .15"/>
+  <geom name="park_edge" type="box" pos="0 4.55 .09" size="12 .12 .09"/>
+  <geom name="street_boundary" type="box" pos="0 13.6 -1.55" size="35 .125 .09"/>
+  <geom name="south_boundary" type="box" pos="0 -6 .09" size="12 .12 .09"/>
   <light pos="-3 -4 10" dir=".3 .4 -1" directional="true"/>
  </worldbody>
 </mujoco>

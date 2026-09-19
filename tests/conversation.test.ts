@@ -90,7 +90,46 @@ test('offline demo resume remains available without a model key',async()=>{
   const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};
   const snapshot={pose:{x:0,y:0,yaw:0},velocity:0,qpos:Array(19).fill(0),status:'idle',timestamp:Date.now(),nearestObstacle:3,estop:false,currentWaypoint:'BENCH'} as RobotState;
   runtime.state.robot=snapshot;runtime.safety.latched=true;
-  const actions:string[]=[];runtime.robot.resume=async()=>{actions.push('resume');};runtime.robot.getState=async()=>snapshot;runtime.robot.navigate=async(_target,policy,waypoint)=>{actions.push(waypoint);assert.equal(policy.maxSpeed,.3);};
+  const actions:string[]=[];runtime.robot.resume=async()=>{actions.push('resume');};runtime.robot.getState=async()=>snapshot;runtime.robot.turn=async yaw=>{snapshot.pose.yaw=yaw;};runtime.robot.navigate=async(_target,policy,waypoint)=>{actions.push(waypoint);assert.equal(policy.maxSpeed,.3);};
   await runtime.command({type:'text',text:'Continue, but slowly.'});assert.deepEqual(actions,['resume','BENCH']);
  }finally{if(previous!==undefined)process.env.SAMBANOVA_API_KEY=previous;}
+});
+
+test('asking a question preserves the active keyboard lease',async()=>{
+ const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};
+ runtime.manualSession='held-key-session';runtime.state.phase='MOVING';
+ runtime.robot.hold=async()=>{assert.fail('Question released the held key');};
+ runtime.conversation.reply=async()=> 'You are walking forward.';
+ const epoch=runtime.epoch;await runtime.command({type:'text',text:'What are you doing?'});
+ assert.equal(runtime.manualSession,'held-key-session');assert.equal(runtime.epoch,epoch);assert.equal(runtime.state.phase,'MOVING');
+});
+
+test('live conversation exposes new motion tools and executes the shared turn/walk path',()=>configured(async()=>{
+ const fake=mockProvider([call('walk',{direction:'right',meters:.5}),answer('Walking right half a meter.')]);
+ const previous=globalThis.fetch;globalThis.fetch=fake.request;
+ try{
+  const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};
+  const snapshot={pose:{x:0,y:0,yaw:0},velocity:0,qpos:Array(19).fill(0),status:'idle',timestamp:Date.now(),nearestObstacle:3,estop:false} as RobotState;
+  runtime.robot.getState=async()=>snapshot;const actions:string[]=[];
+  runtime.robot.turn=async yaw=>{snapshot.pose.yaw=yaw;actions.push('turn');};
+  runtime.robot.walk=async(yaw,meters)=>{assert.equal(yaw,-Math.PI/2);assert.equal(meters,.5);actions.push('walk');};
+  await runtime.command({type:'text',text:'Walk right half a meter.'});
+  assert.deepEqual(actions,['turn','walk']);assert.equal(runtime.state.plan[0].name,'walk');
+  for(const name of ['walk','turn','walk_to'])assert.ok(fake.requests[0].tools.some((t:any)=>t.function.name===name&&t.function.description));
+ }finally{globalThis.fetch=previous;}
+}));
+
+test('named destination button executes without a conversation provider',async()=>{
+ const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};
+ runtime.conversation.reply=async()=>{assert.fail('A destination button must use the shared motion executor');};
+ runtime.motionReflex=async()=>true;let target='';runtime.motion.walkTo=async name=>{target=name;};
+ await runtime.command({type:'tool',name:'walk_to',arguments:{target:'BENCH'}});assert.equal(target,'BENCH');
+});
+
+test('stop during an awaited turn cannot be overwritten by its completion',async()=>{
+ const runtime=new CortexRuntime(()=>{});runtime.persist=async()=>{};runtime.motionReflex=async()=>true;runtime.robot.stop=async()=>{};
+ let release!:()=>void;runtime.motion.turn=async()=>{await new Promise<void>(resolve=>{release=resolve;});return null;};
+ const moving=runtime.execute({name:'turn',arguments:{angleDegrees:90}},runtime.epoch);
+ await new Promise(resolve=>setImmediate(resolve));await runtime.stop();release();await moving;
+ assert.equal(runtime.state.phase,'STOPPED');assert.equal(runtime.state.response,'Stopped.');
 });

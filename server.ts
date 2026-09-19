@@ -62,6 +62,8 @@ wss.on('connection',ws=>{
   if(raw.type==='audio'){if(typeof raw.data!=='string'||raw.data.length>300000)throw new Error('Invalid audio packet');gradium.audio(raw.data);return;}
   if(raw.type==='speech_start'){interruptSpeech();runtime.timing.clear();runtime.timing.mark('speech_start');gradium.send({type:'speech_start'});return;}
   if(raw.type==='speech_end'){runtime.timing.mark('speech_end');gradium.send({type:'speech_end'});return;}
+  if(raw.type==='manual_renew'){await runtime.command(raw);return;}
+  if(raw.type==='manual_start'||raw.type==='manual_end'){controlEpoch++;if(raw.type==='manual_start')interruptSpeech();await runtime.command(raw);return;}
   if(raw.type==='heartbeat'){await runtime.command(raw);return;}
   if(raw.type==='stop'||raw.type==='reset'||(raw.type==='text'&&stopWords(String(raw.text??'')))||(raw.type==='fixture'&&raw.name==='stop')){controlEpoch++;interruptSpeech();const generation=speechGeneration;const action=runtime.command(raw);if(raw.type==='reset')commandQueue=action.catch(e=>runtime.fail(e));await action;speakReply(generation);return;}
   if(raw.type==='text'){interruptSpeech();const generation=speechGeneration;await runtime.command(raw);speakReply(generation);return;}
