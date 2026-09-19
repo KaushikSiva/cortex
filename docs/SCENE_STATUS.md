@@ -11,3 +11,13 @@ The older jtressle CC BY 4.0 photogrammetry asset remains available as reference
 Controls: the hero view is at 1.65 m with a 60° lens. The 60° button switches to an angled inspection view; drag to inspect depth. R returns to the presentation view. Robot motion remains confined to the collision-checked foreground path.
 
 Material pass: 2K CC0 scanned siding/slate normal and roughness maps, metric UVs, dielectric glass, arched entries and turned posts. The postprocessing target now uses multisample antialiasing as well as SMAA. The scene still has approximate massing and visibly rendered materials; the acceptance gap above is unchanged.
+
+## Public-data neighborhood pass
+
+The surrounding scene now extrudes 355 DataSF building footprints at their published median heights and local ground elevations. Seven hero-building ground elevations also replace the earlier reversed, nearly flat row. The street and verge follow an inferred grade between these elevations. The alignment of this geographic data to the authored demonstration apron is approximate, and neither these footprints nor the terrain change MuJoCo collision geometry.
+
+Source geometry is the City’s 2010-era building dataset, published under PDDL 1.0. Background façade colors, windows, flat roofs, and interpolated ground remain authored approximations. The data is useful for spatial context, not evidence of a photoreal or current reconstruction. The source, exact query, conversion notes and checksum are in `public/assets/neighborhood/SOURCE.json`; reproduce with `python3 scripts/build-sf-context.py`.
+
+The sky HDR is now 2048 × 1024, replacing the 1024 × 512 source. It remains the same CC0 illustrative lighting asset, not an Alamo Square capture. Camera clipping/fog distances extend to include the surrounding neighborhood.
+
+The narrated demo video retains its previous scene revision. Photoreal acceptance remains unmet: repeated hero façades and simplified neighboring buildings are plainly visible in the render.

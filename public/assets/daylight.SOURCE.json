@@ -1,0 +1,12 @@
+{
+  "asset": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy",
+  "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/kloofendal_48d_partly_cloudy_2k.hdr",
+  "author": "Greg Zaal",
+  "license": "CC0",
+  "resolution": [
+    2048,
+    1024
+  ],
+  "sha256": "3fbd33f279f29bd64925c1dd3214fd46c627493d21f1100248b6b1098da4d06e",
+  "limits": "Illustrative lighting and sky, not San Francisco imagery. Original HDR unchanged; runtime solar extraction derives the environment illumination."
+}

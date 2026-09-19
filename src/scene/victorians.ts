@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import {ROW_BASES,ROW_HEIGHTS,ROW_SPACING} from './siteAlignment';
 
 /** Authored architectural study, NOT a surveyed reconstruction. Every building has
  * side/rear walls, a pitched roof and projecting bays; no facade image planes. */
@@ -32,7 +33,7 @@ export function buildVictorians(){
  const stone=pbr('#aca69b',.96),iron=pbr('#3a3a34',.48,.6),roof=new THREE.MeshStandardMaterial({...roofing,color:'#bab8b3',roughness:.88,normalScale:new THREE.Vector2(.45,.45)}),glass=new THREE.MeshPhysicalMaterial({color:'#e0e9e8',roughness:.09,metalness:0,ior:1.5,envMapIntensity:1.2}),room=pbr('#262622',1),curtain=pbr('#b5afa0',.96),brass=pbr('#8b7950',.28,.7);
  glass.transparent=true;glass.opacity=.28;glass.depthWrite=false;
  const palettes=[['#ac9971','#dfd1ad','#4f6655'],['#9b9c85','#e1dccb','#555d54'],['#b8ac87','#ede0bd','#795148'],['#ae9c90','#e4d6c4','#6d4a40'],['#8b9b9d','#d5d9d3','#57656d'],['#b59d8c','#ded1bd','#72564c'],['#c3b293','#e9dfc8','#65645a']];
- // A slight slope and varying roof proportions keep the row from being identical modules.
+ // Published ground elevations establish the uphill row; facade geometry remains authored.
  palettes.forEach(([color,trimColor,accentColor],index)=>{
   const body=new THREE.MeshStandardMaterial({...siding,color,roughness:.87,normalScale:new THREE.Vector2(.23,.23)}),trim=pbr(trimColor,.68),accent=pbr(accentColor,.74);
   for(const material of [body,trim,accent]){
@@ -48,8 +49,8 @@ export function buildVictorians(){
     shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n float weather=.985+.015*sin(paintPosition.x*9.1+sin(paintPosition.z*7.))*sin(paintPosition.z*24.);diffuseColor.rgb*=weather;');
    };
   }
-  const cx=(index-3)*6.35,fy=25.0+(index%2)*.14,base=-1.54+(6-index)*.12,w=5.95,depth=13.5;
-  const eave=base+9.4+(index===0?.55:0),peak=eave+2.75;
+  const cx=(index-3)*ROW_SPACING,fy=25.0+(index%2)*.14,base=ROW_BASES[index],w=5.95,depth=13.5;
+  const eave=base+ROW_HEIGHTS[index]-2.75,peak=eave+2.75;
   // Ground floor, full sides/rear. Front upper wall has actual window openings.
   box(stone,cx,fy+depth/2,base+.75,w,depth,1.5);
   box(body,cx-w/2+.10,fy+depth/2,(base+1.5+eave)/2,.20,depth,eave-base-1.5);

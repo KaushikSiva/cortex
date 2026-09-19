@@ -78,3 +78,9 @@ With the supplied credential stored only in ignored `.env.local`, the actual Gra
 The current TypeSafe quickstart contract returned live Jev CONTINUE in about 400 ms. Three calls through the actual 180 ms adapter deadline each fell back to explicitly labeled local rules. The current official Memories.ai CLI search endpoint returned HTTP 200 containing application error 0001 (missing route). The adapter now rejects application-level failures, and runtime marks memory OFFLINE rather than presenting a false empty result. Live memory remains unverified. Details: provider-live-results.json.
 
 The architectural study now uses 2K CC0 siding/slate scans with metric UVs and physically based glass, plus modeled arched entries and porch posts. A multisampled render target improves architectural edge rendering. Browser rendering and TypeScript checks pass; this material study does not establish photorealism. The existing demo video represents the preceding architecture revision.
+
+## DataSF background geometry refinement
+
+Inspected the official Data.gov catalog and ArcGIS layer metadata. The city footprint dataset is PDDL 1.0; `gnd_Min_m` and `hgt_Median_m` are meters, and the source geometry predates the current demo. Queried a small Alamo Square bounding box, rejected truncated/error responses, and retained the exact query and derived-asset checksum. The default scene now uses local-coordinate footprint extrusions around the authored row and elevation-informed street grading. This is a geometry correction, not a new photorealism claim. Live navigation and collisions remain separate.
+
+Asset research: Waymo’s Block-NeRF page shows Alamo Square but publishes a Mission Bay dataset; it is not a usable substitute for the requested location. The available jtressle scan remains incomplete. A higher-quality, licensed Painted Ladies capture has not been obtained.

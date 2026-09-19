@@ -51,3 +51,11 @@ The generated waterfall plate is retained only as an archived art-direction stud
 ## Architectural material refinement
 
 `public/assets/architecture` contains 2K CC0 diffuse, OpenGL normal and roughness scans from [Blue Painted Planks](https://polyhaven.com/a/blue_painted_planks) and [Roof Slates 03](https://polyhaven.com/a/roof_slates_03). SOURCE.json records download URLs and hashes. Runtime siding pigment is remapped to the authored pastel palette; metric UVs preserve material scale. These are material proxies, not captures of the actual Painted Ladies.
+
+## DataSF neighborhood context
+
+`public/assets/neighborhood/buildings.json` derives from the [City and County of San Francisco building footprints](https://catalog.data.gov/dataset/building-footprints-file-geodatabase-format), licensed [PDDL 1.0](https://opendatacommons.org/licenses/pddl/1-0/). The [published ArcGIS layer](https://services5.arcgis.com/wXYNaciObHUosEnt/ArcGIS/rest/services/Rooftop_Solar_Power_Potential_San_Francisco_WFL1/FeatureServer/9) supplies the queried geometry and documented elevation fields. Credit: San Francisco Open Data Program, Enterprise GIS Program, Department of Environment and Department of Technology.
+
+SOURCE.json preserves the query, source feature count, output checksum, units and limitations. 362 queried footprints become 355 background buildings plus seven elevation references for the authored row. Local coordinate rotation/translation, extrusion, window treatment and terrain interpolation are CORTEX transformations; they do not recover actual façade appearance or roof geometry.
+
+`daylight.SOURCE.json` records the original 2K Poly Haven HDR download and hash. No source bitmap edits were made.

@@ -1,0 +1,13 @@
+{
+  "source": "https://services5.arcgis.com/wXYNaciObHUosEnt/ArcGIS/rest/services/Rooftop_Solar_Power_Potential_San_Francisco_WFL1/FeatureServer/9",
+  "query": "https://services5.arcgis.com/wXYNaciObHUosEnt/ArcGIS/rest/services/Rooftop_Solar_Power_Potential_San_Francisco_WFL1/FeatureServer/9/query?f=json&where=1%3D1&geometry=-122.4355%2C37.7735%2C-122.4300%2C37.7775&geometryType=esriGeometryEnvelope&inSR=4326&outSR=4326&outFields=OBJECTID%2Csf16_BldgID%2Cgnd_Min_m%2Chgt_Median_m%2Cpeak_1st_m%2CShape__Area&returnGeometry=true&resultRecordCount=2000",
+  "catalog": "https://catalog.data.gov/dataset/building-footprints-file-geodatabase-format",
+  "license": "PDDL-1.0",
+  "licenseURL": "https://opendatacommons.org/licenses/pddl/1-0/",
+  "attribution": "City and County of San Francisco, San Francisco Open Data Program, Enterprise GIS Program, Department of Environment and Department of Technology",
+  "sourceFeatureCount": 362,
+  "renderedContextCount": 355,
+  "sha256": "9a9e2a98f2d2b9812f1ba0345fbdb45a91dc301f4d5b087e8f7c46914495a5b3",
+  "units": "Meters. Height is hgt_Median_m, base is gnd_Min_m minus 64.8m NAVD88.",
+  "limitations": "2010-era footprint geometry with LiDAR-derived elevations, not current textured reconstruction. Local alignment and facade/roof appearances are approximations. Footprints extruded to median height do not reconstruct roof shapes. No robot collision changes."
+}
