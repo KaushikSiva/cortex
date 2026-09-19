@@ -88,7 +88,7 @@ async def voice(request):
             elif kind=='speech_end':await task.queue_frame(VADUserStoppedSpeakingFrame())
             elif kind=='speak':
                 if not os.getenv('GRADIUM_VOICE_ID'):raise ValueError('GRADIUM_VOICE_ID is required for speech playback')
-                await task.queue_frame(TTSSpeakFrame(text=str(data['text'])[:500]))
+                await task.queue_frame(TTSSpeakFrame(text=str(data['text'])[:2000]))
             elif kind=='interrupt':await task.queue_frame(InterruptionFrame())
     except Exception as e:await emit({'type':'error','message':str(e)})
     finally:
