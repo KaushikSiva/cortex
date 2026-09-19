@@ -5,21 +5,28 @@ import {ArrowUpRight,AudioLines,BrainCircuit,Camera,ChevronRight,CircleHelp,Down
 import type {Snapshot} from '../types';
 import {KeyboardControls} from '../components/KeyboardControls';
 import {useMicrophone} from '../components/useMicrophone';
+import {PlaybackEpoch,interruptsPlayback} from '../integrations/gradium/playback';
 const Scene=dynamic(()=>import('../components/Scene'),{ssr:false});
 const format=(ms:number|null)=>ms===null?'—':ms<10?ms.toFixed(1):Math.round(ms).toString();
 export default function Home(){
- const [s,setS]=useState<Snapshot|null>(null),[connected,setConnected]=useState(false),[reality,setReality]=useState(false),[tab,setTab]=useState('perception'),[text,setText]=useState(''),[localError,setLocalError]=useState(''),[about,setAbout]=useState(false),[speaking,setSpeaking]=useState(false);
+ const [s,setS]=useState<Snapshot|null>(null),[connected,setConnected]=useState(false),[observer,setObserver]=useState(false),[reality,setReality]=useState(false),[tab,setTab]=useState('perception'),[text,setText]=useState(''),[localError,setLocalError]=useState(''),[about,setAbout]=useState(false),[speaking,setSpeaking]=useState(false);
  const socket=useRef<WebSocket|null>(null),canvas=useRef<HTMLCanvasElement|null>(null),reconnect=useRef<ReturnType<typeof setTimeout>|null>(null);
- const send=useCallback((m:unknown)=>{if(socket.current?.readyState===WebSocket.OPEN)socket.current.send(JSON.stringify(m));else setLocalError('Runtime disconnected. Reconnecting…');},[]);
+ const playback=useRef(new PlaybackEpoch());
+ const send=useCallback((m:unknown)=>{if(interruptsPlayback(m)){playback.current.interrupt();micRef.current.silence();}if(socket.current?.readyState===WebSocket.OPEN)socket.current.send(JSON.stringify({...m as object,voiceEpoch:playback.current.value}));else setLocalError('Runtime disconnected. Reconnecting…');},[]);
  const mic=useMicrophone(send);const micRef=useRef(mic);micRef.current=mic;
  useEffect(()=>{
-  let disposed=false;
-  function connect(){const ws=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}/ws`);socket.current=ws;ws.onopen=()=>{setConnected(true);setLocalError('');};ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==='snapshot')setS(m.state);if(m.type==='gradium_ready')micRef.current.begin();if(m.type==='gradium_closed')micRef.current.stop(false);if(m.type==='voice_audio')micRef.current.play(m.audio,m.sampleRate);};ws.onclose=e=>{micRef.current.stop(false);setConnected(false);if(e.code===1008){setLocalError('Another operator controls this robot. Close that tab first.');return;}if(!disposed)reconnect.current=setTimeout(connect,2000);};}
-  connect();const timer=setInterval(()=>send({type:'heartbeat'}),400);
-  return()=>{disposed=true;clearInterval(timer);if(reconnect.current)clearTimeout(reconnect.current);socket.current?.close();};
+  let disposed=false,statusBusy=false;
+  const readStatus=async()=>{
+   if(disposed||statusBusy||socket.current?.readyState===WebSocket.OPEN)return;
+   statusBusy=true;try{const response=await fetch('/api/status',{cache:'no-store',signal:AbortSignal.timeout(2000)});if(!response.ok)throw new Error('Runtime unavailable');const snapshot=await response.json();if(!disposed&&socket.current?.readyState!==WebSocket.OPEN)setS(snapshot);}
+   catch{if(!disposed&&socket.current?.readyState!==WebSocket.OPEN)setS(null);}finally{statusBusy=false;}
+  };
+  function connect(){const ws=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}/ws`);socket.current=ws;ws.onopen=()=>{setConnected(true);setObserver(false);setLocalError('');};ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==='snapshot')setS(m.state);if(m.type==='gradium_ready')micRef.current.begin();if(m.type==='gradium_closed')micRef.current.stop(false);if(m.type==='voice_silence')micRef.current.silence();if(m.type==='voice_audio'&&playback.current.accepts(m.voiceEpoch))micRef.current.play(m.audio,m.sampleRate);};ws.onclose=e=>{micRef.current.stop(false);setConnected(false);if(e.code===1008){setObserver(true);setLocalError('View only: another tab controls this robot. Close that tab and refresh to take control.');void readStatus();return;}if(!disposed)reconnect.current=setTimeout(connect,2000);};}
+  void readStatus();connect();const timer=setInterval(()=>{if(socket.current?.readyState===WebSocket.OPEN)send({type:'heartbeat'});},400);const statusTimer=setInterval(readStatus,500);
+  return()=>{disposed=true;clearInterval(timer);clearInterval(statusTimer);if(reconnect.current)clearTimeout(reconnect.current);socket.current?.close();};
  },[send]);
  useEffect(()=>{const fn=(e:KeyboardEvent)=>{if((e.target as HTMLElement)?.matches('input,textarea'))return;if(e.key.toLowerCase()==='r'){window.dispatchEvent(new CustomEvent('cortex-inspect',{detail:false}));setReality(v=>!v);}if(e.code==='Space'){e.preventDefault();send({type:'stop'});}if(e.key==='Escape')setReality(false);};window.addEventListener('keydown',fn);return()=>window.removeEventListener('keydown',fn);},[send]);
- const p=s?.policy,v=s?.vocal,robot=s?.robot;const phase=!connected?'CONNECTING':s?.phase??'STARTING';const error=localError||s?.error;
+ const p=s?.policy,v=s?.vocal,robot=s?.robot;const phase=observer?'VIEW ONLY':!connected?'CONNECTING':s?.phase??'STARTING';const error=localError||s?.error;
  const capture=()=>{if(!canvas.current)return;try{send({type:'capture',image:canvas.current.toDataURL('image/png')});}catch{setLocalError('Camera frame capture failed.');}};
  const startMic=async()=>{setLocalError('');try{if(mic.listening)mic.stop();else await mic.prepare();}catch(e){setLocalError(e instanceof Error?e.message:String(e));}};
  const speak=()=>send({type:'speak_response'});
@@ -27,7 +34,7 @@ export default function Home(){
   <header className="header">
    <a className="brand" href="/"><span className="brand-mark"><i/><i/><i/></span>CORTEX<span className="brand-caption">PHYSICAL INTELLIGENCE</span></a>
    <nav><button className="nav-active">Control room</button><a href="/pitch.html" target="_blank">The pitch <ArrowUpRight size={12}/></a><button onClick={()=>setAbout(true)}>About <ArrowUpRight size={12}/></button></nav>
-   <div className="header-status"><span className={connected?'dot':'dot off'}/>{connected?'RUNTIME CONNECTED':'CONNECTING'}<span className="version">v0.1</span></div>
+   <div className="header-status"><span className={connected?'dot':'dot off'}/>{connected?'RUNTIME CONNECTED':observer?'VIEW ONLY':'CONNECTING'}<span className="version">v0.1</span></div>
   </header>
   <section className="workspace-heading">
    <div><div className="eyebrow">ROBOT OPERATING SYSTEM <span>/</span> SESSION 001</div><h1>A little more human.</h1><p>Words give the instruction. Voice changes the way.</p></div>
@@ -40,7 +47,7 @@ export default function Home(){
      <div className="view-top"><span><span className="dot"/> {robot?'LIVE SIMULATION':'CONNECTING TO SIMULATOR'}</span><button title="Inspect 3D scene" onClick={()=>window.dispatchEvent(new CustomEvent('cortex-inspect'))}><Layers size={16}/></button><button title="60° orbit view" onClick={()=>window.dispatchEvent(new CustomEvent('cortex-view-angle'))}>60°</button><button title="Reality mode" onClick={()=>{window.dispatchEvent(new CustomEvent('cortex-inspect',{detail:false}));setReality(true);}}><Expand size={16}/></button></div>
      <div className="location-stamp"><MapPin size={14}/><span>Painted Ladies · Alamo Square<small>{process.env.NEXT_PUBLIC_SPLAT_MANIFEST?'SAN FRANCISCO, CA · RECONSTRUCTION ASSET':'SAN FRANCISCO, CA · FULL 3D ARCHITECTURAL STUDY'}</small></span></div>
      <div className="camera-stamp"><Camera size={13}/> CAM 01 <span>G1 / MUJOCO</span></div>
-     {!robot&&<div className="robot-offline">Robot controller offline<small>Start the MuJoCo server on port 8002.</small></div>}
+     {!robot&&<div className="robot-offline">{s?'Robot controller offline':'Waiting for robot telemetry'}<small>{s?'Start the MuJoCo server on port 8002.':'Connecting to the CORTEX runtime…'}</small></div>}
      <button className="reality-exit" onClick={()=>setReality(false)}>CORTEX <Layers size={15}/><kbd>R</kbd></button>
     </div>
     <div className="telemetry-strip"><div><span className={'status-orb '+(phase==='MOVING'?'moving':'')}/><span className="phase">{phase}</span></div><div><span className="meta-label">VELOCITY</span><b>{robot?robot.velocity.toFixed(2):'—'} <small>m/s</small></b></div><div><span className="meta-label">TARGET</span><b>{robot?.currentWaypoint??'HOME'}</b></div><div><ShieldCheck size={16}/><span className="safety-label">Safety governor <b>{robot?.estop?'STOP LATCHED':'ACTIVE'}</b></span></div></div>

@@ -11,3 +11,8 @@ export function streetElevation(x: number) {
   const index = Math.max(0, Math.min(5, Math.floor(t)));
   return ROW_BASES[index] + (ROW_BASES[index + 1] - ROW_BASES[index]) * (t - index);
 }
+
+/** Shared visual grade for lawn vertices, grass roots and tree planting. */
+export function lawnElevation(x: number, y: number) {
+  return (y > 4.6 ? streetElevation(x) * Math.min((y - 4.6) / 9, 1) : 0) - .035;
+}

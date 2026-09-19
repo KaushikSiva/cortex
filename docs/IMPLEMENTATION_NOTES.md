@@ -92,3 +92,9 @@ Inspected the current official [Get Voices endpoint](https://docs.gradium.ai/api
 An isolated instance of the actual Pipecat sidecar synthesized a fixed test sentence using that voice. It returned 46 PCM16 chunks at 48 kHz, totaling 3.68 seconds; first audio arrived 368.27 ms after the test speak request. These are measured single-run values, not service guarantees. Evidence: `gradium-tts-live-results.json`. This checks live synthesis and the sidecar transport; it does not establish human microphone input, emotion recognition, memory retrieval or planner correctness.
 
 The selected public voice ID was added to ignored local configuration. The video narration remains the independently generated Rishi/macOS track.
+
+## Playback cancellation and robot display recovery
+
+Browser interruption epochs silence queued speech immediately and reject late audio from an older response. Each speak request has a separate ID preserved through Pipecat's actual TTS context ID; old provider audio cannot be relabeled as a fresh response. Stop, reset, microphone changes and speech start invalidate playback. Four local voice tests and 25 TypeScript tests pass; `scripts/test-playback.mjs` checks real browser AudioContext cancellation with synthetic audio and routed sockets. A live Gradium check also returned 45 correctly correlated PCM chunks; `gradium-correlated-tts-results.json` records the measured run.
+
+A rejected second control tab now polls the status endpoint read-only rather than mislabeling a healthy controller as offline. The scene does not render an unpositioned URDF while telemetry is absent. The actual robot server was healthy on port 8002 during diagnosis; no physical root offset was applied to conceal the display bug. The measured visual lowest point was approximately -6 mm, aligned to the rendered paving. See scene-telemetry-results.json.

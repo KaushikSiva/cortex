@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {WebSocketServer,WebSocket} from 'ws';
 import {CortexRuntime} from './src/cognition/runtime';
 import {GradiumBridge} from './src/integrations/gradium/bridge';
+import {SpeechResponses} from './src/integrations/gradium/playback';
 import {stopWords} from './src/integrations/jev';
 const dev=process.env.NODE_ENV!=='production';const port=Number(process.env.PORT??3000);const app=next({dev,hostname:'127.0.0.1',port});await app.prepare();const handle=app.getRequestHandler();
 let client:WebSocket|null=null;
@@ -26,17 +27,18 @@ server.on('upgrade',(req,socket,head)=>{
 wss.on('connection',ws=>{
  if(client&&client.readyState===WebSocket.OPEN){ws.close(1008,'One operator at a time');return;}
  client=ws;runtime.clientBeat=Date.now();runtime.emit();let commandQueue=Promise.resolve();let controlEpoch=0;
- let lastSpoken='',lastSpokenAt=0;
+ let lastSpoken='',lastSpokenAt=0;const speech=new SpeechResponses();
  const gradium=new GradiumBridge(raw=>{
-  const event=raw as {type?:string;message?:string;interim?:boolean;transcript?:string};
-  if(event.type==='voice_audio'){if(ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(raw));return;}
+  const event=raw as {type?:string;message?:string;interim?:boolean;transcript?:string;requestId?:string};
+  if(event.type==='voice_audio'){const reply=speech.match(event.requestId);if(reply&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({...event,voiceEpoch:reply.voiceEpoch}));return;}
   if(event.type==='error'){runtime.fail(event.message??'Pipecat voice error');return;}
+  if(event.type==='voice_turn'&&stopWords(event.transcript??'')){speech.cancel();ws.send(JSON.stringify({type:'voice_silence'}));}
   const handled=runtime.gradium(raw),epoch=runtime.epoch;
   void handled.then(()=>{
    const shouldRespond=event.type==='voice_turn'&&(!event.interim||stopWords(event.transcript??''));
    if(shouldRespond&&epoch===runtime.epoch&&process.env.GRADIUM_VOICE_ID&&runtime.state.providers.GRADIUM.mode==='LIVE'){
     const reply=runtime.state.response;
-    if(reply!==lastSpoken||Date.now()-lastSpokenAt>2000){gradium.send({type:'speak',text:reply});lastSpoken=reply;lastSpokenAt=Date.now();}
+    if(reply!==lastSpoken||Date.now()-lastSpokenAt>2000){gradium.send({type:'speak',text:reply,...speech.begin()});lastSpoken=reply;lastSpokenAt=Date.now();}
    }
   }).catch(e=>runtime.fail(e));
  },status=>{
@@ -45,17 +47,17 @@ wss.on('connection',ws=>{
   else runtime.fail(status);runtime.emit();
  });
  ws.on('message',async data=>{try{
-  const raw=JSON.parse(data.toString());
+  const raw=JSON.parse(data.toString());speech.observe(raw.voiceEpoch);
   if(raw.type==='mic_start'){gradium.connect();return;}
   if(raw.type==='mic_stop'){gradium.close();if(process.env.CORTEX_MODE!=='REAL'){runtime.state.mode='DEMO';runtime.state.providers.GRADIUM.mode='DEMO';}return;}
-  if(raw.type==='speak_response'){if(!process.env.GRADIUM_VOICE_ID)throw new Error('Set GRADIUM_VOICE_ID for speech playback');if(runtime.state.providers.GRADIUM.mode!=='LIVE')throw new Error('Connect the microphone to start the voice session');gradium.send({type:'speak',text:runtime.state.response});return;}
+  if(raw.type==='speak_response'){if(!process.env.GRADIUM_VOICE_ID)throw new Error('Set GRADIUM_VOICE_ID for speech playback');if(runtime.state.providers.GRADIUM.mode!=='LIVE')throw new Error('Connect the microphone to start the voice session');gradium.send({type:'speak',text:runtime.state.response,...speech.begin()});return;}
   if(raw.type==='audio'){if(typeof raw.data!=='string'||raw.data.length>300000)throw new Error('Invalid audio packet');gradium.audio(raw.data);return;}
-  if(raw.type==='speech_start'){runtime.timing.clear();runtime.timing.mark('speech_start');gradium.send({type:'speech_start'});return;}
+  if(raw.type==='speech_start'){speech.cancel();runtime.timing.clear();runtime.timing.mark('speech_start');gradium.send({type:'speech_start'});return;}
   if(raw.type==='speech_end'){runtime.timing.mark('speech_end');gradium.send({type:'speech_end'});return;}
   if(raw.type==='manual_renew'){await runtime.command(raw);return;}
   if(raw.type==='manual_start'||raw.type==='manual_end'){controlEpoch++;await runtime.command(raw);return;}
   if(raw.type==='heartbeat'){await runtime.command(raw);return;}
-  if(raw.type==='stop'||raw.type==='reset'||(raw.type==='text'&&stopWords(String(raw.text??'')))||(raw.type==='fixture'&&raw.name==='stop')){controlEpoch++;gradium.send({type:'interrupt'});const action=runtime.command(raw);if(raw.type==='reset')commandQueue=action.catch(e=>runtime.fail(e));await action;return;}
+  if(raw.type==='stop'||raw.type==='reset'||(raw.type==='text'&&stopWords(String(raw.text??'')))||(raw.type==='fixture'&&raw.name==='stop')){controlEpoch++;speech.cancel();ws.send(JSON.stringify({type:'voice_silence'}));gradium.send({type:'interrupt'});const action=runtime.command(raw);if(raw.type==='reset')commandQueue=action.catch(e=>runtime.fail(e));await action;return;}
   const token=controlEpoch;commandQueue=commandQueue.then(async()=>{if(token===controlEpoch)await runtime.command(raw);}).catch(e=>runtime.fail(e));await commandQueue;
  }catch(e){runtime.fail(e);}});
  ws.on('close',()=>{client=null;gradium.close();runtime.clientBeat=0;void runtime.stop('Operator disconnected').catch(e=>runtime.fail(e));});

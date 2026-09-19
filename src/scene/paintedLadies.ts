@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {buildVictorians} from './victorians';
 import {buildNeighborhood} from './neighborhood';
-import {streetElevation} from './siteAlignment';
+import {streetElevation,lawnElevation} from './siteAlignment';
 import {centralAvenueLeafMaterial} from './rendering/leafMaterial';
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 
@@ -24,7 +24,7 @@ export function buildPaintedLadies(scene:THREE.Scene){
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(24,10.6),paving);ground.position.set(0,-.65,-.006);ground.receiveShadow=true;group.add(ground);
  const grass=new THREE.MeshStandardMaterial({map:texture('grass-color.jpg',22,22,true),normalMap:texture('grass-normal.jpg',22,22),roughnessMap:texture('grass-rough.jpg',22,22),normalScale:new THREE.Vector2(.38,.38),roughness:1,color:'#abbc88'});
  const lawnGeometry=new THREE.PlaneGeometry(120,120,120,120);lawnGeometry.translate(0,-46.4,0);const points=lawnGeometry.getAttribute('position');
- for(let i=0;i<points.count;i++){const y=points.getY(i);points.setZ(i,y>4.6?streetElevation(points.getX(i))*Math.min((y-4.6)/9,1)-.035:-.035);}
+ for(let i=0;i<points.count;i++){const y=points.getY(i);points.setZ(i,lawnElevation(points.getX(i),y));}
  lawnGeometry.computeVertexNormals();const lawn=new THREE.Mesh(lawnGeometry,grass);lawn.receiveShadow=true;group.add(lawn);
  // The walking apron ends at a real colliding curb. No mission crosses Steiner Street.
  box(0,4.55,.09,24,.24,.18);box(0,-6,.09,24,.24,.18);
@@ -75,8 +75,8 @@ export function buildPaintedLadies(scene:THREE.Scene){
  };
  // Real bent grass blades along the verge; one mesh keeps draw cost bounded.
  const bladePositions:number[]=[],bladeColors:number[]=[],bladeIndices:number[]=[];
- for(let i=0;i<4800;i++){
-  const x=(rand()-.5)*26,y=4.73+rand()*2.1,baseZ=-Math.min((y-4.6)*.17,1.6)-.03,h=.035+rand()*.09,w=.004+rand()*.007,angle=rand()*Math.PI*2,base=bladePositions.length/3;
+ for(let i=0;i<28000;i++){
+  const edge=i<18000;const x=edge?(rand()-.5)*34:(rand()<.5?-1:1)*(12.03+rand()*5),y=edge?4.73+rand()*7:-5.8+rand()*10.3,baseZ=lawnElevation(x,y)+.006,h=.03+rand()*.085,w=.003+rand()*.006,angle=rand()*Math.PI*2,base=bladePositions.length/3;
   const color=new THREE.Color().setHSL(.19+rand()*.08,.24+rand()*.2,.17+rand()*.10);
   for(let j=0;j<3;j++){const t=j/2;for(const side of [-1,1]){bladePositions.push(x+Math.cos(angle)*w*side*(1-t)+Math.sin(angle)*t*t*.03,y+Math.sin(angle)*w*side*(1-t)+Math.cos(angle)*t*t*.03,baseZ+h*t);bladeColors.push(color.r,color.g,color.b);}if(j<2){const n=base+j*2;bladeIndices.push(n,n+1,n+2,n+1,n+3,n+2);}}
  }
@@ -85,11 +85,26 @@ export function buildPaintedLadies(scene:THREE.Scene){
  const treesReady=new GLTFLoader().loadAsync('/assets/park-tree.glb').then(gltf=>{
   const source=gltf.scene;
   source.traverse(o=>{if(!(o instanceof THREE.Mesh))return;o.castShadow=o.receiveShadow=true;const materials=Array.isArray(o.material)?o.material:[o.material];const converted=materials.map(material=>{if(material instanceof THREE.MeshStandardMaterial){if(material.alphaTest>0)material=centralAvenueLeafMaterial(material);const m=material as THREE.MeshStandardMaterial;for(const t of [m.map,m.normalMap,m.roughnessMap,m.alphaMap])if(t){t.anisotropy=8;textures.push(t);}}return material;});o.material=Array.isArray(o.material)?converted:converted[0];});
-  for(const [x,y,z,scale,angle]of [[-11,6,-.27,.72,.3],[12,8,-.61,.8,2.2],[-20,23,-1.63,.85,1.4],[23,26,-1.63,.9,3.1]]){
+  for(const [x,y,scale,angle]of [[-11,6,.72,.3],[12,8,.8,2.2],[-24,24,.85,1.4],[25,26,.9,3.1],[-16,-2,.66,2.7],[19,3,.78,.8]]){
    const tree=source.clone(true);tree.rotation.x=Math.PI/2;tree.scale.setScalar(scale);tree.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(tree);tree.position.z=-bounds.min.z;
-   const planting=new THREE.Group();planting.name='Authored park broadleaf';planting.position.set(x,y,z);planting.rotation.z=angle;planting.add(tree);if(!disposed)group.add(planting);
+   const planting=new THREE.Group();planting.name='Authored park broadleaf';planting.position.set(x,y,lawnElevation(x,y));planting.rotation.z=angle;planting.add(tree);if(!disposed)group.add(planting);
   }
  });
- const ready=Promise.all([scanReady,treesReady]);
- return {group,ground,ready,setSky(map:THREE.Texture,rotation:number){sky.material.dispose();sky.material=new THREE.MeshBasicMaterial({map,side:THREE.BackSide,depthWrite:false,fog:false});sky.rotation.set(Math.PI/2,rotation,0);},architectureVertices:architecture.userData.vertices,neighborhoodBuildings:neighborhood.userData.buildingCount,get scanVertices(){return scanVertices;},update(_t:number){},dispose(){disposed=true;architecture.userData.disposeTextures?.();window.removeEventListener('cortex-scene-reference',reference);textures.forEach(t=>t.dispose());}};
+ // Parked cars provide road-scale cues and receive the same lighting as G1.
+ // Authored CC0 geometry reused from the user's Chennai scene, not observed SF vehicles.
+ const carsReady=new GLTFLoader().loadAsync('/assets/parked-hatchback.glb').then(gltf=>{
+  const bounds=new THREE.Box3().setFromObject(gltf.scene),center=bounds.getCenter(new THREE.Vector3());
+  for(const [x,y,angle,color]of [[-14,21.55,Math.PI/2,'#c3c6c2'],[-4,15,-Math.PI/2,'#53656b'],[10,21.55,Math.PI/2,'#733c35']] as const){
+   const car=gltf.scene.clone(true);car.position.set(-center.x,-bounds.min.y,-center.z);
+   car.traverse(o=>{if(!(o instanceof THREE.Mesh))return;o.castShadow=o.receiveShadow=true;
+    if(o.material instanceof THREE.MeshStandardMaterial){const m=o.material.clone();if(m.name.endsWith('white body')){m.color.set(color);m.roughness=.26;}o.material=m;}
+   });
+   const upright=new THREE.Group();upright.rotation.x=Math.PI/2;upright.add(car);
+   const heading=new THREE.Group();heading.rotation.z=angle;heading.add(upright);
+   const parked=new THREE.Group();const grade=(streetElevation(x+1.7)-streetElevation(x-1.7))/3.4;
+   parked.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(-grade,0,1).normalize());parked.position.set(x,y,streetElevation(x)-.08);parked.add(heading);parked.name='Authored parked hatchback';if(!disposed)group.add(parked);
+  }
+ });
+ const ready=Promise.all([scanReady,treesReady,carsReady]);
+ return {group,ground,ready,setSky(map:THREE.Texture,rotation:number){sky.material.dispose();sky.material=new THREE.MeshBasicMaterial({map,side:THREE.BackSide,depthWrite:false,fog:false});sky.rotation.set(Math.PI/2,rotation,0);},setReflections(map:THREE.Texture){architecture.userData.setReflections(map);},architectureVertices:architecture.userData.vertices,neighborhoodBuildings:neighborhood.userData.buildingCount,get scanVertices(){return scanVertices;},update(_t:number){},dispose(){disposed=true;architecture.userData.disposeTextures?.();window.removeEventListener('cortex-scene-reference',reference);textures.forEach(t=>t.dispose());}};
 }

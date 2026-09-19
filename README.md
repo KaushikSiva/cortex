@@ -30,7 +30,7 @@ Hold **W/A/S/D** or **arrow keys** to walk front/left/back/right relative to the
 
 Say “move left one meter,” “turn right,” or “walk to the bench.” `turn`, `walk`, and `walk_to` are schema-validated shared tools. Named targets go through SambaNova planning and the Jev/local reflex gate. With no credentials, the UI labels the deterministic planner DEMO and the reflex LOCAL. Keyboard commands use a renewable 650 ms lease, independent of the normal telemetry heartbeat.
 
-**Current validation:** 20 TypeScript tests and 7 MuJoCo physics tests pass. The keyboard and full UI browser suites pass against an isolated MuJoCo instance. The video, GIF and five-slide deck show the current scene and shared controls. Real Gradium → policy → MuJoCo also passed with generated speech: identical transcripts selected different policies and traveled 1.43 m versus 2.22 m in three simulated seconds. [Measured results](docs/live-motion-results.json). Photorealistic scene acceptance remains open.
+**Current validation:** 25 TypeScript tests and 7 MuJoCo physics tests pass. The keyboard and full UI browser suites pass against an isolated MuJoCo instance. The video, GIF and five-slide deck show an earlier scene revision and the shared controls. Real Gradium → policy → MuJoCo also passed with generated speech: identical transcripts selected different policies and traveled 1.43 m versus 2.22 m in three simulated seconds. [Measured results](docs/live-motion-results.json). Photorealistic scene acceptance remains open.
 
 ## The moment
 
@@ -83,6 +83,10 @@ The robot walks on a bounded park path in **Alamo Square, facing the Painted Lad
 The houses use full-depth authored architecture: side and rear walls, roofs, projecting bays, recessed sash windows, entry stairs, rails and trim. The park path, grass slope, bench, planter and backpack are also 3D geometry. The robot's position and joints come from MuJoCo physics.
 
 Use **Inspect 3D scene** or the **60°** button to check depth and parallax. Reality Mode restores a fixed phone-height camera with a 60° lens. Scanned surface materials, bent-leaf trees, HDR daylight, shadow maps and contact occlusion support the render.
+
+The latest pass adds distinct roof and gable ornament, varied curtains and shades, local reflections in dielectric window glass, parked cars, richer nearby façades, and terrain-aligned trees and grass. These are authored improvements, not a new reality capture.
+
+![Current 60-degree 3D study with modeled architecture, park planting and live MuJoCo G1](public/media/scene-detail-study.png)
 
 The earlier [jtressle scan](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6), **CC BY 4.0**, remains bundled as hidden reference. It was rejected as too shallow for the requested demo. The current architecture solves the missing volume, but it is still an inferred model, not an indistinguishable digital twin. [Scene status and remaining work](docs/SCENE_STATUS.md).
 

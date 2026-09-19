@@ -1,0 +1,10 @@
+{
+  "oldEpoch": 1,
+  "newEpoch": 3,
+  "counts": {
+    "started": 2,
+    "stopped": 2
+  },
+  "errors": [],
+  "scope": "Real browser AudioContext and UI, synthetic silent microphone and routed WebSocket; no provider or robot commands."
+}

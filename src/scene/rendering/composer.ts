@@ -10,8 +10,8 @@ export function createSceneRenderer(scene:THREE.Scene,renderer:THREE.WebGLRender
  const target=new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,samples:Math.min(4,renderer.capabilities.maxSamples)});
  const composer=new EffectComposer(renderer,target);
  const ao=new AlphaAwareGTAOPass(scene,camera,1,1);
- ao.updateGtaoMaterial({radius:.38,thickness:.24,distanceExponent:2,distanceFallOff:1,samples:8});
- ao.updatePdMaterial({radius:2,samples:6});ao.blendIntensity=.38;
+ ao.updateGtaoMaterial({radius:.48,thickness:.28,distanceExponent:2,distanceFallOff:1,samples:12});
+ ao.updatePdMaterial({radius:2,samples:6});ao.blendIntensity=.55;
  composer.addPass(new RenderPass(scene,camera));composer.addPass(ao);composer.addPass(new OutputPass());composer.addPass(new SMAAPass());
  return {render:()=>composer.render(),resize(w:number,h:number){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(w,h);},dispose(){composer.passes.forEach(p=>p.dispose());composer.dispose();}};
 }

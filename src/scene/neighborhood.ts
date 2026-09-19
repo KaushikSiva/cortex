@@ -13,7 +13,8 @@ export function buildNeighborhood() {
     .map(color => new THREE.MeshStandardMaterial({color, roughness: .93}));
   const roof = new THREE.MeshStandardMaterial({color: '#6c6b65', roughness: .96});
   const sill = new THREE.MeshStandardMaterial({color: '#c2beb2', roughness: .85});
-  const glass = new THREE.MeshStandardMaterial({color: '#455452', roughness: .32, metalness: .25});
+  const glass = new THREE.MeshStandardMaterial({color: '#394846', roughness: .21, metalness: .15});
+  const recess = new THREE.MeshStandardMaterial({color: '#292c29', roughness: .92});
   const append = (geometry: THREE.BufferGeometry, material: THREE.Material) => {
     if (geometry.index) {const previous = geometry; geometry = previous.toNonIndexed(); previous.dispose();}
     const batch = batches.get(material) ?? []; batch.push(geometry); batches.set(material, batch);
@@ -30,19 +31,40 @@ export function buildNeighborhood() {
     geometry.translate(0, 0, building.base);
     append(geometry, walls[i % walls.length]);
     const cap = new THREE.ShapeGeometry(shapes); cap.translate(0, 0, building.base + building.height + .015); append(cap, roof);
-    // Recess/shading cues on long exterior walls; spacing and appearance are authored.
-    // No windows on tiny stepped footprint segments or internal courtyard rings.
+    // Authored trim on the published footprints. High detail is limited to nearby
+    // context, with outward normals derived from the exterior ring winding.
     const ring = building.rings[0];
+    const winding = Math.sign(ring.slice(0,-1).reduce((sum,p,j)=>sum+p[0]*ring[j+1][1]-ring[j+1][0]*p[1],0)) || 1;
+    const near = ring.some(([x,y])=>Math.hypot(x,y)<100);
     for (let j = 0; j < ring.length - 1; j++) {
       const [ax, ay] = ring[j], [bx, by] = ring[j + 1];
       const dx = bx - ax, dy = by - ay, length = Math.hypot(dx, dy);
       if (length < 3) continue;
       const angle = Math.atan2(dy, dx), count = Math.floor(length / 2.5);
+      const nx=dy/length*winding, ny=-dx/length*winding;
+      const detail=(t:number,z:number,w:number,d:number,h:number,offset:number,material:THREE.Material)=>{
+        const g=new THREE.BoxGeometry(w,d,h);g.rotateZ(angle);g.translate(ax+dx*t+nx*offset,ay+dy*t+ny*offset,z);append(g,material);
+      };
+      const top=building.base+building.height;
+      if(near){
+        // Coping, shadowed cornice, foundation band: no invented captured roof claim.
+        detail(.5,top-.30,length+.08,.22,.20,.035,sill);
+        detail(.5,top-.11,length+.16,.32,.09,.06,sill);
+        detail(.5,building.base+.42,length,.12,.30,.035,walls[(i+2)%walls.length]);
+        for(let z=building.base+3.82;z<top-1;z+=3.1)detail(.5,z,length,.10,.09,.02,sill);
+      }
       for (let column = 0; column < count; column++) {
-        const t = (column + .5) / count, x = ax + dx * t, y = ay + dy * t;
-        for (let z = building.base + 2.3; z < building.base + building.height - 1.1; z += 3.1) {
-          const panel = new THREE.BoxGeometry(.95, .065, 1.5); panel.rotateZ(angle); panel.translate(x, y, z); append(panel, glass);
-          const trim = new THREE.BoxGeometry(1.1, .14, .09); trim.rotateZ(angle); trim.translate(x, y, z - .8); append(trim, sill);
+        const t = (column + .5) / count;
+        for (let z = building.base + 2.3; z < top - 1.1; z += 3.1) {
+          detail(t,z,1.04,.06,1.58,.035,recess);
+          detail(t,z,.86,.035,1.38,.077,glass);
+          detail(t,z-.8,1.17,.23,.10,.075,sill);
+          if(near){
+            for(const side of [-1,1])detail(t+side*.52/length,z,.075,.14,1.61,.085,sill);
+            detail(t,z+.79,1.12,.18,.10,.085,sill);
+            detail(t,z+.07,.93,.06,.042,.11,sill);
+            if((column+i)%3===0)detail(t,z+.44,.84,.025,.48,.11,walls[(i+1)%walls.length]);
+          }
         }
       }
     }

@@ -1,0 +1,15 @@
+{
+  "requestIdentityVerified": true,
+  "provider": "Gradium LIVE via actual Pipecat sidecar",
+  "voiceId": "lt88kyLfD8Mqemla",
+  "voiceName": "Michelle",
+  "voiceDescription": "A warm and smooth Indian English young adult voice for clear and friendly service.",
+  "text": "Cortex is ready. Voice playback is connected.",
+  "firstAudioMs": 447.65,
+  "audioDurationSeconds": 3.6,
+  "sampleRate": 48000,
+  "chunks": 45,
+  "peakAmplitude": 0.781524658203125,
+  "pcmSha256": "f1734815f81b6d11ece6324faa6a2e38363ee5efc79b8f81a64baa4b659b4edc",
+  "limits": "Direct speak request to Pipecat sidecar in a separate WebSocket session, not a microphone, planner, memory retrieval or physical-motion acceptance test. Accent classification is Gradium catalog metadata, not independently judged."
+}

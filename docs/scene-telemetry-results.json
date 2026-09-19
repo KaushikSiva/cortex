@@ -1,0 +1,19 @@
+{
+  "at": "2026-09-19T22:36:35.881Z",
+  "passed": true,
+  "errors": [],
+  "measured": {
+    "rootZ": 0.773632413105441,
+    "lowestVisualVertexZ": -0.006036157036509476
+  },
+  "tests": [
+    "No robot rendered before valid telemetry",
+    "Rejected operator tab receives read-only HTTP telemetry",
+    "Healthy controller is not labeled offline in observer tab",
+    "Observer movement controls remain disabled",
+    "Rendered robot pelvis matches actual MuJoCo qpos",
+    "Visual lowest vertex near z=0 collision ground",
+    "Telemetry loss hides the stale robot"
+  ],
+  "scope": "Actual browser renderer and live snapshot; locally routed status availability and operator rejection; no control commands."
+}

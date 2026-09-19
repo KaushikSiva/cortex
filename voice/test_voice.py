@@ -54,4 +54,46 @@ class PipelineTests(unittest.IsolatedAsyncioTestCase):
       self.assertEqual(final['source'],'GRADIUM');self.assertIsNotNone(final['acoustics']);self.assertTrue(any(m['type']=='gradium_raw' for m in raw))
   finally:await vr.cleanup();await fr.cleanup()
 
+
+ async def test_tts_preserves_request_identity_across_interruption(self):
+  async def asr(request):
+   ws=web.WebSocketResponse();await ws.prepare(request)
+   async for message in ws:
+    data=json.loads(message.data)
+    if data['type']=='setup':await ws.send_json({'type':'ready','sample_rate':16000,'frame_size':1280,'model_name':'default'})
+   return ws
+  async def tts(request):
+   ws=web.WebSocketResponse();await ws.prepare(request)
+   async for message in ws:
+    data=json.loads(message.data);ctx=data.get('client_req_id')
+    if data['type']=='setup':await ws.send_json({'type':'ready','client_req_id':ctx})
+    elif data['type']=='text' and data.get('text'):
+     value=1000 if 'first' in data['text'] else 2000
+     pcm=np.full(4800,value,dtype='<i2').tobytes()
+     await ws.send_json({'type':'audio','client_req_id':ctx,'audio':base64.b64encode(pcm).decode()})
+     await ws.send_json({'type':'end_of_stream','client_req_id':ctx})
+   return ws
+  fake=web.Application();fake.router.add_get('/asr',asr);fake.router.add_get('/tts',tts)
+  fr=web.AppRunner(fake);await fr.setup();site=web.TCPSite(fr,'127.0.0.1',0);await site.start();port=site._server.sockets[0].getsockname()[1]
+  real_stt,real_tts=voice.AuditedSTT,voice.CorrelatedTTS
+  def stt_factory(*args,**kw):return real_stt(*args,api_endpoint_base_url=f'ws://127.0.0.1:{port}/asr',**kw)
+  def tts_factory(*args,**kw):return real_tts(*args,url=f'ws://127.0.0.1:{port}/tts',**kw)
+  app=web.Application();app.router.add_get('/voice',voice.voice);vr=web.AppRunner(app);await vr.setup();site=web.TCPSite(vr,'127.0.0.1',0);await site.start();vp=site._server.sockets[0].getsockname()[1]
+  try:
+   with patch.dict(os.environ,{'GRADIUM_API_KEY':'local-protocol-test','GRADIUM_VOICE_ID':'test-voice'}),patch.object(voice,'AuditedSTT',stt_factory),patch.object(voice,'CorrelatedTTS',tts_factory):
+    async with ClientSession() as session:
+     async with session.ws_connect(f'http://127.0.0.1:{vp}/voice') as ws:
+      async def until(kind):
+       while True:
+        m=await asyncio.wait_for(ws.receive_json(),8)
+        if m['type']=='error':self.fail(m['message'])
+        if m['type']==kind:return m
+      await until('voice_ready')
+      for request_id,text,value in [('old','first response',1000),('new','second response',2000)]:
+       if request_id=='new':await ws.send_json({'type':'speech_start'});await until('interruption')
+       await ws.send_json({'type':'speak','text':text,'requestId':request_id})
+       audio=await until('voice_audio');self.assertEqual(audio['requestId'],request_id)
+       samples=np.frombuffer(base64.b64decode(audio['audio']),dtype='<i2');self.assertTrue(np.all(samples==value))
+  finally:await vr.cleanup();await fr.cleanup()
+
 if __name__=='__main__':unittest.main()

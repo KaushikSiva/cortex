@@ -2,10 +2,11 @@
 SambaNova's structured mission planner remains in the TS safety runtime.
 """
 import asyncio,base64,json,os,time
+from dataclasses import dataclass
 from pathlib import Path
 from aiohttp import web,WSMsgType
 from dotenv import load_dotenv
-from pipecat.frames.frames import (Frame,InputAudioRawFrame,TTSAudioRawFrame,TranscriptionFrame,InterimTranscriptionFrame,TTSSpeakFrame,InterruptionFrame,ErrorFrame,VADUserStartedSpeakingFrame,VADUserStoppedSpeakingFrame)
+from pipecat.frames.frames import (Frame,InputAudioRawFrame,TTSAudioRawFrame,TTSStoppedFrame,TranscriptionFrame,InterimTranscriptionFrame,TTSSpeakFrame,InterruptionFrame,ErrorFrame,VADUserStartedSpeakingFrame,VADUserStoppedSpeakingFrame)
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.worker import PipelineWorker,PipelineParams
 from pipecat.workers.runner import WorkerRunner
@@ -51,12 +52,31 @@ class VoiceObserver(FrameProcessor):
         if isinstance(frame,ErrorFrame):await self.emit({'type':'error','message':frame.error})
         await self.push_frame(frame,direction)
 
+@dataclass
+class SpeechRequestFrame(TTSSpeakFrame):
+    request_id:str=''
+
+class CorrelatedTTS(GradiumTTSService):
+    def __init__(self,requests,**kw):self.requests=requests;self.request_id='';super().__init__(**kw)
+    async def process_frame(self,frame,direction):
+        if isinstance(frame,SpeechRequestFrame):self.request_id=frame.request_id
+        await super().process_frame(frame,direction)
+    async def run_tts(self,text,context_id):
+        self.requests[context_id]=self.request_id
+        # Bound bookkeeping even if a provider fails without a stopped frame.
+        if len(self.requests)>64:self.requests.pop(next(iter(self.requests)))
+        async for frame in super().run_tts(text,context_id):yield frame
+
 class AudioOutput(FrameProcessor):
-    def __init__(self,emit):super().__init__();self.emit=emit
+    def __init__(self,emit,requests):super().__init__();self.emit=emit;self.requests=requests
     async def process_frame(self,frame,direction):
         await super().process_frame(frame,direction)
         if isinstance(frame,TTSAudioRawFrame):
-            await self.emit({'type':'voice_audio','audio':base64.b64encode(frame.audio).decode(),'sampleRate':frame.sample_rate})
+            request_id=self.requests.get(frame.context_id)
+            if request_id:await self.emit({'type':'voice_audio','audio':base64.b64encode(frame.audio).decode(),'sampleRate':frame.sample_rate,'requestId':request_id})
+        elif isinstance(frame,TTSStoppedFrame):
+            self.requests.pop(frame.context_id,None)
+            await self.push_frame(frame,direction)
         elif not isinstance(frame,InputAudioRawFrame):await self.push_frame(frame,direction)
 
 async def health(request):return web.json_response({'engine':'Pipecat','version':'1.11.0','gradiumConfigured':bool(os.getenv('GRADIUM_API_KEY')),'ttsConfigured':bool(os.getenv('GRADIUM_VOICE_ID'))})
@@ -69,10 +89,10 @@ async def voice(request):
         if not ws.closed:await ws.send_json(event)
     features=AcousticWindow()
     stt=AuditedSTT(emit,api_key=os.environ['GRADIUM_API_KEY'],sample_rate=16000,settings=GradiumSTTService.Settings(language=Language.EN,delay_in_frames=8))
-    processors=[stt,VoiceObserver(emit,features)]
+    requests={};processors=[stt,VoiceObserver(emit,features)]
     if os.getenv('GRADIUM_VOICE_ID'):
-        processors.append(GradiumTTSService(api_key=os.environ['GRADIUM_API_KEY'],settings=GradiumTTSService.Settings(voice=os.environ['GRADIUM_VOICE_ID'])))
-    processors.append(AudioOutput(emit))
+        processors.append(CorrelatedTTS(requests,api_key=os.environ['GRADIUM_API_KEY'],settings=GradiumTTSService.Settings(voice=os.environ['GRADIUM_VOICE_ID'])))
+    processors.append(AudioOutput(emit,requests))
     task=PipelineWorker(Pipeline(processors),params=PipelineParams(audio_in_sample_rate=16000,audio_out_sample_rate=48000,enable_metrics=True),enable_rtvi=False,idle_timeout_secs=None)
     runner=WorkerRunner(handle_sigint=False);await runner.add_workers(task);running=asyncio.create_task(runner.run())
     try:
@@ -88,7 +108,9 @@ async def voice(request):
             elif kind=='speech_end':await task.queue_frame(VADUserStoppedSpeakingFrame())
             elif kind=='speak':
                 if not os.getenv('GRADIUM_VOICE_ID'):raise ValueError('GRADIUM_VOICE_ID is required for speech playback')
-                await task.queue_frame(TTSSpeakFrame(text=str(data['text'])[:500]))
+                request_id=data.get('requestId')
+                if not isinstance(request_id,str) or not request_id or len(request_id)>80:raise ValueError('Speech requestId is required')
+                await task.queue_frame(SpeechRequestFrame(text=str(data['text'])[:500],request_id=request_id))
             elif kind=='interrupt':await task.queue_frame(InterruptionFrame())
     except Exception as e:await emit({'type':'error','message':str(e)})
     finally:

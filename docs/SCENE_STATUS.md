@@ -21,3 +21,19 @@ Source geometry is the City’s 2010-era building dataset, published under PDDL 
 The sky HDR is now 2048 × 1024, replacing the 1024 × 512 source. It remains the same CC0 illustrative lighting asset, not an Alamo Square capture. Camera clipping/fog distances extend to include the surrounding neighborhood.
 
 The narrated demo video retains its previous scene revision. Photoreal acceptance remains unmet: repeated hero façades and simplified neighboring buildings are plainly visible in the render.
+
+## Architectural depth and contact pass
+
+The corner house now has a hipped roof, while the other houses have differentiated gable geometry, ornament and palette. Glazing uses dielectric transmission and a filtered static 256 px cubemap captured from the scene; curtains, shades and dark room recesses vary between windows. A single probe cannot reproduce correct reflections from every pane, and screen-space contact shading is not full indirect-light transport.
+
+Nearby DataSF footprint extrusions now have authored window surrounds, cornices, floor bands and foundation courses. Grass roots and tree planting use the same elevation function as the lawn; this fixes vegetation floating above or buried under the previous grade. Three original CC0 hatchback models supply road scale and contact shadows. Their source metadata is beside the GLB; their placement is illustrative, not observed SF vehicle positions.
+
+The reference-only photograph used to inspect roof forms and colors is [John O’Neill / jjron’s Painted Ladies photograph](https://commons.wikimedia.org/wiki/File:Alamo_Sq_Painted_Ladies_2,_SF,_CA,_jjron_26.03.2012.jpg), under GFDL 1.2. No photograph pixels or copy of that image are shipped in this refinement. The original jtressle scan download API requires an authenticated Sketchfab account; its higher-resolution original has not been obtained.
+
+`public/media/scene-detail-study.png` records this pass from the 60° view. The older demo video remains unchanged. Browser captures had no page/WebGL errors; TypeScript and production build pass. **Photoreal acceptance remains unmet.**
+
+## Robot telemetry and ground placement
+
+MuJoCo's collision ground is z=0; the rendered paving is z=-0.006 m. Robot meshes are now hidden until a valid 19-value qpos arrives and hidden again on telemetry loss. This removes the default URDF-at-origin view that buried the legs while connecting. Quaternion interpolation now uses spherical interpolation.
+
+A second operator tab retains read-only HTTP telemetry after its control socket is rejected. It shows VIEW ONLY rather than a false controller-offline state; movement controls stay disabled. The browser regression (`node scripts/test-scene-telemetry.mjs`) checks unavailable → available → unavailable telemetry, the rejected-tab display, and visual ground alignment against a real MuJoCo pose. Its measurements and scope are in `scene-telemetry-results.json`.

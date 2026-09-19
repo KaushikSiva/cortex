@@ -16,16 +16,17 @@ export default function Scene({robot,onCanvas}:{robot:RobotState|null;onCanvas:(
   const scene=new THREE.Scene();scene.background=new THREE.Color('#b7cbd1');scene.fog=new THREE.Fog('#c8d5d5',90,520);
   const camera=new THREE.PerspectiveCamera(60,1,.05,650);camera.up.set(0,0,1);camera.position.set(1,-5.8,1.65);camera.lookAt(0,18,1.8);
   const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.86;renderer.outputColorSpace=THREE.SRGBColorSpace;element.appendChild(renderer.domElement);onCanvas(renderer.domElement);
-  let env:THREE.WebGLRenderTarget|undefined;let hdr:THREE.DataTexture|undefined;
+  let env:THREE.WebGLRenderTarget|undefined,localEnv:THREE.WebGLRenderTarget|undefined;let hdr:THREE.DataTexture|undefined;
+  let finishLighting=()=>{};const lightingReady=new Promise<void>(resolve=>{finishLighting=resolve;});
   const ambient=new THREE.HemisphereLight('#e0ebf1','#808581',.35);scene.add(ambient);
-  const sun=new THREE.DirectionalLight('#fff9eb',2.1);sun.position.set(-8,-7,14);sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);Object.assign(sun.shadow.camera,{left:-18,right:18,top:18,bottom:-18,near:.2,far:90});sun.shadow.camera.updateProjectionMatrix();sun.shadow.normalBias=.025;sun.shadow.bias=-.0003;sun.shadow.radius=2;scene.add(sun,sun.target);
+  const sun=new THREE.DirectionalLight('#fff9eb',2.1);sun.position.set(-8,-7,14);sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:.2,far:120});sun.shadow.camera.updateProjectionMatrix();sun.shadow.normalBias=.025;sun.shadow.bias=-.0003;sun.shadow.radius=2;sun.target.position.set(0,10,0);scene.add(sun,sun.target);
   new HDRLoader().load('/assets/daylight.hdr',texture=>{
-   if(disposed){texture.dispose();return;}hdr=texture;
+   if(disposed){texture.dispose();finishLighting();return;}hdr=texture;
    try{const daylight=prepareDaylight(texture,renderer);env=daylight.target;scene.environment=daylight.environment;scene.environmentRotation.set(Math.PI/2,daylight.rotation,0);scene.environmentIntensity=1;ambient.intensity=0;world.setSky(texture,daylight.rotation);
-    sun.position.copy(daylight.direction).applyAxisAngle(new THREE.Vector3(1,0,0),Math.PI/2).multiplyScalar(35);sun.color.copy(daylight.color);sun.intensity=daylight.intensity;
+    sun.position.copy(daylight.direction).applyAxisAngle(new THREE.Vector3(1,0,0),Math.PI/2).multiplyScalar(55).add(sun.target.position);sun.color.copy(daylight.color);sun.intensity=daylight.intensity;
     renderer.domElement.dataset.lighting=JSON.stringify({method:'solar-separated HDR',intensity:sun.intensity,direction:sun.position.toArray()});
-   }catch(e){setError('Daylight preparation failed: '+String(e));}
-  });
+   }catch(e){setError('Daylight preparation failed: '+String(e));}finally{finishLighting();}
+  },undefined,()=>{finishLighting();setError('Daylight asset could not be loaded.');});
   const world=buildPaintedLadies(scene);const floor=world.ground;const post=createSceneRenderer(scene,renderer,camera);renderer.domElement.dataset.fov="60";renderer.domElement.dataset.renderer="Solar-separated HDR · 4096 shadow map · GTAO · SMAA";
   const mat=(c:string,roughness=.9)=>new THREE.MeshStandardMaterial({color:c,roughness});
   const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,18,1.8);controls.enabled=false;controls.enableDamping=true;controls.minDistance=3;controls.maxDistance=45;controls.maxPolarAngle=Math.PI*.52;controls.minAzimuthAngle=-Math.PI/3;controls.maxAzimuthAngle=Math.PI/3;controls.update();
@@ -40,16 +41,34 @@ export default function Scene({robot,onCanvas}:{robot:RobotState|null;onCanvas:(
   if(process.env.NEXT_PUBLIC_SPLAT_MANIFEST){const prototypes=[world.group];import('../scene/reconstruction').then(({loadReconstruction})=>loadReconstruction(scene,renderer,process.env.NEXT_PUBLIC_SPLAT_MANIFEST!)).then(result=>{if(disposed){result.dispose();return;}disposeSplat=result.dispose;prototypes.forEach(o=>{o.visible=false;});scene.attach(floor);floor.material.dispose();(floor as THREE.Mesh).material=new THREE.ShadowMaterial({opacity:.28});scene.background=new THREE.Color('#aabcc2');}).catch(e=>setError('Reconstruction failed: '+String(e)));}
   const manager=new THREE.LoadingManager();manager.onError=url=>setError('Robot asset failed: '+url);const loader=new URDFLoader(manager);loader.parseCollision=false;const meshPromises:Promise<void>[]=[];const defaultLoad=loader.loadMeshCb;loader.loadMeshCb=(url,manager,material,done)=>{meshPromises.push(new Promise<void>((resolve,reject)=>{defaultLoad(url,manager,material,(obj,err)=>{done(obj,err);if(err)reject(err);else resolve();});}));};
   Promise.all([loader.loadAsync('/assets/g1/g1_12dof.urdf'),fetch('/assets/g1/joints.json').then(r=>r.json())]).then(async([r,names])=>{
-   await Promise.all([...meshPromises,world.ready]);if(disposed)return;renderer.domElement.dataset.scene="Painted Ladies architectural study";renderer.domElement.dataset.architectureVertices=String(world.architectureVertices);renderer.domElement.dataset.neighborhoodBuildings=String(world.neighborhoodBuildings);renderer.domElement.dataset.scanVertices=String(world.scanVertices);model=r;joints=names;r.traverse(o=>{if((o as THREE.Mesh).isMesh){const mesh=o as THREE.Mesh;mesh.castShadow=mesh.receiveShadow=true;const name=[o.name,o.parent?.name,o.parent?.parent?.name].join(' ');const dark=/head|hip|ankle|elbow|wrist|shoulder/i.test(name);mesh.material=new THREE.MeshStandardMaterial({color:dark?'#252d2e':'#b8beba',roughness:dark?.56:.43,metalness:dark?.18:.25});}});scene.add(r);const debug:string[]=[];r.traverse(o=>{if((o as THREE.Mesh).isMesh)debug.push(o.parent?.parent?.name+':'+((o as THREE.Mesh).material as THREE.MeshStandardMaterial).color.getHexString());});renderer.domElement.dataset.materials=JSON.stringify(debug);setLoaded(true);
+   await Promise.all([...meshPromises,world.ready,lightingReady]);if(disposed)return;
+   // Capture static surroundings once, giving the glass actual park/building
+   // reflections. Keep the moving robot out of this static probe.
+   const hidden:THREE.Mesh[]=[];scene.traverse(o=>{if(o instanceof THREE.Mesh&&o.material instanceof THREE.MeshPhysicalMaterial&&o.material.transmission>0){hidden.push(o);o.visible=false;}});
+   const cubeTarget=new THREE.WebGLCubeRenderTarget(256,{type:THREE.HalfFloatType});const probe=new THREE.CubeCamera(.1,650,cubeTarget);probe.position.set(0,18,4);probe.update(renderer,scene);hidden.forEach(o=>{o.visible=true;});
+   const pmrem=new THREE.PMREMGenerator(renderer);localEnv=pmrem.fromCubemap(cubeTarget.texture);pmrem.dispose();cubeTarget.dispose();world.setReflections(localEnv.texture);renderer.domElement.dataset.reflections='Static 256px local cubemap, filtered for dielectric glass';renderer.domElement.dataset.scene="Painted Ladies architectural study";renderer.domElement.dataset.architectureVertices=String(world.architectureVertices);renderer.domElement.dataset.neighborhoodBuildings=String(world.neighborhoodBuildings);renderer.domElement.dataset.scanVertices=String(world.scanVertices);model=r;r.visible=false;joints=names;r.traverse(o=>{if((o as THREE.Mesh).isMesh){const mesh=o as THREE.Mesh;mesh.castShadow=mesh.receiveShadow=true;const name=[o.name,o.parent?.name,o.parent?.parent?.name].join(' ');const dark=/head|hip|ankle|elbow|wrist|shoulder/i.test(name);mesh.material=new THREE.MeshStandardMaterial({color:dark?'#252d2e':'#b8beba',roughness:dark?.56:.43,metalness:dark?.18:.25});}});scene.add(r);const debug:string[]=[];r.traverse(o=>{if((o as THREE.Mesh).isMesh)debug.push(o.parent?.parent?.name+':'+((o as THREE.Mesh).material as THREE.MeshStandardMaterial).color.getHexString());});renderer.domElement.dataset.materials=JSON.stringify(debug);setLoaded(true);
   }).catch(e=>setError(String(e)));
   const size=()=>{const w=element.clientWidth,h=element.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();post.resize(w,h);};const resize=new ResizeObserver(size);resize.observe(element);size();
-  let q:number[]=[];
+  let q:number[]=[];let measuredAt=0;const targetRotation=new THREE.Quaternion();
   const animate=()=>{
    frame=requestAnimationFrame(animate);const target=current.current?.qpos;
-   if(model&&target){if(!q.length)q=[...target];else q=q.map((v,i)=>THREE.MathUtils.lerp(v,target[i],.42));model.position.set(q[0],q[1],q[2]);model.quaternion.set(q[4],q[5],q[6],q[3]);joints.forEach((name,i)=>model!.setJointValue(name,q[i+7]));}
+   if(model){
+    const valid=!!target&&target.length===19&&target.every(Number.isFinite);
+    model.visible=valid;renderer.domElement.dataset.robotVisible=String(valid);
+    if(valid){
+     const first=!q.length;
+     if(first)q=[...target];else q=q.map((v,i)=>i>=3&&i<=6?target[i]:THREE.MathUtils.lerp(v,target[i],.42));
+     model.position.set(q[0],q[1],q[2]);targetRotation.set(target[4],target[5],target[6],target[3]).normalize();
+     if(first)model.quaternion.copy(targetRotation);else model.quaternion.slerp(targetRotation,.42);
+     joints.forEach((name,i)=>model!.setJointValue(name,q[i+7]));
+     if(performance.now()-measuredAt>500){
+      const bounds=new THREE.Box3().setFromObject(model);renderer.domElement.dataset.robotMinZ=String(bounds.min.z);renderer.domElement.dataset.robotRootHeight=String(model.position.z);measuredAt=performance.now();
+     }
+    }else q=[];
+   }
    world.update(performance.now()/1000);if(inspection)controls.update();renderer.domElement.dataset.camera=JSON.stringify(camera.position.toArray());post.render();
   };animate();
-  return()=>{disposed=true;disposeSplat?.();cancelAnimationFrame(frame);resize.disconnect();scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});world.dispose();controls.dispose();window.removeEventListener('cortex-inspect',inspect);window.removeEventListener('cortex-view-angle',angleView);post.dispose();env?.dispose();hdr?.dispose();renderer.dispose();renderer.domElement.remove();};
+  return()=>{disposed=true;disposeSplat?.();cancelAnimationFrame(frame);resize.disconnect();scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});world.dispose();controls.dispose();window.removeEventListener('cortex-inspect',inspect);window.removeEventListener('cortex-view-angle',angleView);post.dispose();env?.dispose();localEnv?.dispose();hdr?.dispose();renderer.dispose();renderer.domElement.remove();};
  },[]);
  return <div className="scene-canvas" ref={host}>{inspecting&&<div className="scene-inspection">3D inspection · 60° lens · drag to orbit · scroll to move closer</div>}{!loaded&&!error&&<div className="scene-loading"><span/>Loading G1 and 3D Painted Ladies…</div>}{error&&<div className="scene-loading">{error}</div>}</div>;
 }
