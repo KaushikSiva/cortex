@@ -13,15 +13,22 @@ try{
  await reset();await page.keyboard.down('a');await wait(async()=>(await state()).robot.motion==='turn');await wait(async()=>(await state()).robot.motion==='drive');
  const left=(await state()).robot.pose;expect(left.yaw).toBeGreaterThan(1.3);expect(Math.hypot(left.x+3,left.y)).toBeLessThan(.4);
  await wait(async()=>(await state()).robot.pose.y>.35);await page.keyboard.up('a');await wait(async()=>(await state()).robot.status==='idle');expect((await state()).robot.pose.y).toBeGreaterThan(.2);
+ // Exercise right and backward translation, including the complete 180-degree turn.
+ for(const [key,axis,sign]of [['d','y',-1],['s','x',-1]]){
+  await reset();const start=(await state()).robot.pose;await page.keyboard.down(key);
+  await wait(async()=>(await state()).robot.motion==='turn');await wait(async()=>(await state()).robot.motion==='drive');
+  await wait(async()=>((await state()).robot.pose[axis]-start[axis])*sign>.3);
+  await page.keyboard.up(key);await wait(async()=>(await state()).robot.status==='idle');
+ }
  await reset();await page.keyboard.down('s');await wait(async()=>(await state()).robot.motion==='turn');await page.keyboard.up('s');await wait(async()=>(await state()).robot.status==='idle');await page.waitForTimeout(900);expect((await state()).robot.motion).toBe('hold');
  await page.keyboard.down('w');await wait(async()=>(await state()).robot.motion==='drive');await page.evaluate(()=>dispatchEvent(new Event('blur')));await wait(async()=>(await state()).robot.status==='idle');await page.keyboard.up('w');
- await page.keyboard.press('Space');await wait(async()=>(await state()).robot.estop);await expect(page.getByRole('button',{name:'Walk front',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Resume',exact:true}).click();await wait(async()=>!(await state()).robot.estop);
+ await page.keyboard.press('Space');await wait(async()=>((await state()).robot.status==='idle'));await expect(page.getByRole('button',{name:'Walk front',exact:true})).toBeEnabled();
  await reset();await page.getByRole('button',{name:'Turn right 90 degrees'}).click();await wait(async()=>(await state()).robot.pose.yaw < -1.3 && (await state()).robot.status==='idle');
  await reset();await page.getByRole('combobox',{name:'Navigation target'}).selectOption('BENCH');await page.locator('.target-controls button').click();await wait(async()=>(await state()).robot.currentWaypoint==='BENCH'&&(await state()).robot.status==='moving');
  const target=await state();expect(target.plan.some(t=>t.name==='walk_to'&&t.arguments.target==='BENCH')).toBeTruthy();expect(target.traces.some(t=>t.message.includes('shared motion gate'))).toBeTruthy();
  await page.keyboard.press('Space');await reset();await page.locator('input').fill('move left 1 meter');await page.locator('input').press('Enter');await wait(async()=>(await state()).robot.currentWaypoint==='DIRECTIONAL'&&(await state()).robot.motion==='walk');expect((await state()).plan[0].name).toBe('walk');await page.locator('input').evaluate(e=>e.blur());
- await page.keyboard.press('Space');await wait(async()=>(await state()).robot.estop);
+ await page.keyboard.press('Space');await wait(async()=>((await state()).robot.status==='idle'));
  await page.getByTitle('60° orbit view').click();await page.waitForTimeout(700);expect(await page.locator('canvas').getAttribute('data-fov')).toBe('60');
  await page.screenshot({path:'public/media/keyboard.png',fullPage:true});expect(errors).toEqual([]);
- await writeFile('docs/keyboard-results.json',JSON.stringify({passed:true,forwardMeters:forward,tests:['held W moves; release pauses','A faces left before translation','key release cancels turning','blur pauses','Space latches; Resume unlocks','Q/E turn tool','target uses plan and shared reflex gate','text/voice planner reuses directional walk','60 degree view'],at:new Date().toISOString()},null,2));console.log('Keyboard and shared motion browser tests passed.');
+ await writeFile('docs/keyboard-results.json',JSON.stringify({passed:true,forwardMeters:forward,tests:['held W moves; release pauses','A faces left before translation','D turns right and walks','S completes 180-degree turn and walks backward','key release cancels turning','blur pauses','Space cancels; next movement stays enabled','Q/E turn tool','target uses plan and shared reflex gate','text/voice planner reuses directional walk','60 degree view'],at:new Date().toISOString()},null,2));console.log('Keyboard and shared motion browser tests passed.');
 }finally{await browser.close()}

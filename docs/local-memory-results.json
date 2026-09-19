@@ -1,0 +1,13 @@
+{
+  "testedAt": "2026-09-19T21:34:43.151Z",
+  "api": "https://api.memories.ai/serve/datalake/v1",
+  "authentication": "passed: GET /collections HTTP 200",
+  "liveCapture": "blocked at collection creation: insufficient balance — top up your account to continue",
+  "balanceUSD": 0,
+  "encoding": {
+    "status": "passed: real camera PNG encoded and MP4 decoded using bundled FFmpeg",
+    "bytes": 234316
+  },
+  "mockedRoundTrip": "passed: collection → multipart upload → indexing completion → search → local evidence ID binding",
+  "liveRetrieval": "not verified: no funded upload"
+}

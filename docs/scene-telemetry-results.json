@@ -1,10 +1,10 @@
 {
-  "at": "2026-09-19T22:36:35.881Z",
+  "at": "2026-09-19T22:49:15.311Z",
   "passed": true,
   "errors": [],
   "measured": {
-    "rootZ": 0.773632413105441,
-    "lowestVisualVertexZ": -0.006036157036509476
+    "rootZ": 0.7813616512205036,
+    "lowestVisualVertexZ": -0.0019188854867144417
   },
   "tests": [
     "No robot rendered before valid telemetry",

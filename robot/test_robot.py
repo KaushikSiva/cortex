@@ -11,11 +11,15 @@ class PhysicsTests(unittest.TestCase):
   r.command('/stop',{})
   for _ in range(100):r.tick()
   self.assertLess(r.state()['velocity'],.15)
-  with self.assertRaises(ValueError):r.command('/navigate',{'waypoint':'HOME','issuedAt':time.time()*1000})
+  r.command('/navigate',{'waypoint':'HOME','issuedAt':time.time()*1000});self.assertEqual(r.status,'moving')
   r.command('/reset',{});self.assertFalse(r.estop)
   r.command('/navigate',{'waypoint':'PERSON','issuedAt':time.time()*1000});r.heartbeat=time.monotonic()-2;r.tick()
-  self.assertTrue(r.estop);self.assertEqual(r.reason,'Telemetry heartbeat timeout')
+  self.assertFalse(r.estop);self.assertEqual(r.status,'idle');self.assertEqual(r.reason,'Telemetry heartbeat timeout')
   print(json.dumps({'walkedMeters':walked,'postStopSpeed':r.state()['velocity'],'policy':'official frozen G1'}))
+ def test_scene_objects_match_simulator_geometry(self):
+  r=Robot();objects={o['name']:o for o in r.state()['sceneObjects']}
+  self.assertEqual(objects['bench'],{'name':'bench','x':-1.,'y':3.5,'halfX':1.,'halfY':.3})
+  self.assertEqual(objects['planter']['x'],2.8)
  def test_park_edge_clearance_uses_collision_model(self):
   r=Robot();r.sim.data.qpos[:2]=[5,4.1];self.assertLess(r.clearance(),.32)
   r.sim.data.qpos[:2]=[5,0];self.assertGreater(r.clearance(),.32)
@@ -50,13 +54,13 @@ class PhysicsTests(unittest.TestCase):
   self.assertFalse(r.command('/renew',{'session':'wrong-key','issuedAt':time.time()*1000})['renewed'])
   r.manual_lease=time.monotonic()-1;r.heartbeat=time.monotonic();r.tick()
   self.assertIsNone(r.drive_heading);self.assertEqual(r.status,'idle');self.assertEqual(r.reason,'Key lease expired')
-  r.command('/stop',{});r.command('/hold',{});self.assertTrue(r.estop)
-  with self.assertRaises(ValueError):r.command('/drive',{'yaw':0,'session':'keyboard-test','issuedAt':time.time()*1000})
+  r.command('/stop',{});r.command('/hold',{});self.assertFalse(r.estop)
+  r.command('/drive',{'yaw':0,'session':'keyboard-test','issuedAt':time.time()*1000});self.assertEqual(r.status,'moving')
  def test_drive_requires_lease_and_bounds_personal_space(self):
   r=Robot()
   with self.assertRaises(ValueError):r.command('/drive',{'yaw':0,'issuedAt':time.time()*1000})
   with self.assertRaises(ValueError):r.command('/walk',{'yaw':math.pi,'meters':3,'issuedAt':time.time()*1000})
   r.sim.data.qpos[:2]=[1.6,0]
   r.command('/drive',{'yaw':0,'session':'keyboard-test','issuedAt':time.time()*1000});r.tick()
-  self.assertTrue(r.estop);self.assertEqual(r.reason,'Personal space boundary')
+  self.assertFalse(r.estop);self.assertEqual(r.status,'idle');self.assertEqual(r.reason,'Personal space boundary')
 if __name__=='__main__':unittest.main()

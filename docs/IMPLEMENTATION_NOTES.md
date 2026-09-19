@@ -98,3 +98,11 @@ The selected public voice ID was added to ignored local configuration. The video
 Browser interruption epochs silence queued speech immediately and reject late audio from an older response. Each speak request has a separate ID preserved through Pipecat's actual TTS context ID; old provider audio cannot be relabeled as a fresh response. Stop, reset, microphone changes and speech start invalidate playback. Four local voice tests and 25 TypeScript tests pass; `scripts/test-playback.mjs` checks real browser AudioContext cancellation with synthetic audio and routed sockets. A live Gradium check also returned 45 correctly correlated PCM chunks; `gradium-correlated-tts-results.json` records the measured run.
 
 A rejected second control tab now polls the status endpoint read-only rather than mislabeling a healthy controller as offline. The scene does not render an unpositioned URDF while telemetry is absent. The actual robot server was healthy on port 8002 during diagnosis; no physical root offset was applied to conceal the display bug. The measured visual lowest point was approximately -6 mm, aligned to the rendered paving. See scene-telemetry-results.json.
+
+## Merge of latest main and shared-control verification
+
+Integrated origin/main through 8964483 while retaining authored-scene detail, telemetry display fixes and correlated playback. Resolved overlapping changes in server.ts, page.tsx and the Pipecat sidecar. The incoming conversational provider selection and scene map remain intact. Removed duplicate blank General Compute settings from the example environment.
+
+Verification on the merged code: 52 TypeScript tests; eight MuJoCo physics tests; four Pipecat tests; production build; local-double voice transport test; browser playback interruption test; scene/telemetry browser regression; all-direction keyboard test against actual isolated MuJoCo; and actual live Gradium voice-command/browser playback test. The latter used generated Indian English input through the actual browser worklet, not a transcript injection or human microphone. General Compute/SambaNova and Jev cloud were disabled for the deterministic movement tests.
+
+Primary web, voice and MuJoCo services were restarted together after validation so the browser and robot agree on the incoming stop-to-idle behavior. The simulation resets to HOME on server startup.

@@ -3,9 +3,8 @@
 export function interruptsPlayback(message: unknown): boolean {
  if (!message || typeof message !== 'object') return false;
  const m = message as {type?: string; text?: string; name?: string};
- return ['speech_start','stop','reset','mic_start','mic_stop'].includes(m.type ?? '') ||
-  (m.type === 'fixture' && m.name === 'stop') ||
-  (m.type === 'text' && /\b(stop|wait|halt|freeze)\b/i.test(m.text ?? ''));
+ return ['speech_start','stop','reset','mic_start','mic_stop','manual_start','tool','text'].includes(m.type ?? '') ||
+  (m.type === 'fixture' && m.name === 'stop');
 }
 
 export class PlaybackEpoch {

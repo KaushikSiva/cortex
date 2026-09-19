@@ -26,11 +26,15 @@ This repository contains the app, simulator, voice service, tests, five-page pit
 
 ## Keyboard and voice share the same tools
 
-Hold **W/A/S/D** or **arrow keys** to walk front/left/back/right relative to the robot. It turns toward the requested direction before moving. Release the key to pause. **Q/E** turn 90° in place; **Space** latches a stop; **Resume** explicitly releases it. Pointer controls work the same way.
+Hold **W/A/S/D** or **arrow keys** to walk front/left/back/right relative to the robot. It turns toward the requested direction before moving. Release the key to pause. **Q/E** turn 90° in place; **Space** cancels the current movement; the next command starts normally. Pointer controls work the same way.
 
-Say “move left one meter,” “turn right,” or “walk to the bench.” `turn`, `walk`, and `walk_to` are schema-validated shared tools. Named targets go through SambaNova planning and the Jev/local reflex gate. With no credentials, the UI labels the deterministic planner DEMO and the reflex LOCAL. Keyboard commands use a renewable 650 ms lease, independent of the normal telemetry heartbeat.
+Say “move left one meter,” “turn right,” or “walk to the bench.” `turn`, `walk`, and `walk_to` are schema-validated shared tools. Explicit direction and named-target commands use these shared tools directly; conversational requests can select them through the configured inference provider. All motion passes the Jev/local reflex gate. With no credentials, the UI labels the deterministic planner DEMO and the reflex LOCAL. Keyboard commands use a renewable 650 ms lease, independent of the normal telemetry heartbeat.
 
-**Current validation:** 25 TypeScript tests and 7 MuJoCo physics tests pass. The keyboard and full UI browser suites pass against an isolated MuJoCo instance. The video, GIF and five-slide deck show an earlier scene revision and the shared controls. Real Gradium → policy → MuJoCo also passed with generated speech: identical transcripts selected different policies and traveled 1.43 m versus 2.22 m in three simulated seconds. [Measured results](docs/live-motion-results.json). Photorealistic scene acceptance remains open.
+**Current validation:** 52 TypeScript tests, 8 MuJoCo physics tests and 4 Pipecat tests pass. The actual-browser keyboard suite checks all four walking directions, turn-before-walk, key release, blur, Space stop and waypoint navigation. [Keyboard results](docs/keyboard-results.json).
+
+Generated Indian English speech also passed through the actual browser MediaStream and PCM worklet → live Gradium/Pipecat → shared tools → isolated MuJoCo: forward movement, spoken stop, right turn, backward movement and speech-reply playback. [Live browser voice evidence](docs/live-browser-voice-results.json). This is generated audio, not a human microphone trial. The current conversation path uses neutral motion defaults; acoustic policy comparisons remain available through labeled DEMO fixtures. Earlier [live acoustic-policy measurements](docs/live-motion-results.json) describe a previous revision.
+
+The video, GIF and five-slide deck show an earlier scene revision and the shared controls. Photorealistic scene acceptance remains open.
 
 ## The moment
 
@@ -39,7 +43,7 @@ Say “move left one meter,” “turn right,” or “walk to the bench.” `tu
 | “Come here.” · moderate intensity | 0.55 m/s ceiling · 1.2 m space | Measured walk and approach |
 | “Come here.” · high intensity | 0.90 m/s ceiling · 1.2 m space | Faster walking and shorter acknowledgement |
 | Paused / hesitant delivery | 0.45 m/s ceiling · 2.0 m space · confirmation | Robot holds, then approaches cautiously |
-| “WAIT! STOP!” | Latched stop | Motion command cancels before any planner call |
+| “WAIT! STOP!” | Cancel current movement | Motion command cancels before any planner call |
 
 These are bounded design heuristics, not claims about a person's internal emotional state. Device gain and background noise affect acoustic measurements; live acceptance requires calibration and real microphone trials.
 
@@ -140,7 +144,7 @@ Without live keys, use the corresponding DEMO controls. The included video uses 
 - STOP preempts planning and confirmation, including “Yes—wait, stop.”
 - Velocity, approach speed, and personal space have hard bounds.
 - Stale commands, stale telemetry, obstacles, falls, and heartbeat loss prevent movement.
-- Motion has a deadline and STOP stays latched until explicit reset or resume.
+- Motion has a deadline; STOP cancels current and pending movement without locking future commands.
 - Tool arguments are schema-validated; evidence constrains memory navigation.
 - Acknowledgement and physical settling are measured separately.
 

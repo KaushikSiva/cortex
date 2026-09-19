@@ -25,6 +25,6 @@ test('reordered or malformed client epochs cannot reopen interrupted speech',()=
 });
 
 test('all local stop paths and microphone barge-in invalidate playback',()=>{
- for(const command of [{type:'stop'},{type:'reset'},{type:'speech_start'},{type:'mic_start'},{type:'mic_stop'},{type:'fixture',name:'stop'},{type:'text',text:'Wait! STOP!'}])assert.ok(interruptsPlayback(command));
- for(const command of [{type:'heartbeat'},{type:'text',text:'Come here.'},{type:'fixture',name:'calm'}])assert.equal(interruptsPlayback(command),false);
+ for(const command of [{type:'stop'},{type:'reset'},{type:'speech_start'},{type:'mic_start'},{type:'mic_stop'},{type:'fixture',name:'stop'},{type:'text',text:'Wait! STOP!'},{type:'text',text:'Come here.'},{type:'manual_start'},{type:'tool',name:'turn'}])assert.ok(interruptsPlayback(command));
+ for(const command of [{type:'heartbeat'},{type:'audio',data:'AAA='},{type:'fixture',name:'calm'}])assert.equal(interruptsPlayback(command),false);
 });

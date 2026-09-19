@@ -110,7 +110,7 @@ async def voice(request):
                 if not os.getenv('GRADIUM_VOICE_ID'):raise ValueError('GRADIUM_VOICE_ID is required for speech playback')
                 request_id=data.get('requestId')
                 if not isinstance(request_id,str) or not request_id or len(request_id)>80:raise ValueError('Speech requestId is required')
-                await task.queue_frame(SpeechRequestFrame(text=str(data['text'])[:500],request_id=request_id))
+                await task.queue_frame(SpeechRequestFrame(text=str(data['text'])[:2000],request_id=request_id))
             elif kind=='interrupt':await task.queue_frame(InterruptionFrame())
     except Exception as e:await emit({'type':'error','message':str(e)})
     finally:

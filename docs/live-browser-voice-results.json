@@ -1,0 +1,108 @@
+{
+  "at": "2026-09-19T22:48:24.411Z",
+  "passed": true,
+  "observations": [
+    {
+      "command": "forward",
+      "transcript": "move forward to meters.",
+      "plan": [
+        {
+          "name": "walk",
+          "arguments": {
+            "direction": "front",
+            "meters": 2
+          }
+        }
+      ],
+      "pose": {
+        "x": -2.698982767270193,
+        "y": -0.0422783661000709,
+        "yaw": -0.031764648819768385
+      }
+    },
+    {
+      "command": "stop while moving",
+      "transcript": "Stop.",
+      "pose": {
+        "x": -2.1432575450545874,
+        "y": -0.0774086416361478,
+        "yaw": -0.031721179738881056
+      },
+      "metrics": [
+        {
+          "name": "Voice → transcript",
+          "ms": 1095.1692079999993,
+          "basis": "Server clock · VAD chunk receipt to provider/robot events"
+        },
+        {
+          "name": "Voice → intent",
+          "ms": null,
+          "basis": "Server clock · VAD chunk receipt to provider/robot events"
+        },
+        {
+          "name": "Transcript → reflex",
+          "ms": 0.14595900000131223,
+          "basis": "Server clock · VAD chunk receipt to provider/robot events"
+        },
+        {
+          "name": "Memory retrieval",
+          "ms": null,
+          "basis": "Server clock · VAD chunk receipt to provider/robot events"
+        },
+        {
+          "name": "Command → acknowledgement",
+          "ms": 2.8567499999990105,
+          "basis": "Server clock · VAD chunk receipt to provider/robot events"
+        },
+        {
+          "name": "Stop → settled",
+          "ms": null,
+          "basis": "Server clock · VAD chunk receipt to provider/robot events"
+        },
+        {
+          "name": "End to end",
+          "ms": 1098.3995419999992,
+          "basis": "Server clock · VAD chunk receipt to provider/robot events"
+        }
+      ]
+    },
+    {
+      "command": "turn right",
+      "transcript": "Turn right 90 degrees.",
+      "plan": [
+        {
+          "name": "turn",
+          "arguments": {
+            "angleDegrees": -90
+          }
+        }
+      ],
+      "pose": {
+        "x": -2.0204878833429243,
+        "y": -0.21339298899190504,
+        "yaw": -1.5318553845562697
+      }
+    },
+    {
+      "command": "back",
+      "transcript": "Move back one meter.",
+      "plan": [
+        {
+          "name": "walk",
+          "arguments": {
+            "direction": "back",
+            "meters": 1
+          }
+        }
+      ],
+      "pose": {
+        "x": -2.221631115039006,
+        "y": -0.18436797767405314,
+        "yaw": 1.68601983707422
+      }
+    }
+  ],
+  "replyChunks": 27,
+  "errors": [],
+  "provenance": "Generated Rishi speech → actual browser MediaStream / PCM worklet → live Gradium via Pipecat → shared motion tools → isolated MuJoCo. Actual Gradium TTS reached browser playback. No human microphone or emotional-expression claim; model/Jev cloud disabled for deterministic motion checks."
+}

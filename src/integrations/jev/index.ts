@@ -1,6 +1,7 @@
 export type ReflexAction='CONTINUE'|'SLOW_DOWN'|'STOP'|'TURN_LEFT'|'TURN_RIGHT'|'HOLD'|'REQUEST_CONFIRMATION';
 export type ReflexInput={transcript:string;distance_to_person:number;path_blocked:boolean;user_urgency:number;user_hesitation:number;current_speed:number};
-export const stopWords=(s:string)=>/\b(stop|wait|halt|freeze)\b/i.test(s);
+// Match an imperative clause, not questions such as “Where is the bus stop?”
+export const stopWords=(s:string)=>/(?:^|[,;.!?—]\s*|\b(?:yes|and|but|then)\s+)(?:(?:hey\s+)?(?:cortex|robot)[, ]+)?(?:(?:please|can you|could you|would you)\s+)?(?:stop|wait|halt|freeze)\b/i.test(s.trim());
 export function deterministicReflex(s:ReflexInput):ReflexAction{if(stopWords(s.transcript)||s.path_blocked||s.distance_to_person<.7)return 'STOP';if(s.user_hesitation>.5)return 'REQUEST_CONFIRMATION';if(/\bslow(ly|er)?\b/i.test(s.transcript))return 'SLOW_DOWN';return 'CONTINUE';}
 export async function jevDecision(s:ReflexInput):Promise<{action:ReflexAction;source:string;raw?:unknown}>{
  const hard=deterministicReflex(s);if(hard==='STOP'||!process.env.JEV_API_KEY)return {action:hard,source:'LOCAL hard rules'};
