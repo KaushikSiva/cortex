@@ -4,14 +4,14 @@
 
 | Asset | Source | License / use |
 |---|---|---|
-| `painted-ladies/scene.glb` | [San Francisco Painted Ladies by jtressle](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6) via [AllenAI Objaverse](https://objaverse.allenai.org/docs/objaverse-1.0/) | CC BY 4.0. Original GLB unchanged; runtime rotation, scaling, positioning and selected sky fragment filtering. Partial frontal scan, baked lighting, 1024² distributed atlas. SOURCE.json records SHA-256 and download URL. |
+| `painted-ladies/scene.glb` | [San Francisco Painted Ladies by jtressle](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6) via [AllenAI Objaverse](https://objaverse.allenai.org/docs/objaverse-1.0/) | CC BY 4.0. Original GLB unchanged; runtime rotation, scaling, positioning and selected sky fragment filtering. Retained hidden reference only. Partial frontal scan, baked lighting, 1024² distributed atlas. SOURCE.json records SHA-256 and download URL. |
 | `asphalt-*.jpg` | [Asphalt 02, Poly Haven](https://polyhaven.com/a/asphalt_02) | CC0 diffuse, normal and roughness; Steiner Street surface. |
 | `grass-*.jpg` | [Aerial Grass Rock, Poly Haven](https://polyhaven.com/a/aerial_grass_rock) | CC0 diffuse, normal and roughness scans. |
 | `concrete-*.jpg` | [Concrete Floor Worn 001, Poly Haven](https://polyhaven.com/a/concrete_floor_worn_001) | CC0, current park-path diffuse/normal/roughness. |
 | `park-tree.glb` | Derived from [Island Tree 02, Poly Haven](https://polyhaven.com/a/island_tree_02) in the existing chennai-gta workspace | CC0 source textures; custom bent-leaf geometry and baked clusters. Details in `park-tree.attribution.json`. |
 | `pavement-*.jpg` | [Concrete Pavement, Poly Haven](https://polyhaven.com/a/concrete_pavement) | CC0, park-path material. |
 | `daylight.hdr` | [Kloofendal 48d Partly Cloudy, Poly Haven](https://polyhaven.com/a/kloofendal_48d_partly_cloudy) | CC0 environment illumination, not a San Francisco capture. |
-| Park path / slope / bench / planter / backpack | CORTEX authored geometry | Inferred demo placements and scale, not surveyed Alamo Square furniture. |
+| Victorian houses / park path / slope / bench / planter / backpack | CORTEX authored geometry | Inferred demo placements and scale, not surveyed Alamo Square furniture. |
 
 Screenshots are intermediate application captures. The bundled video/GIF still show the previous scene and must be regenerated after visual acceptance. Scan attribution also appears in the app provenance panel, README, deck and video metadata.
 

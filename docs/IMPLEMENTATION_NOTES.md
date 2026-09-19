@@ -60,3 +60,15 @@ Server `performance.now()` measures durations. Voice timing starts at receipt of
 Rendering now uses the chennai-gta solar-separated HDR light, alpha-aware GTAO, SMAA, 4096 shadow maps and bent-leaf trees, plus scanned ground materials and geometric park details. The camera has a 60° field of view and a separate 60° orbit preset. These additions do not fix the partial façade scan's missing depth and sides: the user rejected the current view as insufficiently realistic. Replacing or reconstructing the building volume remains open.
 
 This snapshot passes TypeScript typechecking, 19 TypeScript tests, and 7 MuJoCo tests including actual left/right/180° turns, expired key leases and person clearance. The updated end-to-end browser suite did not complete (timeout with an existing operator session); the new keyboard browser script has not yet passed. Historical media and browser evidence are not proof of this snapshot's acceptance.
+
+## Full-depth scene revision
+
+`src/scene/victorians.ts` replaces the rejected shallow façade presentation with authored solid building volumes, polygonal bays, recessed windows, roofs, side/rear walls, entry stairs, rails and architectural details. Geometry is batched by material. No façade photo planes are used in the default view. The previous scan is hidden reference, not an accepted reconstruction. See SCENE_STATUS.md for the remaining visual gap.
+
+Fixed missing tree rendering caused by assigning a material array to geometry without draw groups. Fixed HDR sky fogging and updated the directional shadow camera's projection matrix. Browser render checks report no WebGL/page errors. Both the keyboard and complete UI browser suites now pass on an isolated production server and MuJoCo instance.
+
+Motion acknowledgement timestamps now bracket each safety-governed primitive request. They exclude the wait for heading convergence, which is physical motion duration rather than network acknowledgement.
+
+## Live speech verification
+
+With the supplied credential stored only in ignored `.env.local`, the actual Gradium socket through Pipecat returned interim and final “come here.” for generated PCM16 audio. `docs/gradium-live-results.json` records events and local acoustic measurements. This proves credential/auth and real STT pipeline operation. It does not prove a real microphone trial, calibrated expression mapping, TTS or end-to-end cloud-planned robot motion.

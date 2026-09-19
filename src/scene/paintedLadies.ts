@@ -1,14 +1,17 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {buildVictorians} from './victorians';
 import {centralAvenueLeafMaterial} from './rendering/leafMaterial';
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 
 /** CC BY 4.0 jtressle scan + authored park foreground. Local scale is approximate. */
 export function buildPaintedLadies(scene:THREE.Scene){
  const group=new THREE.Group();group.name='Painted Ladies · Alamo Square';scene.add(group);
+ const architecture=buildVictorians();group.add(architecture);let captured:THREE.Group|undefined;
+ const reference=(event:Event)=>{const show=!!(event as CustomEvent).detail;architecture.visible=!show;if(captured)captured.visible=show;};window.addEventListener('cortex-scene-reference',reference);
  const textures:THREE.Texture[]=[];const loader=new THREE.TextureLoader();let disposed=false;let scanVertices=0;
  const texture=(file:string,x:number,y:number,color=false)=>{const t=loader.load('/assets/'+file);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(x,y);t.anisotropy=16;if(color)t.colorSpace=THREE.SRGBColorSpace;textures.push(t);return t;};
- const sky=new THREE.Mesh(new THREE.SphereGeometry(135,24,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,uniforms:{horizon:{value:new THREE.Color('#c5d9e4')},zenith:{value:new THREE.Color('#4c8dce')}},vertexShader:`varying vec3 direction;void main(){direction=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,fragmentShader:`varying vec3 direction;uniform vec3 horizon;uniform vec3 zenith;void main(){float h=max(normalize(direction).z,0.);gl_FragColor=vec4(mix(horizon,zenith,pow(h,.35)),1.);
+ const sky:THREE.Mesh<THREE.SphereGeometry,THREE.Material>=new THREE.Mesh(new THREE.SphereGeometry(135,24,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,uniforms:{horizon:{value:new THREE.Color('#c5d9e4')},zenith:{value:new THREE.Color('#4c8dce')}},vertexShader:`varying vec3 direction;void main(){direction=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,fragmentShader:`varying vec3 direction;uniform vec3 horizon;uniform vec3 zenith;void main(){float h=max(normalize(direction).z,0.);gl_FragColor=vec4(mix(horizon,zenith,pow(h,.35)),1.);
 #include <colorspace_fragment>
 }`}));sky.renderOrder=-1;sky.userData.excludeFromAO=true;group.add(sky);
  const concrete=new THREE.MeshStandardMaterial({color:'#c4c5bd',map:texture('concrete-color.jpg',1,1,true),normalMap:texture('concrete-normal.jpg',1,1),normalScale:new THREE.Vector2(.10,.10),roughnessMap:texture('concrete-rough.jpg',1,1),roughness:.92});
@@ -48,7 +51,7 @@ export function buildPaintedLadies(scene:THREE.Scene){
     m.onBeforeCompile=shader=>{shader.vertexShader='varying float captureHeight;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n captureHeight=(modelMatrix*vec4(position,1.)).z;');shader.fragmentShader='varying float captureHeight;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n bool skyIsland=(vMapUv.x>.555 && vMapUv.y>.39 && vMapUv.y<.60)||(vMapUv.y>.81 && vMapUv.x<.56)||(vMapUv.x>.30 && vMapUv.x<.46 && vMapUv.y>.07 && vMapUv.y<.20); if(skyIsland && captureHeight>8. && diffuseColor.b-diffuseColor.r>.18 && diffuseColor.b>.40) discard;');};
   }});
   if(disposed){scan.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());}});return;}
-  group.add(scan);
+  captured=scan;scan.visible=false;group.add(scan);
  });
 
  // Expansion joints, drain bars, bench fixings and curb wear have geometric depth.
@@ -79,12 +82,12 @@ export function buildPaintedLadies(scene:THREE.Scene){
  const blades=new THREE.Mesh(bladeGeometry,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9,side:THREE.DoubleSide}));blades.receiveShadow=true;group.add(blades);
  const treesReady=new GLTFLoader().loadAsync('/assets/park-tree.glb').then(gltf=>{
   const source=gltf.scene;
-  source.traverse(o=>{if(!(o instanceof THREE.Mesh))return;o.castShadow=o.receiveShadow=true;const materials=Array.isArray(o.material)?o.material:[o.material];o.material=materials.map(material=>{if(material instanceof THREE.MeshStandardMaterial){if(material.alphaTest>0)material=centralAvenueLeafMaterial(material);const m=material as THREE.MeshStandardMaterial;for(const t of [m.map,m.normalMap,m.roughnessMap,m.alphaMap])if(t){t.anisotropy=8;textures.push(t);}}return material;});});
+  source.traverse(o=>{if(!(o instanceof THREE.Mesh))return;o.castShadow=o.receiveShadow=true;const materials=Array.isArray(o.material)?o.material:[o.material];const converted=materials.map(material=>{if(material instanceof THREE.MeshStandardMaterial){if(material.alphaTest>0)material=centralAvenueLeafMaterial(material);const m=material as THREE.MeshStandardMaterial;for(const t of [m.map,m.normalMap,m.roughnessMap,m.alphaMap])if(t){t.anisotropy=8;textures.push(t);}}return material;});o.material=Array.isArray(o.material)?converted:converted[0];});
   for(const [x,y,z,scale,angle]of [[-11,6,-.27,.72,.3],[12,8,-.61,.8,2.2],[-20,23,-1.63,.85,1.4],[23,26,-1.63,.9,3.1]]){
    const tree=source.clone(true);tree.rotation.x=Math.PI/2;tree.scale.setScalar(scale);tree.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(tree);tree.position.z=-bounds.min.z;
    const planting=new THREE.Group();planting.name='Authored park broadleaf';planting.position.set(x,y,z);planting.rotation.z=angle;planting.add(tree);if(!disposed)group.add(planting);
   }
  });
  const ready=Promise.all([scanReady,treesReady]);
- return {group,ground,ready,get scanVertices(){return scanVertices;},update(_t:number){},dispose(){disposed=true;textures.forEach(t=>t.dispose());}};
+ return {group,ground,ready,setSky(map:THREE.Texture,rotation:number){sky.material.dispose();sky.material=new THREE.MeshBasicMaterial({map,side:THREE.BackSide,depthWrite:false,fog:false});sky.rotation.set(Math.PI/2,rotation,0);},architectureVertices:architecture.userData.vertices,get scanVertices(){return scanVertices;},update(_t:number){},dispose(){disposed=true;window.removeEventListener('cortex-scene-reference',reference);textures.forEach(t=>t.dispose());}};
 }

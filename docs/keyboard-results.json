@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "forwardMeters": 0.7280036448841347,
+  "tests": [
+    "held W moves; release pauses",
+    "A faces left before translation",
+    "key release cancels turning",
+    "blur pauses",
+    "Space latches; Resume unlocks",
+    "Q/E turn tool",
+    "target uses plan and shared reflex gate",
+    "text/voice planner reuses directional walk",
+    "60 degree view"
+  ],
+  "at": "2026-09-19T21:09:14.243Z"
+}

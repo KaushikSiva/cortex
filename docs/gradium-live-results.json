@@ -1,0 +1,53 @@
+{
+  "test": "Actual Gradium through Pipecat; generated spoken audio, not a microphone trial",
+  "events": [
+    {
+      "type": "voice_ready",
+      "engine": "Pipecat",
+      "provider": "Gradium"
+    },
+    {
+      "type": "voice_turn",
+      "transcript": "come",
+      "interim": true,
+      "acoustics": {
+        "rmsDb": -15.008275420632135,
+        "peakDb": -2.7406772614897656,
+        "pitchVariation": 0.24087201658697127,
+        "pauseRatio": 0,
+        "voicedMs": 540.0
+      },
+      "source": "GRADIUM",
+      "timestamp": 1789852404654
+    },
+    {
+      "type": "voice_turn",
+      "transcript": "come here.",
+      "interim": true,
+      "acoustics": {
+        "rmsDb": -15.008275420632135,
+        "peakDb": -2.7406772614897656,
+        "pitchVariation": 0.24087201658697127,
+        "pauseRatio": 0,
+        "voicedMs": 540.0
+      },
+      "source": "GRADIUM",
+      "timestamp": 1789852405015
+    },
+    {
+      "type": "voice_turn",
+      "transcript": "come here.",
+      "interim": false,
+      "acoustics": {
+        "rmsDb": -15.008275420632135,
+        "peakDb": -2.7406772614897656,
+        "pitchVariation": 0.24087201658697127,
+        "pauseRatio": 0,
+        "voicedMs": 540.0
+      },
+      "source": "GRADIUM",
+      "timestamp": 1789852405211
+    }
+  ],
+  "at": 1789852408.813668
+}

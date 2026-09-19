@@ -45,3 +45,13 @@ Three Python voice tests validate measured PCM energy, no invented state for sil
 ## Current shared-motion snapshot
 
 19 TypeScript tests and 7 MuJoCo physics tests passed. Real simulated turns converge within 0.16 radians with under 0.3 m displacement. Lease expiry is checked independently of telemetry health. Typecheck passed. Latest browser run timed out; keyboard browser verification and production build for these changes remain pending. Historical results above describe earlier revisions. The current scene was rejected by the user as insufficiently realistic.
+
+## Latest verification
+
+The isolated production build passed. Both browser suites passed: full UI/memory/confirmation/stop flow and shared keyboard/voice-planner controls (see browser-results.json and keyboard-results.json). Real Gradium through the actual Pipecat sidecar recognized generated audio as “come here.” with interim and final events; measured acoustic fields were preserved (gradium-live-results.json). This is a cloud speech integration pass, not a microphone or emotional-perception validation. The default scene now uses full-depth authored architecture; photorealism remains unpassed.
+
+## Live Gradium to physical policy
+
+`docs/live-motion-results.json` records a successful cloud-to-simulation test: generated “Come here” audio at two amplitudes produced identical real Gradium transcripts. Moderate intensity selected 0.55 m/s and traveled 1.429 m in 3 simulated seconds; high intensity selected 0.90 m/s and traveled 2.222 m. Both runs remained upright. An interim real “wait,” transcript latched the independent stop path, with actual measured timing. The planner/reflex in this isolated test were explicitly deterministic, not live SambaNova/Jev. This is not a human microphone, emotion-recognition, or photorealism pass.
+
+Final check for this revision: 20 TypeScript tests and 7 MuJoCo physics tests passed; typecheck and optimized production build passed; refreshed browser/keyboard suites passed. The 109.72-second demo MP4 has 1920×1080 video and an audio track; capture reported zero browser errors.

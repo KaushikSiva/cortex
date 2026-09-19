@@ -105,13 +105,12 @@ export class CortexRuntime{
    case 'navigate_to':case 'walk_to':case 'return_home':case 'turn':case 'walk':{
     if(!await this.motionReflex(epoch))break;
     if(this.state.policy.requireConfirmation&&!confirmed){await this.safety.stop();if(epoch!==this.epoch)return;this.confirmationHold=true;this.pending.push(call);this.state.pendingConfirmation=true;this.state.phase='AWAITING CONFIRMATION';this.state.response='I’ll give you more space. Shall I move?';this.trace('SAFETY','Holding for confirmation · cautious motion');break;}
-    const context={active:()=>epoch===this.epoch,confirmed,trace:(m:string)=>this.trace('ROBOT',m)};
-    this.timing.mark('robot_command_sent');
+    const context={active:()=>epoch===this.epoch,confirmed,onCommand:()=>{this.timing.mark('robot_command_sent');this.timing.marks.delete('robot_acknowledged');},onAcknowledged:()=>this.timing.mark('robot_acknowledged'),trace:(m:string)=>this.trace('ROBOT',m)};
     if(call.name==='turn')await this.motion.turn(Number(call.arguments.angleDegrees),this.state.policy,context);
     else if(call.name==='walk')await this.motion.walk(Direction.parse(call.arguments.direction),Number(call.arguments.meters),this.state.policy,context);
     else {const location=call.name==='return_home'?'HOME':String(call.name==='walk_to'?call.arguments.target:call.arguments.location);await this.motion.walkTo(location,this.state.policy,context);}
     if(epoch!==this.epoch)return;
-    this.timing.mark('robot_acknowledged');this.state.phase=call.name==='turn'?'READY':'MOVING';this.state.response=call.name==='turn'?'Turn complete.':this.state.policy.responseVerbosity==='minimal'?'On my way.':'I’m moving. I’ll keep a comfortable distance.';break;
+    this.state.phase=call.name==='turn'?'READY':'MOVING';this.state.response=call.name==='turn'?'Turn complete.':this.state.policy.responseVerbosity==='minimal'?'On my way.':'I’m moving. I’ll keep a comfortable distance.';break;
    }
    case 'search_memory':{
     this.state.phase='REMEMBERING';this.state.providers.MEMORIES.active=true;this.timing.mark('memory_query_start');this.emit();
@@ -152,7 +151,7 @@ export class CortexRuntime{
   const d=Direction.parse(direction),id=z.string().min(8).max(80).parse(session);
   if(this.safety.latched)throw new Error('Resume or reset before keyboard movement.');
   const epoch=++this.epoch;this.manualSession=id;this.manualRenewed=Date.now();this.pending=[];this.state.pendingConfirmation=false;
-  this.state.inputSource='KEYBOARD';this.state.vocal=null;this.state.policy={...defaultPolicy};this.state.error=null;
+  this.timing.clear();this.state.inputSource='KEYBOARD';this.state.vocal=null;this.state.policy={...defaultPolicy};this.state.error=null;
   await this.safety.hold();if(epoch!==this.epoch)return;
   if(!await this.motionReflex(epoch))return;
   if(this.state.policy.requireConfirmation){await this.endManual(id);throw new Error('Reflex requires confirmation; use a bounded walk command.');}

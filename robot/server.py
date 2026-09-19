@@ -139,5 +139,6 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self,*args):pass
 if __name__=='__main__':
     robot=Robot();threading.Thread(target=robot.loop,daemon=True).start()
-    print('CORTEX MuJoCo: http://127.0.0.1:8002',flush=True)
-    ThreadingHTTPServer(('127.0.0.1',int(os.getenv('MUJOCO_PORT','8002'))),Handler).serve_forever()
+    port=int(os.getenv('MUJOCO_PORT','8002'))
+    print(f'CORTEX MuJoCo: http://127.0.0.1:{port}',flush=True)
+    ThreadingHTTPServer(('127.0.0.1',port),Handler).serve_forever()

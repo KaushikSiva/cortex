@@ -19,10 +19,10 @@ for i,ch in enumerate(chapters):
  tempo=max(1,audio_duration/max(1,end-ch['start']-.3))
  filters.append(f'[{i+1}:a]atempo={tempo:.4f},adelay={delay}|{delay},volume=0.9[a{i}]');labels.append(f'[a{i}]')
 filters.append(''.join(labels)+f'amix=inputs={len(labels)}:normalize=0,alimiter=limit=0.95[audio]')
-run(['ffmpeg','-y','-ss',str(lead),'-i',str(raw),*inputs,'-filter_complex',';'.join(filters),'-map','0:v','-map','[audio]','-vf','scale=1728:1080,pad=1920:1080:(ow-iw)/2:0:color=0x101611','-c:v','libx264','-preset','medium','-crf','21','-pix_fmt','yuv420p','-c:a','aac','-b:a','160k','-t',str(content_duration),'-movflags','+faststart','-metadata','title=CORTEX — synthetic acoustic fixtures, live MuJoCo prototype','-metadata','comment=Painted Ladies 3D scan by jtressle, CC BY 4.0. https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6 ; https://creativecommons.org/licenses/by/4.0/ . Runtime transform and sky filtering. Simulated robot; synthetic vocal fixtures; generated narration.',str(media/'CORTEX-demo.mp4')])
+run(['ffmpeg','-y','-ss',str(lead),'-i',str(raw),*inputs,'-filter_complex',';'.join(filters),'-map','0:v','-map','[audio]','-vf','scale=1728:1080,pad=1920:1080:(ow-iw)/2:0:color=0x101611','-c:v','libx264','-preset','medium','-crf','21','-pix_fmt','yuv420p','-c:a','aac','-b:a','160k','-t',str(content_duration),'-movflags','+faststart','-metadata','title=CORTEX — synthetic acoustic fixtures, live MuJoCo prototype','-metadata','comment=Authored Painted Ladies architecture; not a surveyed reconstruction. Hidden reference scan by jtressle, CC BY 4.0. https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6 ; https://creativecommons.org/licenses/by/4.0/ . Runtime transform and sky filtering. Simulated robot; synthetic vocal fixtures; generated narration.',str(media/'CORTEX-demo.mp4')])
 def stamp(t):
  ms=round(t*1000);return f'{ms//3600000:02d}:{ms//60000%60:02d}:{ms//1000%60:02d}.{ms%1000:03d}'
-vtt=['WEBVTT','','NOTE Painted Ladies scan: jtressle, CC BY 4.0. https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6','']
+vtt=['WEBVTT','','NOTE Hidden reference scan: jtressle, CC BY 4.0. https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6','']
 for i,ch in enumerate(chapters):
  end=chapters[i+1]['start'] if i+1<len(chapters) else content_duration
  vtt += [f'{stamp(ch["start"])} --> {stamp(end)}',ch['narration'],'']

@@ -20,7 +20,7 @@ Say **“Come here.”** quietly. The G1 approaches at a measured pace. Reset, s
 
 This repository contains the app, simulator, voice service, tests, five-page pitch, and recorded demonstration. No locomotion training is required.
 
-> **Honest build status:** MuJoCo runs real dynamics and an existing Unitree gait. DEMO inputs are explicitly synthetic acoustic fixtures. Gradium supplies STT/TTS; it does **not** supply the local acoustic heuristics or emotion labels. Provider calls require credentials. The Painted Ladies are a licensed photogrammetric mesh, combined with a modeled Alamo Square foreground. This is a partial scan with approximate scale—not a claimed photorealism-test pass.
+> **Honest build status:** MuJoCo runs real dynamics and an existing Unitree gait. DEMO inputs are explicitly synthetic acoustic fixtures. Gradium supplies STT/TTS; it does **not** supply the local acoustic heuristics or emotion labels. Provider calls require credentials. The Painted Ladies now use full-depth modeled architecture, with a 3D Alamo Square foreground. This is an authored approximation; photorealism acceptance remains open. The earlier partial scan is retained as hidden reference.
 
 ![Actual application recording](public/media/demo.gif)
 
@@ -30,7 +30,7 @@ Hold **W/A/S/D** or **arrow keys** to walk front/left/back/right relative to the
 
 Say “move left one meter,” “turn right,” or “walk to the bench.” `turn`, `walk`, and `walk_to` are schema-validated shared tools. Named targets go through SambaNova planning and the Jev/local reflex gate. With no credentials, the UI labels the deterministic planner DEMO and the reflex LOCAL. Keyboard commands use a renewable 650 ms lease, independent of the normal telemetry heartbeat.
 
-**Current validation:** 19 TypeScript tests and 7 MuJoCo physics tests pass. Full browser validation of this update is pending; the latest attempted run timed out while another operator session was active. The bundled video/GIF show the earlier scene; the screenshot/deck previews are intermediate work. Photorealistic scene acceptance remains open.
+**Current validation:** 20 TypeScript tests and 7 MuJoCo physics tests pass. The keyboard and full UI browser suites pass against an isolated MuJoCo instance. The video, GIF and five-slide deck show the current scene and shared controls. Real Gradium → policy → MuJoCo also passed with generated speech: identical transcripts selected different policies and traveled 1.43 m versus 2.22 m in three simulated seconds. [Measured results](docs/live-motion-results.json). Photorealistic scene acceptance remains open.
 
 ## The moment
 
@@ -80,11 +80,11 @@ Microphone PCM → Pipecat → Gradium streaming STT
 
 The robot walks on a bounded park path in **Alamo Square, facing the Painted Ladies in San Francisco**.
 
-The houses use a real [photogrammetric scan by jtressle](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6), licensed **CC BY 4.0** and distributed through AllenAI Objaverse. Roofs, bay windows, steps and façades have captured geometry and photographic textures. The park path, grass slope, bench, planter and backpack are authored 3D geometry. The robot's position and joints come from MuJoCo physics.
+The houses use full-depth authored architecture: side and rear walls, roofs, projecting bays, recessed sash windows, entry stairs, rails and trim. The park path, grass slope, bench, planter and backpack are also 3D geometry. The robot's position and joints come from MuJoCo physics.
 
-Use **Inspect 3D scene** to check depth and parallax within the scan's useful frontal viewing region. Reality Mode restores a fixed phone-height camera. This is a genuine textured 3D mesh, not a screen-filling background image.
+Use **Inspect 3D scene** or the **60°** button to check depth and parallax. Reality Mode restores a fixed phone-height camera with a 60° lens. Scanned surface materials, bent-leaf trees, HDR daylight, shadow maps and contact occlusion support the render.
 
-The source is a **partial frontage scan**: side/back coverage is incomplete, lighting is baked, its distributed atlas is 1024², and local scale/alignment are approximate. Foreground props are demo placements, not surveyed furniture. We do not claim that the current composite is indistinguishable from footage.
+The earlier [jtressle scan](https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6), **CC BY 4.0**, remains bundled as hidden reference. It was rejected as too shallow for the requested demo. The current architecture solves the missing volume, but it is still an inferred model, not an indistinguishable digital twin. [Scene status and remaining work](docs/SCENE_STATUS.md).
 
 Physics uses separate collision geometry. A park curb bounds the walking area; no mission enters Steiner Street. [SCENE_CAPTURE.md](docs/SCENE_CAPTURE.md) documents how to replace the foreground with measured park capture. [Asset provenance](public/assets/painted-ladies/SOURCE.json) includes the source URL, license and GLB checksum.
 
@@ -167,7 +167,7 @@ src/emotion/voicePolicy.ts  Documented acoustic-to-behavior mapping
 src/cognition/             Planning, memory, reflex and mission lifecycle
 src/integrations/          Gradium bridge, SambaNova, Memories.ai, Jev, EdgeOne
 src/robot/                 Backend adapter and safety governor
-src/scene/                 Painted Ladies scan, 3D park and optional splat loader
+src/scene/                 Painted Ladies architecture, 3D park and optional splat loader
 voice/                     Pipecat service and measured PCM acoustics
 robot/                     MuJoCo server and existing G1 gait inference
 public/media/              Pitch deck, demonstration, GIF and screenshots
