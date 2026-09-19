@@ -1,79 +1,85 @@
 {
-  "duration": 109.717,
+  "duration": 113.422,
   "chapters": [
     {
-      "start": 0,
+      "start": 0.001,
       "title": "CORTEX",
       "sub": "WORKING PROTOTYPE · SYNTHETIC ACOUSTIC INPUT · LIVE MUJOCO SIMULATION",
-      "narration": "This is Cortex. This recording uses synthetic vocal profiles to drive a real MuJoCo simulation. The robot is simulated, and the Painted Ladies are modeled architecture in a three dimensional park scene. This is an architectural study, not a photoreal digital twin."
+      "narration": "Meet Cortex. Same words, different robot behavior. This demo uses synthetic vocal profiles, real MuJoCo physics, and a modeled San Francisco scene."
     },
     {
-      "start": 11.002,
+      "start": 11.017,
       "title": "Step into the scene.",
       "sub": "FULL-DEPTH ARCHITECTURE · MODELED PARK · CAMERA PARALLAX",
-      "narration": "The camera moves around modeled Painted Ladies. The buildings have side walls, roofs, projecting windows, stairs and geometric depth. A modeled Alamo Square path gives the robot a bounded walking area."
+      "narration": "Explore the Painted Ladies in three dimensions, with modeled buildings and a bounded walking area."
     },
     {
-      "start": 18.283,
+      "start": 19.705,
       "title": "One set of tools. Keyboard or voice.",
       "sub": "HOLD W / A / S / D · Q / E TURN · SPACE STOPS",
-      "narration": "Keyboard and voice share the same tools. Hold a direction: the robot turns first, then walks. Release to pause. Named targets pass through planning and the reflex gate."
+      "narration": "Keyboard and voice share the same tools. Turn, walk, or stop. The robot faces its direction before moving."
     },
     {
-      "start": 27.236,
+      "start": 28.947,
       "title": "“Come here.”",
       "sub": "CALM PROFILE · 0.55 M/S SPEED CEILING · NORMAL APPROACH",
-      "narration": "First, the calm profile. Come here. The robot approaches at a moderate pace, with a comfortable stopping distance."
+      "narration": "First, calmly: Come here. The robot approaches at a moderate pace and maintains personal space."
     },
     {
-      "start": 37.054,
+      "start": 38.949,
       "title": "“Come here.”",
       "sub": "IDENTICAL TRANSCRIPT · URGENT PROFILE · 0.90 M/S SPEED CEILING",
-      "narration": "Reset. Exactly the same words, with a higher-intensity acoustic profile. Priority rises and the walking policy changes. The feet are driven by Unitree’s frozen locomotion controller."
+      "narration": "Now reset. Come here! The urgent demo profile uses the same words. Priority increases, and the robot walks faster within its safety limits."
     },
     {
-      "start": 47.218,
+      "start": 49.388,
       "title": "Same words. Different voice. Different physical policy.",
       "sub": "LOCAL ACOUSTIC CUES · GRADIUM + PIPECAT VOICE → DOCUMENTED MAPPING → SAFETY GOVERNOR → G1",
-      "narration": "Reveal Cortex. Measured acoustic cues become a documented behavioral policy. Speed, approach distance and confirmation are explicit. The live microphone path is implemented through Gradium and Pipecat."
+      "narration": "Inside Cortex, synthetic acoustic profiles select visible policies. Live Gradium and Pipecat commands use the same movement tools, with neutral speed defaults."
     },
     {
-      "start": 57.979,
+      "start": 60.32,
       "title": "Hesitation changes the response, too.",
       "sub": "CAUTIOUS APPROACH · 2.0 M PERSONAL SPACE · CONFIRMATION REQUIRED",
-      "narration": "A hesitant acoustic profile does not simply make the robot faster. It holds for confirmation, reduces approach speed, and gives the person more space."
+      "narration": "In the demo, a hesitant profile asks for confirmation, approaches slowly, and leaves more personal space."
     },
     {
-      "start": 65.26,
+      "start": 68.087,
       "title": "“Where did you last see my backpack?”",
       "sub": "ACTUAL CAPTURED FRAME · OPERATOR-LABELED LOCAL MEMORY · PLANTER",
-      "narration": "Now memory. Save the scene, then ask where the backpack was seen. Cortex retrieves the actual captured frame and its registered location, beside the planter."
+      "narration": "Where did you last see my backpack? Cortex retrieves a saved camera frame and its operator-labeled location: beside the planter."
     },
     {
-      "start": 74.891,
+      "start": 77.837,
       "title": "“Take me there.”",
       "sub": "RETRIEVED EVIDENCE → REGISTERED WAYPOINT → PHYSICAL NAVIGATION",
-      "narration": "Take me there. The retrieved sighting becomes a waypoint, and the robot turns toward the planter."
+      "narration": "Take me there. The remembered location becomes a navigation target."
     },
     {
-      "start": 80.894,
+      "start": 83.84,
       "title": "“WAIT! STOP!”",
       "sub": "FAST REFLEX PATH · NO PLANNER ROUND TRIP",
-      "narration": "Wait. Stop. The reflex bypasses the planner, latches the stop, and measures acknowledgement and physical settling separately."
+      "narration": "Wait! Stop! The fast reflex bypasses planning and stops the robot. The trace separates command acknowledgement from physical settling."
     },
     {
-      "start": 90.666,
+      "start": 94.06,
       "title": "“Continue, but slowly.”",
-      "sub": "EXPLICIT RESUME · REDUCED 0.30 M/S SPEED CEILING",
-      "narration": "Continue, but slowly. A deliberate resume releases the stop and applies a lower speed ceiling. Vocal delivery can change behavior. It can never turn safety off."
+      "sub": "CONTINUE THE JOURNEY · REDUCED 0.30 M/S SPEED CEILING",
+      "narration": "Continue, but slowly. The robot resumes its journey with a lower speed limit. Safety checks remain active."
     },
     {
-      "start": 99.18,
+      "start": 102.9,
       "title": "CORTEX · Hear the human behind the instruction.",
       "sub": "GRADIUM · PIPECAT · SAMBANOVA · MUJOCO · SOURCE, TESTS & PITCH INCLUDED",
-      "narration": "Cortex gives physical AI perception, memory, reasoning, reflexes, and safe action. Gradium handles voice, Pipecat carries the conversation, and SambaNova plans the next safe action."
+      "narration": "Cortex connects voice, memory, and safe action, with a SambaNova integration for high-level planning. Shared tools turn human intent into robot movement."
     }
   ],
   "errors": [],
+  "narration": {
+    "voice": "Rishi",
+    "locale": "en-IN",
+    "provider": "macOS system speech",
+    "generated": true
+  },
   "provenance": "Actual application; synthetic acoustic fixtures; live MuJoCo; system-generated narration; Authored Painted Ladies architectural approximation and Alamo Square foreground; no photorealism claim"
 }

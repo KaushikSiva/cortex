@@ -20,7 +20,7 @@ Source geometry is the City’s 2010-era building dataset, published under PDDL 
 
 The sky HDR is now 2048 × 1024, replacing the 1024 × 512 source. It remains the same CC0 illustrative lighting asset, not an Alamo Square capture. Camera clipping/fog distances extend to include the surrounding neighborhood.
 
-The narrated demo video retains its previous scene revision. Photoreal acceptance remains unmet: repeated hero façades and simplified neighboring buildings are plainly visible in the render.
+The Indian English demo video has been refreshed with this scene revision. Photoreal acceptance remains unmet: repeated hero façades and simplified neighboring buildings are plainly visible in the render.
 
 ## Architectural depth and contact pass
 
@@ -30,7 +30,7 @@ Nearby DataSF footprint extrusions now have authored window surrounds, cornices,
 
 The reference-only photograph used to inspect roof forms and colors is [John O’Neill / jjron’s Painted Ladies photograph](https://commons.wikimedia.org/wiki/File:Alamo_Sq_Painted_Ladies_2,_SF,_CA,_jjron_26.03.2012.jpg), under GFDL 1.2. No photograph pixels or copy of that image are shipped in this refinement. The original jtressle scan download API requires an authenticated Sketchfab account; its higher-resolution original has not been obtained.
 
-`public/media/scene-detail-study.png` records this pass from the 60° view. The older demo video remains unchanged. Browser captures had no page/WebGL errors; TypeScript and production build pass. **Photoreal acceptance remains unmet.**
+`public/media/scene-detail-study.png` records this pass from the 60° view. The Indian English video, GIF and pitch now include this scene; the original narration edition remains an older recording. Browser captures had no page/WebGL errors; TypeScript and production build pass. **Photoreal acceptance remains unmet.**
 
 ## Robot telemetry and ground placement
 

@@ -8,6 +8,7 @@ if(!base||new URL(base).port==='3000')throw new Error('Use an explicitly isolate
 const browser=await chromium.launch({channel:'chrome',headless:true,args:['--use-gl=angle','--use-angle=metal']});
 let page;
 try{
+ if(process.env.CORTEX_TEST_TRANSFER==='1'){const owner=await browser.newPage();await owner.goto(base);await expect(owner.getByRole('button',{name:'Walk front',exact:true})).toBeEnabled({timeout:60000});}
  page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{
   let input,destination;window.__replyChunks=0;
@@ -18,7 +19,9 @@ try{
  });
  const state=()=>page.evaluate(()=>fetch('/api/status').then(r=>r.json()));
  const until=async(fn,ms=25000)=>{const start=Date.now();while(!await fn()){if(Date.now()-start>ms)throw new Error('Voice assertion timeout: '+JSON.stringify(await state()));await page.waitForTimeout(100);}};
- await page.goto(base,{waitUntil:'networkidle'});await until(async()=>!!(await state()).robot);
+ await page.goto(base,{waitUntil:'networkidle'});
+ if(process.env.CORTEX_TEST_TRANSFER==='1'){await page.getByRole('button',{name:'Use this tab',exact:true}).click();await expect(page.getByRole('button',{name:'Walk front',exact:true})).toBeEnabled();}
+ await until(async()=>!!(await state()).robot);
  await page.getByTitle('Reset simulation').click();await until(async()=>(await state()).robot.pose.x< -2.8&&(await state()).robot.status==='idle');
  await page.getByRole('button',{name:'Connect microphone'}).click();await page.getByText('MIC LIVE',{exact:true}).waitFor({timeout:20000});
  const observations=[];
@@ -36,6 +39,6 @@ try{
  await say('stop');await until(async()=>(await state()).robot.status==='idle');
  await until(async()=>(await page.evaluate(()=>window.__replyChunks))>0);
  await page.getByRole('button',{name:'End microphone'}).click();expect(errors).toEqual([]);
- const result={at:new Date().toISOString(),passed:true,observations,replyChunks:await page.evaluate(()=>window.__replyChunks),errors,provenance:'Generated Rishi speech → actual browser MediaStream / PCM worklet → live Gradium via Pipecat → shared motion tools → isolated MuJoCo. Actual Gradium TTS reached browser playback. No human microphone or emotional-expression claim; model/Jev cloud disabled for deterministic motion checks.'};
+ const result={at:new Date().toISOString(),passed:true,afterControlTransfer:process.env.CORTEX_TEST_TRANSFER==='1',observations,replyChunks:await page.evaluate(()=>window.__replyChunks),errors,provenance:'Generated Rishi speech → actual browser MediaStream / PCM worklet → live Gradium via Pipecat → shared motion tools → isolated MuJoCo. Actual Gradium TTS reached browser playback. No human microphone or emotional-expression claim; model/Jev cloud disabled for deterministic motion checks.'};
  await writeFile('docs/live-browser-voice-results.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
 }finally{if(page)await page.locator('.stop-button').click().catch(()=>{});await browser.close();}

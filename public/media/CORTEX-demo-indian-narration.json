@@ -3,103 +3,103 @@
   "locale": "en-IN",
   "generated": true,
   "source": "CORTEX-demo-raw.webm",
-  "duration": 109.717,
+  "duration": 113.422,
   "chapters": [
     {
       "chapter": "CORTEX",
-      "start": 0,
+      "start": 0.001,
       "sourceAudioSeconds": 10.945488,
-      "tempo": 1.022751635208372,
-      "spokenEnd": 10.702000000000002,
-      "chapterEnd": 11.002
+      "tempo": 1.0214154535274356,
+      "spokenEnd": 10.716999999999999,
+      "chapterEnd": 11.017
     },
     {
       "chapter": "Step into the scene.",
-      "start": 11.002,
+      "start": 11.017,
       "sourceAudioSeconds": 5.98839,
       "tempo": 1,
-      "spokenEnd": 16.99039,
-      "chapterEnd": 18.283
+      "spokenEnd": 17.00539,
+      "chapterEnd": 19.705
     },
     {
       "chapter": "One set of tools. Keyboard or voice.",
-      "start": 18.283,
+      "start": 19.705,
       "sourceAudioSeconds": 7.623628,
       "tempo": 1,
-      "spokenEnd": 25.906628,
-      "chapterEnd": 27.236
+      "spokenEnd": 27.328628,
+      "chapterEnd": 28.947
     },
     {
       "chapter": "\u201cCome here.\u201d",
-      "start": 27.236,
+      "start": 28.947,
       "sourceAudioSeconds": 6.682268,
       "tempo": 1,
-      "spokenEnd": 33.918268,
-      "chapterEnd": 37.054
+      "spokenEnd": 35.629267999999996,
+      "chapterEnd": 38.949
     },
     {
       "chapter": "\u201cCome here.\u201d",
-      "start": 37.054,
-      "sourceAudioSeconds": 10.274286,
-      "tempo": 1.0415942822384427,
-      "spokenEnd": 46.918000000000006,
-      "chapterEnd": 47.218
+      "start": 38.949,
+      "sourceAudioSeconds": 9.949206,
+      "tempo": 1,
+      "spokenEnd": 48.898206,
+      "chapterEnd": 49.388
     },
     {
       "chapter": "Same words. Different voice. Different physical policy.",
-      "start": 47.218,
-      "sourceAudioSeconds": 9.714966,
-      "tempo": 1,
-      "spokenEnd": 56.93296600000001,
-      "chapterEnd": 57.979
+      "start": 49.388,
+      "sourceAudioSeconds": 10.794694,
+      "tempo": 1.0153022949586152,
+      "spokenEnd": 60.02,
+      "chapterEnd": 60.32
     },
     {
       "chapter": "Hesitation changes the response, too.",
-      "start": 57.979,
-      "sourceAudioSeconds": 6.593288,
+      "start": 60.32,
+      "sourceAudioSeconds": 6.893787,
       "tempo": 1,
-      "spokenEnd": 64.572288,
-      "chapterEnd": 65.26
+      "spokenEnd": 67.213787,
+      "chapterEnd": 68.087
     },
     {
       "chapter": "\u201cWhere did you last see my backpack?\u201d",
-      "start": 65.26,
+      "start": 68.087,
       "sourceAudioSeconds": 8.263356,
       "tempo": 1,
-      "spokenEnd": 73.523356,
-      "chapterEnd": 74.891
+      "spokenEnd": 76.350356,
+      "chapterEnd": 77.837
     },
     {
       "chapter": "\u201cTake me there.\u201d",
-      "start": 74.891,
+      "start": 77.837,
       "sourceAudioSeconds": 4.183764,
       "tempo": 1,
-      "spokenEnd": 79.074764,
-      "chapterEnd": 80.894
+      "spokenEnd": 82.020764,
+      "chapterEnd": 83.84
     },
     {
       "chapter": "\u201cWAIT! STOP!\u201d",
-      "start": 80.894,
+      "start": 83.84,
       "sourceAudioSeconds": 8.738549,
       "tempo": 1,
-      "spokenEnd": 89.63254900000001,
-      "chapterEnd": 90.666
+      "spokenEnd": 92.57854900000001,
+      "chapterEnd": 94.06
     },
     {
       "chapter": "\u201cContinue, but slowly.\u201d",
-      "start": 90.666,
-      "sourceAudioSeconds": 7.943537,
+      "start": 94.06,
+      "sourceAudioSeconds": 6.64322,
       "tempo": 1,
-      "spokenEnd": 98.609537,
-      "chapterEnd": 99.18
+      "spokenEnd": 100.70322,
+      "chapterEnd": 102.9
     },
     {
       "chapter": "CORTEX \u00b7 Hear the human behind the instruction.",
-      "start": 99.18,
+      "start": 102.9,
       "sourceAudioSeconds": 10.282222,
-      "tempo": 1.0044175051284565,
-      "spokenEnd": 109.417,
-      "chapterEnd": 109.717
+      "tempo": 1.005891410682842,
+      "spokenEnd": 113.122,
+      "chapterEnd": 113.422
     }
   ]
 }

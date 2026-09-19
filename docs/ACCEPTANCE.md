@@ -1,63 +1,55 @@
-# Acceptance record
+# Current acceptance record
 
-This record separates exercised implementation from credential-dependent and capture-dependent acceptance. A passing fixture test is not described as a live Gradium pass.
+Updated against the merged Gradium/Pipecat, Painted Ladies and MuJoCo build on 2026-09-19. Hume, AgentX, Isaac Sim and Yerba Buena are superseded by the user's later instructions. A passing fixture test is never treated as a live microphone or photorealism pass.
 
-| User test | Result | Evidence |
+## Required demonstrations
+
+| Requirement | Current result | Authoritative evidence and limits |
 |---|---|---|
-| A: real same words, different vocal expression | **Human microphone trial pending; real Gradium with generated audio passed** | Identical real Gradium transcripts at two generated-audio amplitudes selected different policies and MuJoCo displacement; see live-motion-results.json. Human delivery and emotion interpretation remain unverified. |
-| B: robot looks like real footage | **Not passed** | Authored full-depth Painted Ladies plus DataSF neighborhood geometry. The previous partial scan is hidden. Current buildings still look rendered; a blind photorealism review has not passed. |
-| C: voice STOP | **Fixture and real Gradium/generated-audio stop passed; human microphone pending** | Runtime integration test observes stop latch and records reflex, acknowledgement and physical settling durations. No speech latency is fabricated. |
-| D: real stored memory retrieval | **Local capture/retrieval passed; Memories.ai live pending** | Browser test captures a real frame, retrieves that exact event ID, and checks the response. Labels are operator supplied. |
-| E: navigate from memory | **Local evidence path passed** | Retrieved PLANTER waypoint causes real MuJoCo movement. |
-| F: safety clamps and rejects malformed actions | **Passed in simulation tests** | Speed clamp, invalid numbers, unknown waypoint, confirmation gate, stale command, stale telemetry, obstacle hold, stop race, and independent watchdog. |
-| G: optional providers unavailable | **Core fixture path passed** | All optional keys absent; hard-rule reflex and visibly labeled local/DEMO planning and memory work. Live Gradium with explicitly local planning is verified; remote-provider failure coverage remains limited. |
+| Same words, different delivery → different physical policy | **DEMO passes; current live acceptance not met** | Synthetic calm/urgent profiles select .55/.90 m/s limits and produce different MuJoCo displacement. The current live conversation/direct-motion path uses neutral policy defaults; it does not reproduce the earlier live acoustic-policy test. Human vocal delivery has not been validated. |
+| Photorealistic, full 3D Painted Ladies | **3D depth implemented; photorealism not passed** | Modeled roofs, side walls, bays, glass, park, cars, lighting and shadowing; 355 DataSF background footprints. Actual renders still look computer generated. No blind realism review has passed. [Scene status](SCENE_STATUS.md). |
+| Voice STOP while moving | **Live Gradium with generated audio passes; human microphone trial pending** | [Live browser voice results](live-browser-voice-results.json): generated speech flows through the browser MediaStream/worklet, actual Pipecat/Gradium and actual isolated MuJoCo. STOP cancels current motion and returns to idle; a new explicit command can move without a separate resume. |
+| Stored visual memory retrieval | **Local frame capture/retrieval passes; Memories.ai live round trip incomplete** | [Browser results](browser-results.json) checks a retrieved sighting's ID against the captured event. Object/location labels are operator annotations. Current Datalake collection creation reported insufficient account balance; [provider evidence](local-memory-results.json). |
+| Navigate from retrieved memory | **Local evidence path passes** | Browser test retrieves a persisted scene frame, requests “Take me there,” and observes actual MuJoCo navigation to PLANTER. Cloud visual indexing is not established by this test. |
+| Keyboard and voice share reusable motion tools | **Passes in simulation** | [Keyboard results](keyboard-results.json): all WASD directions, 180° backward turn, key release, blur, Space, turning and named target. [Live browser voice results](live-browser-voice-results.json): forward, stop, right turn and back. Both use `MotionTools` and `SafetyGovernor`. |
+| Safety bounds and cancellation | **Passes in simulation tests** | Hard speed clamp, stale telemetry/commands, obstacle checks, watchdog, key lease, malformed tool rejection, and stop/reset/awaited-turn races. This is not hardware certification. |
+| Optional provider failure | **Deterministic/local paths pass** | Directional commands and stop work without inference keys; absent or slow Jev uses labeled local rules. Memory and conversation failures are exposed. Not every provider outage combination has been exercised. |
+| Reality / CORTEX modes and 60° view | **Implemented and browser-tested** | Fullscreen reveal, phone-height hero camera, orbit/parallax, visible telemetry and provider modes. Scene/telemetry regression verifies that a missing pose does not render a robot below ground. |
 
-## Executed checks
+## Provider and runtime status
 
-- 16 TypeScript tests: same-words policy behavior, acoustic measurement validation, direct STOP, velocity clamping, confirmation, stop latch, stale telemetry/commands, obstacles, stop/navigation race, stop/reset race, tool validation, memory reference constraints, resume preserves the interrupted destination, fearful input stops before confirmation, STOP preempts spoken confirmation, evidence-bound follow-up planning, anxious memory confirmation/navigation, and measured-timing null semantics (some assertions share one test).
-- 4 Python physics tests: frozen gait walking and stopping, independent watchdog, malformed commands, speed clamp, and calm/urgent physical distance difference.
-- Waypoint rollouts: PERSON, PLANTER, BENCH and DOOR reach their stopping radii while upright; return HOME from PERSON also completes. BACKPACK aliases PLANTER. Actual poses in `waypoint-results.json`.
-- WebSocket integration: calm/urgent movement, fast stop, fearful confirmation, deliberate slow resume. Exact observed durations in `integration-results.json`.
-- Playwright/Chrome: desktop UI, stored-frame identity, memory navigation, Reality reveal, keyboard stop, confirmation cancellation, and mobile horizontal overflow. `browser-results.json`.
-- TypeScript typecheck and optimized Next production build.
+| Component | Verified scope | Outstanding scope |
+|---|---|---|
+| Gradium + Pipecat | Actual cloud STT and TTS; PCM worklet path; interim stop; request-correlated playback; generated Indian English input | Human microphone trial; live expression-conditioned motion in the current neutral-default path |
+| General Compute | Incoming branch includes authenticated conversation and spatial-grounding evidence; selectable configured provider | Fresh end-to-end live model-planned movement is not proved by the latest deterministic motion tests |
+| SambaNova | Structured adapter and shared tool schemas; mocked model tests | No SambaNova credential or live RDU inference verification in this checkout |
+| Memories.ai | Current Datalake adapter and auth/collection checks; local evidence binding; indexing failure handling | Account credits and successful live upload → indexing → retrieval |
+| Jev | Prior authenticated constrained decision; actual request exceeded the 180 ms deadline and correctly fell back | Reliable live decisions within the configured reflex deadline |
+| EdgeOne | Modular execution adapter and local health check | Deployed/authenticated EdgeOne runtime and public URL |
+| MuJoCo / G1 | Existing frozen Unitree policy; real dynamics, joints, contacts, turns, walking and stopping | Real hardware intentionally outside this simulation demo |
+| Painted Ladies environment | Authored 3D geometry, approximate DataSF alignment, CC0 materials and lighting, attributed hidden scan | High-resolution licensed capture/reconstruction with broad view coverage and photorealism acceptance |
 
-## Numeric evidence and limits
+## Current checks
 
-The deterministic physics test steps 4.0 simulated seconds per policy from the same reset:
+- **52 TypeScript tests** cover conversation history/tools/cancellation, explicit command parsing, spoken quantities, policy fixtures, safety, memory evidence binding and playback epochs.
+- **8 MuJoCo physics tests** cover actual gait motion, turning, stop-to-idle behavior, geometry-based clearance, bounds, stale commands and renewable key leases.
+- **4 Pipecat tests** use local Gradium-protocol doubles for acoustic measurements, speech events and TTS request correlation. They do not claim cloud service access.
+- **Optimized production build and TypeScript check** passed after merging current `main`.
+- **Full browser suite** passes: desktop/mobile layout, fixture policies, confirmation, actual local frame retrieval, memory navigation, Reality mode, Space stop and 3D inspection. See `browser-results.json`.
+- **Keyboard browser suite** passes against actual isolated MuJoCo. See `keyboard-results.json`.
+- **Multi-tab transfer regression** passes against actual isolated MuJoCo: explicit handoff, revoked-tab closure, reload and stop during transfer. Render animation is disabled for this control/transport test; see `control-transfer-results.json`.
+- **Live browser voice test** passes using generated audio, live Gradium and actual isolated MuJoCo. No transcript fixture is used in this test. See `live-browser-voice-results.json`.
+- **Playback browser test** verifies immediate cancellation, old-packet rejection and next-reply recovery using actual AudioContext scheduling with routed sockets. See `playback-browser-results.json`.
+- **Telemetry display regression** covers absent → present → absent poses and a rejected second control tab. The robot uses measured qpos; no artificial height correction conceals an alignment error. See `scene-telemetry-results.json`.
 
-| Input policy | Distance traveled | Result |
-|---|---:|---|
-| Calm, .55 m/s ceiling | 1.881247 m | Upright |
-| Urgent, .90 m/s ceiling | 2.979501 m | Upright |
+## Presentation artifacts
 
-The wall-clock integration test has different distances because startup, acceleration, Python pacing and process scheduling affect elapsed simulated time. Compare only runs sharing the same timing basis. The video shows actual telemetry at recording time.
+The README, five-page pitch and narrated demo disclose simulation, synthetic acoustic profiles, operator-labeled memory and provider limits. The Indian English narrator is generated macOS Rishi speech; the configured live Gradium voice is Michelle. They are separate outputs.
 
-The robot reports a stop acknowledgement when it accepts a zero-motion goal. Physical settling is defined separately as base velocity below .08 m/s for three consecutive ~10 Hz telemetry samples. It can take substantially longer than acknowledgement. Neither duration is a hardware safety guarantee.
+The video is application footage, not proof of a live provider run. Validation details, exact streams, duration and file hash are in `indian-video-validation.json`; narration timing is in `public/media/CORTEX-demo-indian-narration.json`.
 
-Earlier fixture runs did not measure provider latency. Later authenticated Gradium and Jev measurements are recorded in the linked live evidence files. No simulation screenshot has passed an independent photorealism review. No real robot, model training, grasping or public cloud deployment was performed.
+## Historical evidence
 
-The combined emotion + memory path is tested with the exact fixture transcript “Where is my backpack? I really need it.” Retrieval supplies a fresh evidence event to a bounded planning round. Its navigation target must match that event; distress still requires confirmation. Provider inference for this path remains unverified without credentials.
+`live-motion-results.json` records an earlier successful generated-audio intensity comparison through Gradium (.55/.90 m/s policies, 1.429/2.222 m over three simulated seconds). **The current live command path changed to neutral defaults, so this is not current acceptance evidence.** Older stop-latch language, test counts and screenshots similarly describe earlier revisions. Prefer the current behavior and the dated records above.
 
-## Gradium / Pipecat migration
-
-Three Python voice tests validate measured PCM energy, no invented state for silence, and the actual Pipecat pipeline against a local Gradium-protocol test double (interim/final text, flush, raw event retention). Four physics tests include park-curb clearance from the actual collision model. Browser inspection checks camera position changes when orbiting the Painted Ladies photogrammetric scene. These are local tests, not live cloud-provider or photorealism acceptance claims.
-
-## Current shared-motion snapshot
-
-19 TypeScript tests and 7 MuJoCo physics tests passed. Real simulated turns converge within 0.16 radians with under 0.3 m displacement. Lease expiry is checked independently of telemetry health. Typecheck passed. Latest browser run timed out; keyboard browser verification and production build for these changes remain pending. Historical results above describe earlier revisions. The current scene was rejected by the user as insufficiently realistic.
-
-## Latest verification
-
-The isolated production build passed. Both browser suites passed: full UI/memory/confirmation/stop flow and shared keyboard/voice-planner controls (see browser-results.json and keyboard-results.json). Real Gradium through the actual Pipecat sidecar recognized generated audio as “come here.” with interim and final events; measured acoustic fields were preserved (gradium-live-results.json). This is a cloud speech integration pass, not a microphone or emotional-perception validation. The default scene now uses full-depth authored architecture; photorealism remains unpassed.
-
-## Live Gradium to physical policy
-
-`docs/live-motion-results.json` records a successful cloud-to-simulation test: generated “Come here” audio at two amplitudes produced identical real Gradium transcripts. Moderate intensity selected 0.55 m/s and traveled 1.429 m in 3 simulated seconds; high intensity selected 0.90 m/s and traveled 2.222 m. Both runs remained upright. An interim real “wait,” transcript latched the independent stop path, with actual measured timing. The planner/reflex in this isolated test were explicitly deterministic, not live SambaNova/Jev. This is not a human microphone, emotion-recognition, or photorealism pass.
-
-Final check for this revision: 20 TypeScript tests and 7 MuJoCo physics tests passed; typecheck and optimized production build passed; refreshed browser/keyboard suites passed. The 109.72-second demo MP4 has 1920×1080 video and an audio track; capture reported zero browser errors.
-
-## Current speech output and presentation
-
-Live Gradium TTS through Pipecat returned valid 48 kHz PCM using the Michelle Indian English catalog voice. `gradium-tts-live-results.json` records audio duration, chunk count, first-audio latency and scope limitations.
-
-The Indian English narrated demo is 109.72 seconds at 1920 × 1080, with 12 captions and verified browser playback/full decode (`indian-video-validation.json`). It uses existing synthetic-profile footage, not a human-microphone recording. Latest neighborhood refinement passed production build and read-only browser rendering checks (`scene-neighborhood-validation.json`); photorealism remains unpassed.
+Command acknowledgement and physical settling are distinct measurements. Settling is velocity below .08 m/s for three telemetry samples; it is not a physical-robot safety guarantee. No confidence score, human emotion judgment, public deployment, grasping, or indistinguishable-from-reality claim is supported by this record.

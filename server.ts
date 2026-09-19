@@ -20,13 +20,24 @@ const server=createServer(async(req,res)=>{
 });
 const wss=new WebSocketServer({noServer:true,maxPayload:9_000_000});
 server.on('upgrade',(req,socket,head)=>{
- if(req.url!=='/ws'){if(dev)app.getUpgradeHandler()(req,socket,head);else socket.destroy();return;}
+ if(new URL(req.url??'/',`http://localhost:${port}`).pathname!=='/ws'){if(dev)app.getUpgradeHandler()(req,socket,head);else socket.destroy();return;}
  const origin=req.headers.origin;
  if(origin&&origin!==`http://127.0.0.1:${port}`&&origin!==`http://localhost:${port}`){socket.destroy();return;}
- wss.handleUpgrade(req,socket,head,ws=>wss.emit('connection',ws));
+ wss.handleUpgrade(req,socket,head,ws=>wss.emit('connection',ws,req));
 });
-wss.on('connection',ws=>{
- if(client&&client.readyState===WebSocket.OPEN){ws.close(1008,'One operator at a time');return;}
+// Serialize admission and disconnect stops: an old tab's asynchronous cleanup
+// must never stop or clear a newly granted controller.
+let admission=Promise.resolve();
+wss.on('connection',(ws,req)=>{
+ admission=admission.then(async()=>{
+  if(ws.readyState!==WebSocket.OPEN)return;
+  const takeover=new URL(req.url??'/ws',`http://localhost:${port}`).searchParams.get('takeover')==='1';
+  if(client?.readyState===WebSocket.OPEN&&!takeover){ws.close(1008,'One operator at a time');return;}
+  if(client){const previous=client;client=null;previous.close(1008,'Control moved to another tab');await runtime.stop('Control transferred between tabs');}
+  if(ws.readyState===WebSocket.OPEN)connectOperator(ws);
+ }).catch(error=>{runtime.fail(error);ws.close(1011,'Control transfer failed');});
+});
+function connectOperator(ws:WebSocket){
  client=ws;runtime.clientBeat=Date.now();runtime.emit();let commandQueue=Promise.resolve();let controlEpoch=0;
  let speechGeneration=0;const speech=new SpeechResponses();
  function interruptSpeech(){
@@ -35,12 +46,13 @@ wss.on('connection',ws=>{
   if(ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({type:'voice_interrupted'}));
  }
  function speakReply(generation:number){
-  if(generation!==speechGeneration||!process.env.GRADIUM_VOICE_ID||runtime.state.providers.GRADIUM.mode!=='LIVE')return;
+  if(client!==ws||generation!==speechGeneration||!process.env.GRADIUM_VOICE_ID||runtime.state.providers.GRADIUM.mode!=='LIVE')return;
   const reply=speech.begin();
   ws.send(JSON.stringify({type:'voice_reply',text:runtime.state.response,...reply}));
   gradium.send({type:'speak',text:runtime.state.response,...reply});
  }
  const gradium=new GradiumBridge(raw=>{
+  if(client!==ws)return;
   const event=raw as {type?:string;message?:string;interim?:boolean;transcript?:string;requestId?:string};
   if(event.type==='voice_audio'){const reply=speech.match(event.requestId);if(reply&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({...event,voiceEpoch:reply.voiceEpoch}));return;}
   if(event.type==='error'){runtime.fail(event.message??'Pipecat voice error');return;}
@@ -52,11 +64,13 @@ wss.on('connection',ws=>{
    if(event.type==='voice_turn'&&(!event.interim||isStop))speakReply(generation);
   }).catch(e=>{if(generation===speechGeneration)runtime.fail(e);});
  },status=>{
+  if(client!==ws)return;
   if(status==='LIVE'){runtime.state.mode='REAL';runtime.state.providers.GRADIUM.mode='LIVE';runtime.state.providers.PIPECAT={mode:'LIVE',active:true};ws.send(JSON.stringify({type:'gradium_ready'}));}
   else if(status==='OFFLINE'){runtime.state.providers.GRADIUM.mode='OFFLINE';runtime.state.providers.PIPECAT={mode:'OFFLINE',active:false};ws.send(JSON.stringify({type:'gradium_closed'}));void runtime.stop('Voice connection closed').catch(e=>runtime.fail(e));}
   else runtime.fail(status);runtime.emit();
  });
  ws.on('message',async data=>{try{
+  if(client!==ws)return;
   const raw=JSON.parse(data.toString());speech.observe(raw.voiceEpoch);
   if(raw.type==='mic_start'){gradium.connect();return;}
   if(raw.type==='mic_stop'){interruptSpeech();gradium.close();if(process.env.CORTEX_MODE!=='REAL'){runtime.state.mode='DEMO';runtime.state.providers.GRADIUM.mode='DEMO';}return;}
@@ -70,9 +84,14 @@ wss.on('connection',ws=>{
   if(raw.type==='stop'||raw.type==='reset'||(raw.type==='text'&&stopWords(String(raw.text??'')))||(raw.type==='fixture'&&raw.name==='stop')){controlEpoch++;interruptSpeech();const generation=speechGeneration;const action=runtime.command(raw);if(raw.type==='reset')commandQueue=action.catch(e=>runtime.fail(e));await action;speakReply(generation);return;}
   if(raw.type==='text'){interruptSpeech();const generation=speechGeneration;await runtime.command(raw);speakReply(generation);return;}
   if(raw.type==='tool')interruptSpeech();
-  const token=controlEpoch;commandQueue=commandQueue.then(async()=>{if(token===controlEpoch)await runtime.command(raw);}).catch(e=>runtime.fail(e));await commandQueue;
+  const token=controlEpoch;commandQueue=commandQueue.then(async()=>{if(client===ws&&token===controlEpoch)await runtime.command(raw);}).catch(e=>runtime.fail(e));await commandQueue;
  }catch(e){runtime.fail(e);}});
- ws.on('close',()=>{runtime.interruptConversation();client=null;gradium.close();runtime.clientBeat=0;void runtime.stop('Operator disconnected').catch(e=>runtime.fail(e));});
-});
+ ws.on('close',()=>{
+  const owned=client===ws;if(owned)client=null;gradium.close();
+  if(!owned)return;
+  runtime.interruptConversation();runtime.clientBeat=0;
+  admission=admission.then(()=>runtime.stop('Operator disconnected')).catch(e=>runtime.fail(e));
+ });
+}
 setInterval(()=>void runtime.poll(),100);
 server.listen(port,'127.0.0.1',()=>console.log(`CORTEX http://localhost:${port}`));

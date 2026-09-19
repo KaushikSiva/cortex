@@ -1,6 +1,6 @@
 {
   "file": "public/media/CORTEX-demo-indian.mp4",
-  "sha256": "8c91365529d3cd2554a72d3b789c176bd6efa0642f28b99de3cd7fcd6ff895c7",
+  "sha256": "871d72bfda5fb73ee4eb74cbf82c1bb0f3ea8240eeb24357f92ec408d0b223bf",
   "probe": {
     "programs": [],
     "stream_groups": [],
@@ -19,17 +19,17 @@
       }
     ],
     "format": {
-      "duration": "109.720000",
-      "size": "28267850"
+      "duration": "113.440000",
+      "size": "35303298"
     }
   },
   "browserPlayback": {
     "result": {
       "source": "http://localhost:3000/media/CORTEX-demo-indian.mp4",
-      "duration": 109.72,
+      "duration": 113.44,
       "width": 1920,
       "height": 1080,
-      "playedTo": 0.522891,
+      "playedTo": 0.317505,
       "captionLabel": "Indian English narration",
       "cues": 12,
       "error": null
@@ -37,13 +37,17 @@
     "errors": []
   },
   "audioMeasured": {
-    "integratedLufs": -16.32,
-    "truePeakDbtp": -1.39,
-    "loudnessRangeLu": 2.9
+    "integratedLufs": -16.34,
+    "truePeakDbtp": -1.38,
+    "loudnessRangeLu": 4.1
   },
   "chapters": 12,
-  "maxAudioTempo": 1.0415942822384427,
+  "maxAudioTempo": 1.0214154535274356,
   "chapterOverlaps": 0,
   "fullDecode": "ffmpeg -v error -i public/media/CORTEX-demo-indian.mp4 -f null -; exit 0",
-  "limits": "Generated Rishi en-IN narration over existing application recording; synthetic acoustic profiles and local planning, not a live microphone validation. Scene predates ongoing neighborhood refinement."
+  "pitch": {
+    "pages": 5,
+    "sha256": "f543da9f6e1acc49f14a16b50ca8218d69841cfe065f78812f33eda44940ba33"
+  },
+  "limits": "Generated Rishi en-IN narration over fresh current application footage. Synthetic policy fixtures and local planning/memory, not a human-microphone or cloud-planning validation. Authored 3D study; photorealism not passed."
 }

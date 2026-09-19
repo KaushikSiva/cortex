@@ -1,10 +1,11 @@
 {
-  "at": "2026-09-19T22:48:24.411Z",
+  "at": "2026-09-19T23:21:12.397Z",
   "passed": true,
+  "afterControlTransfer": true,
   "observations": [
     {
       "command": "forward",
-      "transcript": "move forward to meters.",
+      "transcript": "Move forward two meters.",
       "plan": [
         {
           "name": "walk",
@@ -15,23 +16,23 @@
         }
       ],
       "pose": {
-        "x": -2.698982767270193,
-        "y": -0.0422783661000709,
-        "yaw": -0.031764648819768385
+        "x": -2.7131754813332396,
+        "y": -0.04867099975781691,
+        "yaw": -0.03141720667361842
       }
     },
     {
       "command": "stop while moving",
       "transcript": "Stop.",
       "pose": {
-        "x": -2.1432575450545874,
-        "y": -0.0774086416361478,
-        "yaw": -0.031721179738881056
+        "x": -2.0632295286052864,
+        "y": -0.06706960871030465,
+        "yaw": -0.03776808723038446
       },
       "metrics": [
         {
           "name": "Voice → transcript",
-          "ms": 1095.1692079999993,
+          "ms": 1229.9731660000107,
           "basis": "Server clock · VAD chunk receipt to provider/robot events"
         },
         {
@@ -41,7 +42,7 @@
         },
         {
           "name": "Transcript → reflex",
-          "ms": 0.14595900000131223,
+          "ms": 0.304333999985829,
           "basis": "Server clock · VAD chunk receipt to provider/robot events"
         },
         {
@@ -51,7 +52,7 @@
         },
         {
           "name": "Command → acknowledgement",
-          "ms": 2.8567499999990105,
+          "ms": 3.334583999996539,
           "basis": "Server clock · VAD chunk receipt to provider/robot events"
         },
         {
@@ -61,7 +62,7 @@
         },
         {
           "name": "End to end",
-          "ms": 1098.3995419999992,
+          "ms": 1233.6227500000095,
           "basis": "Server clock · VAD chunk receipt to provider/robot events"
         }
       ]
@@ -78,9 +79,9 @@
         }
       ],
       "pose": {
-        "x": -2.0204878833429243,
-        "y": -0.21339298899190504,
-        "yaw": -1.5318553845562697
+        "x": -1.9610314144862349,
+        "y": -0.2021538303460839,
+        "yaw": -1.5263638241318829
       }
     },
     {
@@ -96,9 +97,9 @@
         }
       ],
       "pose": {
-        "x": -2.221631115039006,
-        "y": -0.18436797767405314,
-        "yaw": 1.68601983707422
+        "x": -2.1577563378244995,
+        "y": -0.16764675604844895,
+        "yaw": 1.6862597276005737
       }
     }
   ],

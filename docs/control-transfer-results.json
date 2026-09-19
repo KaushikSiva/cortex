@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "renderAnimation": "disabled for control regression; separate visual coverage",
+  "at": "2026-09-19T23:20:07.240Z",
+  "movedMeters": 0.6667595745179604,
+  "tests": [
+    "second tab is read only",
+    "explicit transfer enables keyboard controls",
+    "previous owner becomes read only",
+    "former tab closure cannot interrupt new owner",
+    "reload restores controls",
+    "transfer while walking stops robot before handoff"
+  ],
+  "pageErrors": []
+}

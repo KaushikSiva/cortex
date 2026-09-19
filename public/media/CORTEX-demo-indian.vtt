@@ -2,38 +2,38 @@ WEBVTT
 
 NOTE Hidden reference scan: jtressle, CC BY 4.0. https://sketchfab.com/3d-models/san-francisco-painted-ladies-cf5aeb7fb0ac4152b43f72ce1dac60d6
 
-00:00:00.000 --> 00:00:11.002
+00:00:00.001 --> 00:00:11.017
 Meet Cortex. Same words, different robot behavior. This demo uses synthetic vocal profiles, real MuJoCo physics, and a modeled San Francisco scene.
 
-00:00:11.002 --> 00:00:18.283
+00:00:11.017 --> 00:00:19.705
 Explore the Painted Ladies in three dimensions, with modeled buildings and a bounded walking area.
 
-00:00:18.283 --> 00:00:27.236
+00:00:19.705 --> 00:00:28.947
 Keyboard and voice share the same tools. Turn, walk, or stop. The robot faces its direction before moving.
 
-00:00:27.236 --> 00:00:37.054
+00:00:28.947 --> 00:00:38.949
 First, calmly: Come here. The robot approaches at a moderate pace and maintains personal space.
 
-00:00:37.054 --> 00:00:47.218
-Now reset. Come here! Same words, different vocal intensity. Priority increases, and the robot walks faster, within its safety limits.
+00:00:38.949 --> 00:00:49.388
+Now reset. Come here! The urgent demo profile uses the same words. Priority increases, and the robot walks faster within its safety limits.
 
-00:00:47.218 --> 00:00:57.979
-Inside Cortex, acoustic cues become a visible behavior policy. Gradium and Pipecat power the live voice path. This recording uses local planning.
+00:00:49.388 --> 00:01:00.320
+Inside Cortex, synthetic acoustic profiles select visible policies. Live Gradium and Pipecat commands use the same movement tools, with neutral speed defaults.
 
-00:00:57.979 --> 00:01:05.260
-A hesitant profile makes the robot wait for confirmation, approach slowly, and leave more personal space.
+00:01:00.320 --> 00:01:08.087
+In the demo, a hesitant profile asks for confirmation, approaches slowly, and leaves more personal space.
 
-00:01:05.260 --> 00:01:14.891
+00:01:08.087 --> 00:01:17.837
 Where did you last see my backpack? Cortex retrieves a saved camera frame and its operator-labeled location: beside the planter.
 
-00:01:14.891 --> 00:01:20.894
+00:01:17.837 --> 00:01:23.840
 Take me there. The remembered location becomes a navigation target.
 
-00:01:20.894 --> 00:01:30.666
+00:01:23.840 --> 00:01:34.060
 Wait! Stop! The fast reflex bypasses planning and stops the robot. The trace separates command acknowledgement from physical settling.
 
-00:01:30.666 --> 00:01:39.180
-Continue, but slowly. An explicit resume releases the stop and lowers the speed limit. Safety always takes priority.
+00:01:34.060 --> 00:01:42.900
+Continue, but slowly. The robot resumes its journey with a lower speed limit. Safety checks remain active.
 
-00:01:39.180 --> 00:01:49.717
+00:01:42.900 --> 00:01:53.422
 Cortex connects voice, memory, and safe action, with a SambaNova integration for high-level planning. Shared tools turn human intent into robot movement.
