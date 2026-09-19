@@ -29,7 +29,7 @@
       "duration": 113.44,
       "width": 1920,
       "height": 1080,
-      "playedTo": 0.305258,
+      "playedTo": 0.351626,
       "captionLabel": "Indian English narration",
       "cues": 12,
       "error": null
@@ -47,7 +47,7 @@
   "fullDecode": "ffmpeg -v error -i public/media/CORTEX-demo-indian.mp4 -f null -; exit 0",
   "pitch": {
     "pages": 5,
-    "sha256": "f543da9f6e1acc49f14a16b50ca8218d69841cfe065f78812f33eda44940ba33"
+    "sha256": "a9caf510dcfc351b2fcc53f8674e46c76756cf2b8f3e92d7a1d9b55559de8bfd"
   },
   "limits": "Generated Rishi en-IN narration over fresh current application footage. Synthetic policy fixtures and local planning/memory, not a human-microphone or cloud-planning validation. Authored 3D study; photorealism not passed."
 }
