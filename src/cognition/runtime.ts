@@ -32,9 +32,13 @@ export class CortexRuntime{
     if(name==='inspect_scene'){const robot=await this.robot.getState();signal.throwIfAborted();this.state.robot=robot;return {robot,navigation:this.getNavigationContext(),mission:this.state.plan,pendingConfirmation:this.state.pendingConfirmation};}
     if(name==='search_memory'){
      this.state.providers.MEMORIES.active=true;this.trace('MEMORIES','Searching stored camera evidence');
-     try{const evidence=await this.memory.searchVisualMemory(String(args.query),!!process.env.MEMORIES_API_KEY);
-      signal.throwIfAborted();this.state.memory=evidence[0]??null;this.state.providers.MEMORIES.mode=process.env.MEMORIES_API_KEY?'LIVE':'DEMO';
+     try{const live=!!process.env.MEMORIES_API_KEY;const evidence=await this.memory.searchVisualMemory(String(args.query),live);
+      signal.throwIfAborted();this.state.memory=evidence[0]??null;this.state.providers.MEMORIES.mode=live?'LIVE':'LOCAL';
       this.trace('MEMORIES',`Retrieved ${evidence.length} stored sightings`);return {evidence};
+     }catch(error){
+      const evidence=await this.memory.searchVisualMemory(String(args.query),false);
+      signal.throwIfAborted();this.state.memory=evidence[0]??null;this.state.providers.MEMORIES.mode='LOCAL';
+      this.trace('MEMORIES',`Memories.ai unavailable · local search fallback (${error instanceof Error?error.message:'provider error'})`);return {evidence};
      }finally{this.state.providers.MEMORIES.active=false;}
     }
     if(this.manualSession)await this.endManual(this.manualSession);
