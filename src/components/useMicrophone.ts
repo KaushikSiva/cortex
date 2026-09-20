@@ -22,7 +22,11 @@ export function useMicrophone(send:(message:unknown)=>void){
   const ctx=context.current;if(!ctx||!acceptAudio.current)return;
   const bytes=Uint8Array.from(atob(audio),c=>c.charCodeAt(0));if(bytes.byteLength%2)return;
   const samples=new Int16Array(bytes.buffer),buffer=ctx.createBuffer(1,samples.length,sampleRate),channel=buffer.getChannelData(0);for(let i=0;i<samples.length;i++)channel[i]=samples[i]/32768;
-  const source=ctx.createBufferSource();source.buffer=buffer;source.connect(ctx.destination);const at=Math.max(ctx.currentTime+.02,playAt.current);source.start(at);playAt.current=at+buffer.duration;sources.current.push(source);source.onended=()=>{sources.current=sources.current.filter(s=>s!==source);};
+  const source=ctx.createBufferSource();source.buffer=buffer;
+  // Gradium returns clean PCM at a conservative level; add a modest output
+  // gain so spoken responses remain audible over the simulator ambience.
+  const output=ctx.createGain();output.gain.value=1.5;source.connect(output);output.connect(ctx.destination);
+  const at=Math.max(ctx.currentTime+.02,playAt.current);source.start(at);playAt.current=at+buffer.duration;sources.current.push(source);source.onended=()=>{sources.current=sources.current.filter(s=>s!==source);};
  }
  function stop(notify=true){pending.current=false;silence();node.current?.disconnect();node.current=null;media.current?.getTracks().forEach(t=>t.stop());media.current=null;void context.current?.close();context.current=null;setListening(false);setLevel(0);if(notify)send({type:'mic_stop'});}
  return {prepare,begin,stop,play,silence,allowPlayback,listening,level};
