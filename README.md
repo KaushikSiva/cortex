@@ -30,6 +30,8 @@ Hold **W/A/S/D** or **arrow keys** to walk front/left/back/right relative to the
 
 Say “move left one meter,” “turn right,” or “walk to the bench.” `turn`, `walk`, and `walk_to` are schema-validated shared tools. Explicit direction and named-target commands use these shared tools directly; conversational requests can select them through the configured inference provider. All motion passes the Jev/local reflex gate. With no credentials, the UI labels the deterministic planner DEMO and the reflex LOCAL. Keyboard commands use a renewable 650 ms lease, independent of the normal telemetry heartbeat.
 
+Say **“dance”** (or use the Dance button) to run a short, eight-beat maximum in-place choreography. It reuses the validated turn primitive, is capped to a low speed, and passes through the same Jev/local reflex gate and SafetyGovernor as every other motion.
+
 If the status says **VIEW ONLY**, another tab owns control. Click **Use this tab** above the movement controls to transfer keyboard and voice control. CORTEX stops the previous session before granting the new one.
 
 **Current validation:** 54 TypeScript tests, 8 MuJoCo physics tests and 4 Pipecat tests pass. The actual-browser keyboard suite checks all four walking directions, turn-before-walk, key release, blur, Space stop and waypoint navigation. [Keyboard results](docs/keyboard-results.json).
@@ -78,7 +80,7 @@ Microphone PCM → Pipecat → Gradium streaming STT
 
 **Orchestration · Pipecat.** A Python pipeline handles PCM audio, transcription frames, turn boundaries, interruption, and speech output. Structured robot planning stays in the TypeScript control runtime, across a deliberate safety boundary.
 
-**Memory · Memories.ai.** Captured camera evidence is indexed locally in DEMO or uploaded in REAL mode. A provider evidence ID must match a recorded waypoint before a retrieved sighting can authorize navigation. No invented confidence scores.
+**Memory · Memories.ai / local backup.** Captured camera evidence is indexed locally in DEMO or uploaded in REAL mode. When Memories.ai is unavailable or out of credits, the runtime transparently labels the local fallback and searches the `memory/` folder. While a controller tab is active, the browser saves two renderer frames every 30 seconds with a `memory.json` event index. A provider evidence ID must match a recorded waypoint before a retrieved sighting can authorize navigation. No invented confidence scores.
 
 **Execution · local / EdgeOne.** Health checks and constrained software operations have adapters. No model can request an arbitrary shell command. Cloud deployment is optional and not claimed complete.
 

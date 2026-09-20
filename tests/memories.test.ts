@@ -44,3 +44,14 @@ test('Datalake operation failures, including insufficient balance, reject succes
  assert.throws(()=>assertMemoriesSuccess({done:true,error:{message:'indexing failed'}}),/indexing failed/);
  assert.doesNotThrow(()=>assertMemoriesSuccess({done:false,error:null}));
 });
+test('local backup stores two frames and reloads them for search',async()=>{
+ const dir=await mkdtemp(path.join(tmpdir(),'cortex-local-memory-'));
+ try{
+  const memory=new VisualMemory(dir);
+  const first=await memory.rememberLocal(frame,'HOME','scene snapshot','robot at HOME');
+  const second=await memory.rememberLocal(frame,'PLANTER','scene snapshot','robot at PLANTER');
+  assert.equal(first.source,'LOCAL');assert.equal(second.source,'LOCAL');
+  assert.equal((await memory.searchVisualMemory('scene',false)).length,2);
+  const reloaded=new VisualMemory(dir);assert.equal((await reloaded.searchVisualMemory('scene',false))[0].waypoint,'PLANTER');
+ }finally{await rm(dir,{recursive:true,force:true});}
+});

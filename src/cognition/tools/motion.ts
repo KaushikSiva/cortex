@@ -47,4 +47,15 @@ export class MotionTools{
   const yaw=await this.turn(angle,policy,context);if(yaw===null||!context.active())return;
   await this.command(context,()=>this.safety.navigate(waypoint,policy,Date.now(),!!context.confirmed));context.trace(`walk_to(${waypoint})`);
  }
+ async dance(beats:number,policy:BehaviorPolicy,context:Context){
+  z.number().int().min(1).max(8).parse(beats);
+  const pattern=[18,-36,36,-36,18];
+  context.trace(`dance(${beats} beats) · bounded in-place choreography`);
+  for(let beat=0;beat<beats;beat++){
+   if(!context.active())return;
+   const angle=pattern[beat%pattern.length];
+   const yaw=await this.turn(angle,policy,context);
+   if(yaw===null||!context.active())return;
+  }
+ }
 }

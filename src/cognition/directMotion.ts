@@ -7,6 +7,7 @@ export function directMotion(text:string):ToolCall|null{
  // utterance must still match an explicit bounded movement instruction below.
  const quantities:Record<string,string>={'a':'1','one':'1','two':'2','to':'2','three':'3','half':'0.5','half a':'0.5','ninety':'90','forty five':'45','forty-five':'45','one hundred eighty':'180','one hundred and eighty':'180'};
  command=command.replace(/\b(one hundred and eighty|one hundred eighty|forty five|forty-five|ninety|half a|half|one|two|three|to|a)(?=\s+(?:meters?|metres?|degrees?)\b)/gi,word=>quantities[word.toLowerCase()]);
+ if(/^(?:do\s+a\s+)?dance(?:\s+(?:for\s+)?(?:\d+)\s+beats?)?$/i.test(command))return {name:'dance',arguments:{beats:Number(command.match(/\d+/)?.[0]??4)}};
  if(/^come(?:\s+over)?\s+here$/i.test(command))return {name:'walk_to',arguments:{target:'PERSON'}};
  if(/^(?:move|go|walk|head|return)(?:\s+back)?(?:\s+to)?\s+home$/i.test(command))return {name:'return_home',arguments:{}};
  const target=command.match(/^(?:move|go|walk|head)(?:\s+to|\s+towards?)\s+(?:the\s+)?(bench|planter|door|person)$/i);

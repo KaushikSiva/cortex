@@ -7,4 +7,5 @@ test('spoken quantities and observed STT homophone resolve only inside explicit 
  assert.deepEqual(directMotion('Move back one meter.'),{name:'walk',arguments:{direction:'back',meters:1}});
  assert.deepEqual(directMotion('Walk left half a meter.'),{name:'walk',arguments:{direction:'left',meters:.5}});
  for(const text of ['Where is the bench?','What does move forward two meters mean?','Do not move forward two meters.'])assert.equal(directMotion(text),null);
+ assert.deepEqual(directMotion('Do a dance for 3 beats.'),{name:'dance',arguments:{beats:3}});
 });

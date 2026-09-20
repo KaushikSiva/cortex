@@ -27,7 +27,7 @@ export class CortexRuntime{
  constructor(private publish:(s:Snapshot)=>void){
   for(const [name,schema] of Object.entries(toolSchemas)){
    if(name==='speak')continue;
-   this.conversation.register(name,{schema,description:({turn:'Turn in place by signed relative degrees: left positive, right negative, back 180.',walk:'Face a robot-relative direction, then walk 0.2 to 3 meters. Turns internally; do not add a separate turn.',walk_to:'Start walking to a known named target. Acceptance does not mean arrival.',inspect_scene:'Read current robot pose and mapped landmarks: bench, planter, backpack, edges, distances, bearings and bench endpoints. Use for spatial questions, not visual memory.',search_memory:'Search recorded visual evidence; does not move the robot.',navigate_to:'Start navigation to a known waypoint, only on explicit user request. Accepted does not mean arrived.',return_home:'Start returning home on user request.',set_speed:'Change walking speed on explicit user request.',stop:'Stop the robot.',look_at:'Request head orientation if supported.'} as Record<string,string>)[name],execute:async(args,signal)=>{
+   this.conversation.register(name,{schema,description:({turn:'Turn in place by signed relative degrees: left positive, right negative, back 180.',walk:'Face a robot-relative direction, then walk 0.2 to 3 meters. Turns internally; do not add a separate turn.',walk_to:'Start walking to a known named target. Acceptance does not mean arrival.',dance:'Perform a short bounded in-place dance with alternating turns. Beats are limited to eight and safety limits remain active.',inspect_scene:'Read current robot pose and mapped landmarks: bench, planter, backpack, edges, distances, bearings and bench endpoints. Use for spatial questions, not visual memory.',search_memory:'Search recorded visual evidence; does not move the robot.',navigate_to:'Start navigation to a known waypoint, only on explicit user request. Accepted does not mean arrived.',return_home:'Start returning home on user request.',set_speed:'Change walking speed on explicit user request.',stop:'Stop the robot.',look_at:'Request head orientation if supported.'} as Record<string,string>)[name],execute:async(args,signal)=>{
     signal.throwIfAborted();
     if(name==='inspect_scene'){const robot=await this.robot.getState();signal.throwIfAborted();this.state.robot=robot;return {robot,navigation:this.getNavigationContext(),mission:this.state.plan,pendingConfirmation:this.state.pendingConfirmation};}
     if(name==='search_memory'){
@@ -44,7 +44,7 @@ export class CortexRuntime{
     const epoch=++this.epoch;
     await this.execute(call,epoch);
     signal.throwIfAborted();
-    if(['navigate_to','return_home','walk_to','walk','turn'].includes(name))this.state.plan=[call];
+    if(['navigate_to','return_home','walk_to','walk','turn','dance'].includes(name))this.state.plan=[call];
     const robot=await this.robot.getState();signal.throwIfAborted();this.state.robot=robot;
     return {accepted:true,execution:name==='turn'?'completed':robot.status==='moving'?'started':'idle',response:this.state.response,robot,navigation:this.getNavigationContext(),pendingConfirmation:this.state.pendingConfirmation};
    }});
@@ -207,10 +207,20 @@ export class CortexRuntime{
     if(epoch!==this.epoch)return;
     this.state.phase=call.name==='turn'?'READY':'MOVING';this.state.response=call.name==='turn'?'Turn complete.':this.state.policy.responseVerbosity==='minimal'?'On my way.':'I’m moving. I’ll keep a comfortable distance.';break;
    }
+   case 'dance':{
+    if(!await this.motionReflex(epoch))break;
+    const context={active:()=>epoch===this.epoch,confirmed,onCommand:()=>{this.timing.mark('robot_command_sent');this.timing.marks.delete('robot_acknowledged');},onAcknowledged:()=>this.timing.mark('robot_acknowledged'),trace:(m:string)=>this.trace('ROBOT',m)};
+    this.state.phase='MOVING';this.state.response='Starting a short safety-bounded dance.';this.emit();
+    await this.motion.dance(Number(call.arguments.beats??4),{...this.state.policy,maxSpeed:Math.min(this.state.policy.maxSpeed,.35),approachSpeed:Math.min(this.state.policy.approachSpeed,.2)},context);
+    if(epoch!==this.epoch)return;
+    this.state.phase='READY';this.state.response='Dance complete.';break;
+   }
    case 'search_memory':{
     this.state.phase='REMEMBERING';this.state.providers.MEMORIES.active=true;this.timing.mark('memory_query_start');this.emit();
     const live=!!process.env.MEMORIES_API_KEY;let result;
-    try{result=await this.memory.searchVisualMemory(String(call.arguments.query),live);this.state.providers.MEMORIES.mode=live?'LIVE':'DEMO';}catch(error){this.state.providers.MEMORIES.mode='OFFLINE';throw error;}finally{this.state.providers.MEMORIES.active=false;}
+    try{result=await this.memory.searchVisualMemory(String(call.arguments.query),live);this.state.providers.MEMORIES.mode=live?'LIVE':'LOCAL';}
+    catch(error){result=await this.memory.searchVisualMemory(String(call.arguments.query),false);this.state.providers.MEMORIES.mode='LOCAL';this.trace('MEMORIES',`Memories.ai unavailable · local search fallback (${error instanceof Error?error.message:'provider error'})`);}
+    finally{this.state.providers.MEMORIES.active=false;}
     if(epoch!==this.epoch)return;
     this.timing.mark('memory_response');this.state.memory=result[0]??null;this.state.response=result[0]?`I saw it ${result[0].location}.`:'No indexed sighting yet. Capture a scene memory first.';this.trace('MEMORIES',result[0]?`Retrieved ${result[0].object} → ${result[0].waypoint} · ${result[0].source}`:'No matching evidence');this.state.phase='READY';
     const transcript=this.state.vocal?.transcript??'';
@@ -260,14 +270,14 @@ export class CortexRuntime{
   this.state.phase='READY';this.state.response='Movement released.';this.trace('ROBOT','hold() · key released');this.emit();
  }
  async command(raw:unknown){
-  const m=z.object({type:z.string(),name:z.string().optional(),text:z.string().max(500).optional(),image:z.string().max(8_000_000).optional(),direction:Direction.optional(),session:z.string().max(80).optional(),arguments:z.record(z.string(),z.unknown()).optional()}).parse(raw);
+  const m=z.object({type:z.string(),name:z.string().optional(),text:z.string().max(500).optional(),image:z.string().max(8_000_000).optional(),images:z.array(z.string().max(8_000_000)).max(2).optional(),direction:Direction.optional(),session:z.string().max(80).optional(),arguments:z.record(z.string(),z.unknown()).optional()}).parse(raw);
   this.state.error=null;
   switch(m.type){
    case 'manual_start':await this.startManual(m.direction,m.session);return;
    case 'manual_renew':await this.renewManual(m.session);return;
    case 'manual_end':await this.endManual(m.session);return;
    case 'tool':{
-    if(!['turn','walk','walk_to'].includes(m.name??''))throw new Error('Only shared motion tools are accepted here');
+    if(!['turn','walk','walk_to','dance'].includes(m.name??''))throw new Error('Only shared motion tools are accepted here');
     const call=validateTool({name:m.name!,arguments:m.arguments??{}});
     this.interruptConversation();
     if(this.manualSession)await this.endManual(this.manualSession);
@@ -288,8 +298,15 @@ export class CortexRuntime{
    }
    case 'capture':{
     this.state.providers.MEMORIES.active=true;this.state.error=null;this.state.response='Indexing camera snapshot in visual memory…';this.emit();
-    try{this.state.memory=await this.memory.remember(m.image??'',!!process.env.MEMORIES_API_KEY);this.state.providers.MEMORIES.mode=process.env.MEMORIES_API_KEY?'LIVE':'DEMO';this.trace('MEMORIES','Camera frame saved · operator-labeled backpack at PLANTER');this.state.response='Scene evidence saved. Ask where I saw the backpack.';}
-    catch(error){this.state.providers.MEMORIES.mode='OFFLINE';this.state.response=error instanceof Error?error.message:'Memories.ai capture failed';throw error;}
+    try{if(process.env.MEMORIES_API_KEY){this.state.memory=await this.memory.remember(m.image??'',true);this.state.providers.MEMORIES.mode='LIVE';}else{this.state.memory=await this.memory.rememberLocal(m.image??'');this.state.providers.MEMORIES.mode='LOCAL';}this.trace('MEMORIES','Camera frame saved · operator-labeled backpack at PLANTER');this.state.response='Scene evidence saved. Ask where I saw the backpack.';}
+    catch(error){this.state.memory=await this.memory.rememberLocal(m.image??'');this.state.providers.MEMORIES.mode='LOCAL';this.trace('MEMORIES','Memories.ai unavailable · saved camera frame locally');this.state.response='Memories.ai unavailable; the scene frame was saved locally.';}
+    finally{this.state.providers.MEMORIES.active=false;}
+    break;
+   }
+   case 'memory_auto_capture':{
+    const images=m.images??[];if(images.length!==2)throw new Error('Automatic memory backup requires two camera frames');
+    this.state.providers.MEMORIES.active=true;this.state.response='Saving two periodic camera frames locally…';this.emit();
+    try{const waypoint=this.state.robot?.currentWaypoint??'HOME';let latest=null;for(const image of images)latest=await this.memory.rememberLocal(image,waypoint,'scene snapshot',`robot at ${waypoint}`);this.state.memory=latest;this.state.providers.MEMORIES.mode='LOCAL';this.trace('MEMORIES',`Local backup saved · ${images.length} frames · ${waypoint}`);this.state.response=`Saved ${images.length} camera frames to local memory.`;}
     finally{this.state.providers.MEMORIES.active=false;}
     break;
    }

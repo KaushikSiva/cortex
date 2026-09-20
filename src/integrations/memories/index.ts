@@ -20,7 +20,7 @@ export function assertMemoriesSuccess(raw:unknown){
 }
 export class VisualMemory{
  private events:MemoryEvent[]=[];private loaded=false;private collection?:Promise<string>;
- constructor(private dir=path.join(process.cwd(),'.data'),private request:typeof fetch=fetch,private encode=encodeSnapshot){}
+ constructor(private dir=process.env.CORTEX_MEMORY_DIR||path.join(process.cwd(),'memory'),private request:typeof fetch=fetch,private encode=encodeSnapshot){}
  async load(){if(this.loaded)return;await mkdir(this.dir,{recursive:true});try{this.events=JSON.parse(await readFile(path.join(this.dir,'memory.json'),'utf8'));}catch{}this.loaded=true;}
  private async api(route:string,init:RequestInit={}){
   if(!process.env.MEMORIES_API_KEY)throw new Error('Memories.ai API key missing');
@@ -67,8 +67,14 @@ export class VisualMemory{
   }
   this.events.push(event);await writeFile(path.join(this.dir,'memory.json'),JSON.stringify(this.events,null,2));return event;
  }
+ async rememberLocal(image:string,waypoint='PLANTER',object='backpack',location='beside the planter (local camera annotation)'){
+  await this.load();if(!/^data:image\/png;base64,/.test(image)||image.length>8_000_000)throw new Error('Expected PNG camera frame under 6 MB');
+  const id=crypto.randomUUID();const filename=`${id}.png`;await writeFile(path.join(this.dir,filename),Buffer.from(image.split(',')[1],'base64'));
+  const event:MemoryEvent={id,object,location,waypoint,timestamp:Date.now(),evidence:`/evidence/${filename}`,source:'LOCAL'};
+  this.events.push(event);await writeFile(path.join(this.dir,'memory.json'),JSON.stringify(this.events,null,2));return event;
+ }
  async searchVisualMemory(query:string,live:boolean):Promise<MemoryEvent[]>{
-  await this.load();if(!live)return this.events.filter(e=>e.source==='DEMO'&&/backpack|bag/i.test(query)).sort((a,b)=>b.timestamp-a.timestamp);
+  await this.load();if(!live){const q=query.toLowerCase();return this.events.filter(e=>(/backpack|bag/i.test(q)?/backpack|bag/i.test(e.object):true)&&(/[a-z]/.test(q))).sort((a,b)=>b.timestamp-a.timestamp);}
   const collection_id=await this.getCollection();
   const raw=await this.api('/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({collection_id,query,mode:'semantic',targets:['frame_embedding'],top_k:5})});
   if(!Array.isArray(raw.results))throw new Error('Memories.ai returned an invalid search result');

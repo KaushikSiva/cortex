@@ -16,6 +16,7 @@ else
 fi
 
 cd "$CORTEX_ROOT"
+export CORTEX_MEMORY_DIR="${CORTEX_MEMORY_DIR:-$CORTEX_ROOT/memory}"
 bash scripts/start-local.sh &
 LAUNCHER_PID=$!
 sleep 2
